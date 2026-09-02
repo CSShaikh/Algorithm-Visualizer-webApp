@@ -8,8 +8,7 @@ class InsertionSortScreen extends StatefulWidget {
   const InsertionSortScreen({super.key});
 
   @override
-  State<InsertionSortScreen> createState() =>
-      _InsertionSortScreenState();
+  State<InsertionSortScreen> createState() => _InsertionSortScreenState();
 }
 
 // ============================================================================
@@ -33,6 +32,7 @@ enum InsertionSortEventType {
 class InsertionSortEvent {
   final InsertionSortEventType type;
 
+  /// Exact array state that should be displayed for this event.
   final List<int> array;
 
   final int currentIndex;
@@ -67,63 +67,38 @@ class InsertionSortEvent {
 // STATE
 // ============================================================================
 
-class _InsertionSortScreenState
-    extends State<InsertionSortScreen> {
+class _InsertionSortScreenState extends State<InsertionSortScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
 
-  static const Color background =
-      Color(0xFF030712);
+  static const Color background = Color(0xFF030712);
+  static const Color background2 = Color(0xFF07101F);
+  static const Color cardColor = Color(0xFF0B1428);
+  static const Color visualizationColor = Color(0xFF0A1020);
 
-  static const Color background2 =
-      Color(0xFF07101F);
-
-  static const Color cardColor =
-      Color(0xFF0B1428);
-
-  static const Color visualizationColor =
-      Color(0xFF0A1020);
-
-  static const Color cyan =
-      Color(0xFF00E5FF);
-
-  static const Color blue =
-      Color(0xFF2979FF);
-
-  static const Color purple =
-      Color(0xFF9C27FF);
-
-  static const Color green =
-      Color(0xFF00E676);
-
-  static const Color orange =
-      Color(0xFFFFB300);
-
-  static const Color pink =
-      Color(0xFFFF4081);
-
-  static const Color red =
-      Color(0xFFFF5252);
+  static const Color cyan = Color(0xFF00E5FF);
+  static const Color blue = Color(0xFF2979FF);
+  static const Color purple = Color(0xFF9C27FF);
+  static const Color green = Color(0xFF00E676);
+  static const Color orange = Color(0xFFFFB300);
+  static const Color pink = Color(0xFFFF4081);
+  static const Color red = Color(0xFFFF5252);
 
   // ==========================================================================
   // DATA
   // ==========================================================================
 
-  List<int> array = [
-    64,
-    25,
-    12,
-    22,
-    11,
-  ];
+  List<int> array = [64, 25, 12, 22, 11];
+
+  /// Original array used by Reset.
+  List<int> initialArray = [64, 25, 12, 22, 11];
 
   // ==========================================================================
   // CONTROLLER
   // ==========================================================================
 
-  final TextEditingController arrayController =
-      TextEditingController(
+  final TextEditingController arrayController = TextEditingController(
     text: '64, 25, 12, 22, 11',
   );
 
@@ -142,7 +117,6 @@ class _InsertionSortScreenState
   int currentStep = 0;
 
   bool isRunning = false;
-
   bool isCompleted = false;
 
   double speed = 1.0;
@@ -154,21 +128,18 @@ class _InsertionSortScreenState
   // ==========================================================================
 
   int currentIndex = -1;
-
   int compareIndex = -1;
-
   int keyIndex = -1;
 
   int keyValue = -1;
 
   int sortedCount = 0;
 
-  Set<int> sortedIndexes = {};
+  Set<int> sortedIndexes = <int>{};
 
   int activeCodeLine = 0;
 
-  String executionMessage =
-      'Ready to start Insertion Sort.';
+  String executionMessage = 'Ready to start Insertion Sort.';
 
   // ==========================================================================
   // SOURCE CODE
@@ -198,6 +169,8 @@ void insertionSort(int[] arr) {
   @override
   void initState() {
     super.initState();
+
+    initialArray = [...array];
     _generateEvents();
   }
 
@@ -217,10 +190,9 @@ void insertionSort(int[] arr) {
   // ==========================================================================
 
   void _generateEvents() {
-    final working = [...array];
+    final working = [...initialArray];
 
-    final generated =
-        <InsertionSortEvent>[];
+    final generated = <InsertionSortEvent>[];
 
     if (working.isEmpty) {
       events = generated;
@@ -254,7 +226,7 @@ void insertionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     for (int i = 1; i < working.length; i++) {
-      final key = working[i];
+      final int key = working[i];
 
       int j = i - 1;
 
@@ -280,10 +252,12 @@ void insertionSort(int[] arr) {
       );
 
       // ----------------------------------------------------------------------
-      // COMPARE + SHIFT
+      // COMPARE
       // ----------------------------------------------------------------------
 
       while (j >= 0) {
+        final int compareValue = working[j];
+
         generated.add(
           InsertionSortEvent(
             type: InsertionSortEventType.compare,
@@ -292,37 +266,44 @@ void insertionSort(int[] arr) {
             compareIndex: j,
             keyIndex: i,
             keyValue: key,
-            compareValue: working[j],
+            compareValue: compareValue,
             sortedCount: i,
             title: 'Compare',
-            description:
-                'Compare ${working[j]} with key $key.',
-            operation:
-                'arr[$j] > key',
+            description: 'Compare $compareValue with key $key.',
+            operation: 'arr[$j] > key',
           ),
         );
 
+        // --------------------------------------------------------------------
+        // SHIFT
+        // --------------------------------------------------------------------
+
         if (working[j] > key) {
+          final int shiftedValue = working[j];
+
+          working[j + 1] = shiftedValue;
+
+          // IMPORTANT:
+          // Store the array AFTER shifting so the visualization
+          // actually shows the movement.
           generated.add(
             InsertionSortEvent(
               type: InsertionSortEventType.shift,
               array: [...working],
-              currentIndex: i,
+              currentIndex: j + 1,
               compareIndex: j,
               keyIndex: i,
               keyValue: key,
-              compareValue: working[j],
+              compareValue: shiftedValue,
               sortedCount: i,
               title: 'Shift Element',
               description:
-                  '${working[j]} is greater than $key, '
+                  '$shiftedValue is greater than $key, '
                   'so shift it one position to the right.',
-              operation:
-                  'arr[${j + 1}] = arr[$j]',
+              operation: 'arr[${j + 1}] = arr[$j]',
             ),
           );
 
-          working[j + 1] = working[j];
           j--;
         } else {
           break;
@@ -333,28 +314,29 @@ void insertionSort(int[] arr) {
       // INSERT KEY
       // ----------------------------------------------------------------------
 
-      working[j + 1] = key;
+      final int insertIndex = j + 1;
+
+      working[insertIndex] = key;
 
       generated.add(
         InsertionSortEvent(
           type: InsertionSortEventType.insert,
           array: [...working],
-          currentIndex: j + 1,
-          compareIndex: j,
-          keyIndex: j + 1,
+          currentIndex: insertIndex,
+          compareIndex: j >= 0 ? j : -1,
+          keyIndex: insertIndex,
           keyValue: key,
-          compareValue: -1,
+          compareValue: j >= 0 ? working[j] : -1,
           sortedCount: i + 1,
           title: 'Insert Key',
           description:
-              'Insert key $key at index ${j + 1}.',
-          operation:
-              'arr[${j + 1}] = key',
+              'Insert key $key at index $insertIndex in the correct position.',
+          operation: 'arr[$insertIndex] = key',
         ),
       );
 
       // ----------------------------------------------------------------------
-      // MARK SORTED PART
+      // SORTED
       // ----------------------------------------------------------------------
 
       generated.add(
@@ -368,10 +350,8 @@ void insertionSort(int[] arr) {
           compareValue: -1,
           sortedCount: i + 1,
           title: 'Sorted Part Expanded',
-          description:
-              'The first ${i + 1} elements are now sorted.',
-          operation:
-              'Sorted range: 0..$i',
+          description: 'The first ${i + 1} elements are now sorted.',
+          operation: 'Sorted range: 0..$i',
         ),
       );
     }
@@ -391,8 +371,7 @@ void insertionSort(int[] arr) {
         compareValue: -1,
         sortedCount: working.length,
         title: 'Insertion Sort Complete',
-        description:
-            'All elements are sorted in ascending order.',
+        description: 'All elements are sorted in ascending order.',
         operation: 'Sorting completed',
       ),
     );
@@ -408,15 +387,11 @@ void insertionSort(int[] arr) {
     final text = arrayController.text.trim();
 
     if (text.isEmpty) {
-      _showSnackBar(
-        'Please enter numbers.',
-        red,
-      );
+      _showSnackBar('Please enter numbers.', red);
       return;
     }
 
-    final parts =
-        text.split(RegExp(r'[\s,]+'));
+    final parts = text.split(RegExp(r'[\s,]+'));
 
     final values = <int>[];
 
@@ -429,16 +404,19 @@ void insertionSort(int[] arr) {
     }
 
     if (values.isEmpty) {
+      _showSnackBar('No valid numbers found.', red);
+      return;
+    }
+
+    if (values.length > 50) {
       _showSnackBar(
-        'No valid numbers found.',
-        red,
+        'Please enter 50 numbers or fewer.',
+        orange,
       );
       return;
     }
 
-    timer?.cancel();
-
-    _generateEventsForValues(values);
+    _loadNewValues(values);
 
     _showSnackBar(
       'Array loaded successfully.',
@@ -450,10 +428,11 @@ void insertionSort(int[] arr) {
   // APPLY NEW VALUES
   // ==========================================================================
 
-  void _generateEventsForValues(
-    List<int> values,
-  ) {
+  void _loadNewValues(List<int> values) {
+    timer?.cancel();
+
     setState(() {
+      initialArray = [...values];
       array = [...values];
 
       executionHistory.clear();
@@ -461,19 +440,15 @@ void insertionSort(int[] arr) {
       currentStep = 0;
 
       isRunning = false;
-
       isCompleted = false;
 
       currentIndex = -1;
-
       compareIndex = -1;
-
       keyIndex = -1;
 
       keyValue = -1;
 
       sortedCount = 0;
-
       sortedIndexes.clear();
 
       activeCodeLine = 0;
@@ -492,16 +467,19 @@ void insertionSort(int[] arr) {
   void _generateNumbers() {
     final random = Random();
 
-    final generated =
-        List.generate(
+    final generated = List.generate(
       8,
       (_) => random.nextInt(90) + 10,
     );
 
-    arrayController.text =
-        generated.join(', ');
+    arrayController.text = generated.join(', ');
 
-    _generateEventsForValues(generated);
+    _loadNewValues(generated);
+
+    _showSnackBar(
+      '8 random numbers generated.',
+      purple,
+    );
   }
 
   // ==========================================================================
@@ -509,8 +487,7 @@ void insertionSort(int[] arr) {
   // ==========================================================================
 
   void _play() {
-    if (events.isEmpty ||
-        isCompleted) {
+    if (events.isEmpty || isCompleted) {
       return;
     }
 
@@ -520,15 +497,10 @@ void insertionSort(int[] arr) {
       isRunning = true;
     });
 
-    final milliseconds =
-        (900 / speed)
-            .round()
-            .clamp(100, 2000);
+    final milliseconds = (850 / speed).round().clamp(100, 2000);
 
     timer = Timer.periodic(
-      Duration(
-        milliseconds: milliseconds,
-      ),
+      Duration(milliseconds: milliseconds),
       (_) {
         if (!mounted) {
           timer?.cancel();
@@ -557,6 +529,10 @@ void insertionSort(int[] arr) {
 
   void _pause() {
     timer?.cancel();
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       isRunning = false;
@@ -603,10 +579,12 @@ void insertionSort(int[] arr) {
     if (currentStep >= events.length) {
       timer?.cancel();
 
-      setState(() {
-        isRunning = false;
-        isCompleted = true;
-      });
+      if (mounted) {
+        setState(() {
+          isRunning = false;
+          isCompleted = true;
+        });
+      }
     }
   }
 
@@ -623,39 +601,40 @@ void insertionSort(int[] arr) {
 
     executionHistory.removeLast();
 
-    currentStep =
-        executionHistory.length;
+    currentStep = executionHistory.length;
 
     _rebuildVisualState();
 
-    setState(() {
-      isRunning = false;
-      isCompleted = false;
-    });
+    if (mounted) {
+      setState(() {
+        isRunning = false;
+        isCompleted = false;
+      });
+    }
   }
 
   // ==========================================================================
-  // REBUILD STATE
+  // REBUILD VISUAL STATE
   // ==========================================================================
 
   void _rebuildVisualState() {
+    // Restore everything to original state first.
+    array = [...initialArray];
+
     currentIndex = -1;
-
     compareIndex = -1;
-
     keyIndex = -1;
 
     keyValue = -1;
 
     sortedCount = 0;
-
     sortedIndexes.clear();
 
     activeCodeLine = 0;
 
-    executionMessage =
-        'Ready to start Insertion Sort.';
+    executionMessage = 'Ready to start Insertion Sort.';
 
+    // Replay all executed events.
     for (final event in executionHistory) {
       _applyEvent(
         event,
@@ -663,7 +642,9 @@ void insertionSort(int[] arr) {
       );
     }
 
-    setState(() {});
+    if (executionHistory.isEmpty) {
+      array = [...initialArray];
+    }
   }
 
   // ==========================================================================
@@ -674,42 +655,45 @@ void insertionSort(int[] arr) {
     InsertionSortEvent event, {
     bool updateState = true,
   }) {
-    currentIndex =
-        event.currentIndex;
+    // IMPORTANT:
+    // Every event owns an exact array snapshot.
+    // Restore it before rendering the event.
+    array = [...event.array];
 
-    compareIndex =
-        event.compareIndex;
+    currentIndex = event.currentIndex;
+    compareIndex = event.compareIndex;
+    keyIndex = event.keyIndex;
 
-    keyIndex =
-        event.keyIndex;
+    keyValue = event.keyValue;
 
-    keyValue =
-        event.keyValue;
-
-    sortedCount =
-        event.sortedCount;
+    sortedCount = event.sortedCount;
 
     executionMessage =
         '${event.title}: ${event.description}';
 
-    activeCodeLine =
-        _codeLineForEvent(event.type);
+    activeCodeLine = _codeLineForEvent(event.type);
 
-    if (event.type ==
-        InsertionSortEventType.sorted) {
-      for (
-        int i = 0;
-        i < event.sortedCount;
-        i++
-      ) {
+    // ------------------------------------------------------------------------
+    // SORTED INDEXES
+    // ------------------------------------------------------------------------
+
+    sortedIndexes.clear();
+
+    if (event.type == InsertionSortEventType.initialize) {
+      // At initialization no sorting operation has started yet.
+      // Keep all items ready.
+    } else {
+      for (int i = 0; i < event.sortedCount; i++) {
         sortedIndexes.add(i);
       }
     }
 
-    if (event.type ==
-        InsertionSortEventType.complete) {
-      sortedIndexes =
-          Set<int>.from(
+    // ------------------------------------------------------------------------
+    // COMPLETE
+    // ------------------------------------------------------------------------
+
+    if (event.type == InsertionSortEventType.complete) {
+      sortedIndexes = Set<int>.from(
         List.generate(
           array.length,
           (index) => index,
@@ -720,9 +704,11 @@ void insertionSort(int[] arr) {
       compareIndex = -1;
       keyIndex = -1;
       keyValue = -1;
+
+      sortedCount = array.length;
     }
 
-    if (updateState) {
+    if (updateState && mounted) {
       setState(() {});
     }
   }
@@ -735,18 +721,17 @@ void insertionSort(int[] arr) {
     timer?.cancel();
 
     setState(() {
+      array = [...initialArray];
+
       executionHistory.clear();
 
       currentStep = 0;
 
       isRunning = false;
-
       isCompleted = false;
 
       currentIndex = -1;
-
       compareIndex = -1;
-
       keyIndex = -1;
 
       keyValue = -1;
@@ -875,9 +860,7 @@ void insertionSort(int[] arr) {
 
   Future<void> _copyCode() async {
     await Clipboard.setData(
-      ClipboardData(
-        text: sourceCode,
-      ),
+      ClipboardData(text: sourceCode),
     );
 
     _showSnackBar(
@@ -894,11 +877,9 @@ void insertionSort(int[] arr) {
     String message,
     Color color,
   ) {
-    ScaffoldMessenger.of(context)
-        .hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
@@ -907,10 +888,8 @@ void insertionSort(int[] arr) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor:
-            color.withOpacity(0.85),
-        behavior:
-            SnackBarBehavior.floating,
+        backgroundColor: color.withOpacity(0.88),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -920,21 +899,16 @@ void insertionSort(int[] arr) {
   // ==========================================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
       body: SafeArea(
         child: LayoutBuilder(
-          builder:
-              (context, constraints) {
+          builder: (context, constraints) {
             return SingleChildScrollView(
-              padding:
-                  const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(18),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
 
@@ -966,19 +940,15 @@ void insertionSort(int[] arr) {
 
   Widget _buildHeader() {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 12,
       ),
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              pink.withOpacity(0.16),
+          color: pink.withOpacity(0.16),
         ),
       ),
       child: Row(
@@ -987,19 +957,15 @@ void insertionSort(int[] arr) {
             onTap: () {
               Navigator.pop(context);
             },
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 40,
               height: 40,
-              decoration:
-                  BoxDecoration(
+              decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius:
-                    BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white
-                      .withOpacity(0.08),
+                  color: Colors.white.withOpacity(0.08),
                 ),
               ),
               child: const Icon(
@@ -1015,17 +981,14 @@ void insertionSort(int[] arr) {
           Container(
             width: 42,
             height: 42,
-            decoration:
-                BoxDecoration(
-              gradient:
-                  const LinearGradient(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
                 colors: [
                   pink,
                   purple,
                 ],
               ),
-              borderRadius:
-                  BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
               Icons.low_priority_rounded,
@@ -1038,24 +1001,21 @@ void insertionSort(int[] arr) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Insertion Sort',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   'Insert each element into its correct position',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.55),
+                    color: Colors.white.withOpacity(0.55),
                     fontSize: 12,
                   ),
                 ),
@@ -1083,34 +1043,30 @@ void insertionSort(int[] arr) {
     } else if (isCompleted) {
       color = green;
       text = 'SORTED';
+    } else if (currentStep > 0) {
+      color = purple;
+      text = 'PAUSED';
     }
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 7,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.10),
-        borderRadius:
-            BorderRadius.circular(20),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              color.withOpacity(0.35),
+          color: color.withOpacity(0.35),
         ),
       ),
       child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 7,
             height: 7,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
             ),
@@ -1121,8 +1077,7 @@ void insertionSort(int[] arr) {
             style: TextStyle(
               color: color,
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
             ),
           ),
@@ -1132,14 +1087,13 @@ void insertionSort(int[] arr) {
   }
 
   // ==========================================================================
-  // ALGORITHM INFO
+  // ALGORITHM INFORMATION
   // ==========================================================================
 
   Widget _buildAlgorithmInfo() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.info_outline_rounded,
@@ -1155,8 +1109,7 @@ void insertionSort(int[] arr) {
             'as a key, shifts larger elements to the right, '
             'and inserts the key into its correct position.',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.64),
+              color: Colors.white.withOpacity(0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
@@ -1168,36 +1121,12 @@ void insertionSort(int[] arr) {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox(
-                'Time',
-                'O(n²)',
-                orange,
-              ),
-              _infoBox(
-                'Space',
-                'O(1)',
-                blue,
-              ),
-              _infoBox(
-                'Type',
-                'Sorting',
-                purple,
-              ),
-              _infoBox(
-                'Best',
-                'O(n)',
-                green,
-              ),
-              _infoBox(
-                'Worst',
-                'O(n²)',
-                red,
-              ),
-              _infoBox(
-                'In-Place',
-                'Yes',
-                cyan,
-              ),
+              _infoBox('Time', 'O(n²)', orange),
+              _infoBox('Space', 'O(1)', blue),
+              _infoBox('Type', 'Sorting', purple),
+              _infoBox('Best', 'O(n)', green),
+              _infoBox('Worst', 'O(n²)', red),
+              _infoBox('In-Place', 'Yes', cyan),
             ],
           ),
         ],
@@ -1212,8 +1141,7 @@ void insertionSort(int[] arr) {
   Widget _buildInputSection() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.input_rounded,
@@ -1224,8 +1152,7 @@ void insertionSort(int[] arr) {
           const SizedBox(height: 12),
 
           LayoutBuilder(
-            builder:
-                (context, constraints) {
+            builder: (context, constraints) {
               if (constraints.maxWidth < 700) {
                 return Column(
                   children: [
@@ -1236,13 +1163,11 @@ void insertionSort(int[] arr) {
                     Row(
                       children: [
                         Expanded(
-                          child:
-                              _generateButton(),
+                          child: _generateButton(),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child:
-                              _loadButton(),
+                          child: _loadButton(),
                         ),
                       ],
                     ),
@@ -1251,8 +1176,7 @@ void insertionSort(int[] arr) {
               }
 
               return Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: _inputField(),
@@ -1262,16 +1186,14 @@ void insertionSort(int[] arr) {
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _generateButton(),
+                    child: _generateButton(),
                   ),
 
                   const SizedBox(width: 10),
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _loadButton(),
+                    child: _loadButton(),
                   ),
                 ],
               );
@@ -1284,17 +1206,17 @@ void insertionSort(int[] arr) {
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color:
-                    orange.withOpacity(0.85),
+                color: orange.withOpacity(0.85),
                 size: 15,
               ),
+
               const SizedBox(width: 7),
+
               Expanded(
                 child: Text(
                   'The sorted portion grows from left to right during every pass.',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.45),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -1318,51 +1240,38 @@ void insertionSort(int[] arr) {
         fontSize: 13,
       ),
       cursorColor: cyan,
-      decoration:
-          InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Enter Numbers',
-        hintText:
-            '64, 25, 12, 22, 11...',
+        hintText: '64, 25, 12, 22, 11...',
         labelStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.58),
+          color: Colors.white.withOpacity(0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.25),
+          color: Colors.white.withOpacity(0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
           Icons.data_array_rounded,
-          color:
-              cyan.withOpacity(0.8),
+          color: cyan.withOpacity(0.8),
           size: 19,
         ),
         filled: true,
-        fillColor:
-            visualizationColor,
-        contentPadding:
-            const EdgeInsets.symmetric(
+        fillColor: visualizationColor,
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 13,
         ),
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: Colors.white
-                .withOpacity(0.08),
+            color: Colors.white.withOpacity(0.08),
           ),
         ),
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color:
-                cyan.withOpacity(0.55),
+            color: cyan.withOpacity(0.55),
           ),
         ),
       ),
@@ -1383,26 +1292,20 @@ void insertionSort(int[] arr) {
       label: const Text(
         'Generate Numbers',
         style: TextStyle(
-          fontWeight:
-              FontWeight.w700,
+          fontWeight: FontWeight.w700,
           fontSize: 12,
         ),
       ),
-      style:
-          ElevatedButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         backgroundColor: purple,
-        foregroundColor:
-            Colors.white,
+        foregroundColor: Colors.white,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 12,
         ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1422,26 +1325,20 @@ void insertionSort(int[] arr) {
       label: const Text(
         'LOAD ARRAY',
         style: TextStyle(
-          fontWeight:
-              FontWeight.w800,
+          fontWeight: FontWeight.w800,
           fontSize: 12,
         ),
       ),
-      style:
-          ElevatedButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
-        foregroundColor:
-            background,
+        foregroundColor: background,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 12,
         ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1451,9 +1348,7 @@ void insertionSort(int[] arr) {
   // MAIN WORKSPACE
   // ==========================================================================
 
-  Widget _buildMainWorkspace(
-    double width,
-  ) {
+  Widget _buildMainWorkspace(double width) {
     if (width < 900) {
       return Column(
         children: [
@@ -1475,8 +1370,7 @@ void insertionSort(int[] arr) {
     }
 
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 3,
@@ -1516,8 +1410,7 @@ void insertionSort(int[] arr) {
   Widget _buildVisualization() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.bar_chart_rounded,
@@ -1531,9 +1424,7 @@ void insertionSort(int[] arr) {
             children: [
               _miniBadge(
                 'CURRENT',
-                currentIndex >= 0
-                    ? '$currentIndex'
-                    : '-',
+                currentIndex >= 0 ? '$currentIndex' : '-',
                 purple,
               ),
 
@@ -1541,9 +1432,7 @@ void insertionSort(int[] arr) {
 
               _miniBadge(
                 'COMPARE',
-                compareIndex >= 0
-                    ? '$compareIndex'
-                    : '-',
+                compareIndex >= 0 ? '$compareIndex' : '-',
                 cyan,
               ),
 
@@ -1551,9 +1440,7 @@ void insertionSort(int[] arr) {
 
               _miniBadge(
                 'KEY',
-                keyIndex >= 0
-                    ? '$keyValue'
-                    : '-',
+                keyIndex >= 0 ? '$keyValue' : '-',
                 pink,
               ),
 
@@ -1571,32 +1458,23 @@ void insertionSort(int[] arr) {
 
           Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 10,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  visualizationColor,
-              borderRadius:
-                  BorderRadius.circular(12),
+            decoration: BoxDecoration(
+              color: visualizationColor,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
-              scrollDirection:
-                  Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Row(
-                children:
-                    List.generate(
+                children: List.generate(
                   array.length,
-                  (index) =>
-                      _buildArrayItem(index),
+                  (index) => _buildArrayItem(index),
                 ),
               ),
             ),
@@ -1622,29 +1500,16 @@ void insertionSort(int[] arr) {
   // ARRAY ITEM
   // ==========================================================================
 
-  Widget _buildArrayItem(
-    int index,
-  ) {
-    final value = array[index];
+  Widget _buildArrayItem(int index) {
+    final int value = array[index];
 
-    final bool isCurrent =
-        index == currentIndex;
+    final bool isCurrent = index == currentIndex;
+    final bool isCompare = index == compareIndex;
+    final bool isKey = index == keyIndex;
+    final bool isSorted = sortedIndexes.contains(index);
 
-    final bool isCompare =
-        index == compareIndex;
-
-    final bool isKey =
-        index == keyIndex;
-
-    final bool isSorted =
-        sortedIndexes.contains(index);
-
-    Color itemColor =
-        Colors.white.withOpacity(0.08);
-
-    Color borderColor =
-        Colors.white.withOpacity(0.08);
-
+    Color itemColor = Colors.white.withOpacity(0.08);
+    Color borderColor = Colors.white.withOpacity(0.08);
     Color textColor = Colors.white;
 
     String label = '';
@@ -1654,13 +1519,9 @@ void insertionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isSorted) {
-      itemColor =
-          green.withOpacity(0.18);
-
+      itemColor = green.withOpacity(0.18);
       borderColor = green;
-
       textColor = green;
-
       label = 'SORTED';
     }
 
@@ -1669,13 +1530,9 @@ void insertionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isCurrent) {
-      itemColor =
-          purple.withOpacity(0.18);
-
+      itemColor = purple.withOpacity(0.18);
       borderColor = purple;
-
       textColor = purple;
-
       label = 'CURRENT';
     }
 
@@ -1684,13 +1541,9 @@ void insertionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isKey) {
-      itemColor =
-          pink.withOpacity(0.20);
-
+      itemColor = pink.withOpacity(0.20);
       borderColor = pink;
-
       textColor = pink;
-
       label = 'KEY';
     }
 
@@ -1699,20 +1552,20 @@ void insertionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isCompare) {
-      itemColor =
-          cyan.withOpacity(0.18);
-
+      itemColor = cyan.withOpacity(0.18);
       borderColor = cyan;
-
       textColor = cyan;
-
       label = 'COMPARE';
     }
 
+    // ------------------------------------------------------------------------
+    // If the same element has multiple states,
+    // priority is Compare > Key > Current > Sorted.
+    // ------------------------------------------------------------------------
+
     return Container(
       width: 70,
-      margin:
-          const EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 5,
       ),
       child: Column(
@@ -1722,24 +1575,23 @@ void insertionSort(int[] arr) {
             child: Center(
               child: Text(
                 label,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: borderColor,
                   fontSize: 7.5,
-                  fontWeight:
-                      FontWeight.w900,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
             ),
           ),
 
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
             height: 58,
             width: 58,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: itemColor,
-              borderRadius:
-                  BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
                 color: borderColor,
                 width:
@@ -1757,11 +1609,7 @@ void insertionSort(int[] arr) {
                           isSorted
                       ? [
                           BoxShadow(
-                            color:
-                                borderColor
-                                    .withOpacity(
-                              0.18,
-                            ),
+                            color: borderColor.withOpacity(0.18),
                             blurRadius: 12,
                             spreadRadius: 1,
                           ),
@@ -1774,8 +1622,7 @@ void insertionSort(int[] arr) {
                 style: TextStyle(
                   color: textColor,
                   fontSize: 16,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -1786,11 +1633,9 @@ void insertionSort(int[] arr) {
           Text(
             '[$index]',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.4),
+              color: Colors.white.withOpacity(0.4),
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1836,28 +1681,25 @@ void insertionSort(int[] arr) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 9,
           height: 9,
-          decoration:
-              BoxDecoration(
+          decoration: BoxDecoration(
             color: color,
-            borderRadius:
-                BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(3),
           ),
         ),
+
         const SizedBox(width: 6),
+
         Text(
           title,
           style: TextStyle(
-            color: Colors.white
-                .withOpacity(0.58),
+            color: Colors.white.withOpacity(0.58),
             fontSize: 10,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -1869,36 +1711,30 @@ void insertionSort(int[] arr) {
   // ==========================================================================
 
   Widget _buildCurrentInfo() {
-    String message =
-        'Waiting for execution';
+    String message = 'Waiting for execution';
 
     if (keyIndex >= 0) {
-      message =
-          'Key = $keyValue at index $keyIndex';
+      message = 'Key = $keyValue at index $keyIndex';
     }
 
     if (compareIndex >= 0 &&
-        compareIndex < array.length) {
+        compareIndex < array.length &&
+        keyValue >= 0) {
       message =
           'Comparing ${array[compareIndex]} with key $keyValue';
     }
 
     if (isCompleted) {
-      message =
-          'Array sorted successfully';
+      message = 'Array sorted successfully';
     }
 
     return Container(
-      padding:
-          const EdgeInsets.all(12),
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              cyan.withOpacity(0.14),
+          color: cyan.withOpacity(0.14),
         ),
       ),
       child: Row(
@@ -1906,12 +1742,9 @@ void insertionSort(int[] arr) {
           Container(
             width: 34,
             height: 34,
-            decoration:
-                BoxDecoration(
-              color:
-                  pink.withOpacity(0.09),
-              borderRadius:
-                  BorderRadius.circular(8),
+            decoration: BoxDecoration(
+              color: pink.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.push_pin_rounded,
@@ -1924,17 +1757,14 @@ void insertionSort(int[] arr) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Current Operation',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.42),
+                    color: Colors.white.withOpacity(0.42),
                     fontSize: 9,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -1942,38 +1772,35 @@ void insertionSort(int[] arr) {
 
                 Text(
                   message,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
           ),
 
+          const SizedBox(width: 8),
+
           Container(
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 9,
               vertical: 6,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  green.withOpacity(0.08),
-              borderRadius:
-                  BorderRadius.circular(7),
+            decoration: BoxDecoration(
+              color: green.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(7),
             ),
             child: Text(
               '$sortedCount sorted',
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: green,
                 fontSize: 10,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -1989,37 +1816,28 @@ void insertionSort(int[] arr) {
   Widget _buildStatusCard() {
     Color color = cyan;
 
-    IconData icon =
-        Icons.info_outline_rounded;
+    IconData icon = Icons.info_outline_rounded;
 
     if (isRunning) {
       color = orange;
-      icon =
-          Icons.play_circle_rounded;
+      icon = Icons.play_circle_rounded;
     } else if (isCompleted) {
       color = green;
-      icon =
-          Icons.check_circle_rounded;
+      icon = Icons.check_circle_rounded;
     }
 
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(13),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.06),
-        borderRadius:
-            BorderRadius.circular(10),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              color.withOpacity(0.18),
+          color: color.withOpacity(0.18),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             icon,
@@ -2033,8 +1851,7 @@ void insertionSort(int[] arr) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white
-                    .withOpacity(0.72),
+                color: Colors.white.withOpacity(0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -2051,178 +1868,233 @@ void insertionSort(int[] arr) {
 
   Widget _buildControls() {
     return _card(
-      child: Column(
-        children: [
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool compact = constraints.maxWidth < 600;
+
+          return Column(
             children: [
-              _controlButton(
-                icon:
-                    Icons.skip_previous_rounded,
-                label: 'Previous',
-                onPressed:
-                    executionHistory.isEmpty
-                        ? null
-                        : _previousStep,
-              ),
+              if (compact)
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _controlButton(
+                            icon: Icons.skip_previous_rounded,
+                            label: 'Previous',
+                            onPressed:
+                                executionHistory.isEmpty
+                                    ? null
+                                    : _previousStep,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _controlButton(
+                            icon: isRunning
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
+                            label: isRunning ? 'Pause' : 'Play',
+                            onPressed: isCompleted
+                                ? null
+                                : _togglePlayPause,
+                            primary: true,
+                          ),
+                        ),
+                      ],
+                    ),
 
-              const SizedBox(width: 8),
+                    const SizedBox(height: 8),
 
-              Expanded(
-                child: _controlButton(
-                  icon: isRunning
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
-                  label: isRunning
-                      ? 'Pause'
-                      : 'Play',
-                  onPressed: isCompleted
-                      ? null
-                      : _togglePlayPause,
-                  primary: true,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _controlButton(
+                            icon: Icons.skip_next_rounded,
+                            label: 'Next Step',
+                            onPressed:
+                                currentStep >= events.length
+                                    ? null
+                                    : _nextStep,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _controlButton(
+                            icon: Icons.restart_alt_rounded,
+                            label: 'Reset',
+                            onPressed: _reset,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: _controlButton(
+                        icon: Icons.skip_previous_rounded,
+                        label: 'Previous',
+                        onPressed:
+                            executionHistory.isEmpty
+                                ? null
+                                : _previousStep,
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    Expanded(
+                      flex: 2,
+                      child: _controlButton(
+                        icon: isRunning
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        label: isRunning ? 'Pause' : 'Play',
+                        onPressed: isCompleted
+                            ? null
+                            : _togglePlayPause,
+                        primary: true,
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    Expanded(
+                      child: _controlButton(
+                        icon: Icons.skip_next_rounded,
+                        label: 'Next Step',
+                        onPressed:
+                            currentStep >= events.length
+                                ? null
+                                : _nextStep,
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    Expanded(
+                      child: _controlButton(
+                        icon: Icons.restart_alt_rounded,
+                        label: 'Reset',
+                        onPressed: _reset,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
 
-              const SizedBox(width: 8),
+              const SizedBox(height: 12),
 
-              _controlButton(
-                icon:
-                    Icons.skip_next_rounded,
-                label: 'Next Step',
-                onPressed:
-                    currentStep >=
-                            events.length
-                        ? null
-                        : _nextStep,
-              ),
-
-              const SizedBox(width: 8),
-
-              _controlButton(
-                icon:
-                    Icons.restart_alt_rounded,
-                label: 'Reset',
-                onPressed: _reset,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: cyan,
-                size: 17,
-              ),
-
-              const SizedBox(width: 8),
-
-              Text(
-                'Speed',
-                style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.55),
-                  fontSize: 11,
-                  fontWeight:
-                      FontWeight.w700,
-                ),
-              ),
-
-              Expanded(
-                child: Slider(
-                  value: speed,
-                  min: 0.5,
-                  max: 3.0,
-                  divisions: 5,
-                  activeColor: cyan,
-                  inactiveColor:
-                      Colors.white
-                          .withOpacity(0.08),
-                  onChanged:
-                      _setSpeed,
-                ),
-              ),
-
-              SizedBox(
-                width: 48,
-                child: Text(
-                  '${speed.toStringAsFixed(1)}x',
-                  textAlign:
-                      TextAlign.center,
-                  style:
-                      const TextStyle(
+              Row(
+                children: [
+                  const Icon(
+                    Icons.speed_rounded,
                     color: cyan,
-                    fontSize: 11,
-                    fontWeight:
-                        FontWeight.w800,
+                    size: 17,
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Text(
+                    'Speed',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.55),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Slider(
+                      value: speed,
+                      min: 0.5,
+                      max: 3.0,
+                      divisions: 5,
+                      activeColor: cyan,
+                      inactiveColor:
+                          Colors.white.withOpacity(0.08),
+                      onChanged: _setSpeed,
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: 48,
+                    child: Text(
+                      '${speed.toStringAsFixed(1)}x',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: cyan,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 3),
+
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: events.isEmpty
+                      ? 0
+                      : (currentStep / events.length).clamp(
+                          0.0,
+                          1.0,
+                        ),
+                  minHeight: 4,
+                  backgroundColor:
+                      Colors.white.withOpacity(0.06),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(
+                    cyan,
                   ),
                 ),
               ),
-            ],
-          ),
 
-          const SizedBox(height: 3),
+              const SizedBox(height: 6),
 
-          ClipRRect(
-            borderRadius:
-                BorderRadius.circular(4),
-            child:
-                LinearProgressIndicator(
-              value: events.isEmpty
-                  ? 0
-                  : currentStep /
-                      events.length,
-              minHeight: 4,
-              backgroundColor:
-                  Colors.white
-                      .withOpacity(0.06),
-              valueColor:
-                  const AlwaysStoppedAnimation<
-                      Color>(
-                cyan,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          Row(
-            mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
-            children: [
-              Text(
-                'Step $currentStep / ${events.length}',
-                style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.45),
-                  fontSize: 10,
-                ),
-              ),
-              Text(
-                isCompleted
-                    ? 'Execution Finished'
-                    : isRunning
-                        ? 'Running...'
-                        : 'Paused',
-                style: TextStyle(
-                  color: isCompleted
-                      ? green
-                      : isRunning
-                          ? orange
-                          : Colors.white
-                              .withOpacity(
-                              0.4,
-                            ),
-                  fontSize: 10,
-                  fontWeight:
-                      FontWeight.w700,
-                ),
+              Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Step $currentStep / ${events.length}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.45),
+                      fontSize: 10,
+                    ),
+                  ),
+                  Text(
+                    isCompleted
+                        ? 'Execution Finished'
+                        : isRunning
+                            ? 'Running...'
+                            : currentStep == 0
+                                ? 'Ready'
+                                : 'Paused',
+                    style: TextStyle(
+                      color: isCompleted
+                          ? green
+                          : isRunning
+                              ? orange
+                              : currentStep == 0
+                                  ? cyan
+                                  : Colors.white
+                                      .withOpacity(0.4),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -2247,41 +2119,29 @@ void insertionSort(int[] arr) {
         ),
         label: Text(
           label,
-          style:
-              const TextStyle(
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
             fontSize: 10,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor: primary
-              ? cyan
-              : cardColor,
-          foregroundColor: primary
-              ? background
-              : Colors.white,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary ? cyan : cardColor,
+          foregroundColor: primary ? background : Colors.white,
           disabledBackgroundColor:
-              Colors.white
-                  .withOpacity(0.04),
+              Colors.white.withOpacity(0.04),
           disabledForegroundColor:
-              Colors.white
-                  .withOpacity(0.20),
+              Colors.white.withOpacity(0.20),
           elevation: 0,
-          padding:
-              const EdgeInsets.symmetric(
-            horizontal: 10,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
           ),
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(9),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(9),
             side: BorderSide(
               color: primary
                   ? cyan
-                  : Colors.white
-                      .withOpacity(0.08),
+                  : Colors.white.withOpacity(0.08),
             ),
           ),
         ),
@@ -2294,13 +2154,11 @@ void insertionSort(int[] arr) {
   // ==========================================================================
 
   Widget _buildSourceCode() {
-    final lines =
-        sourceCode.trimRight().split('\n');
+    final lines = sourceCode.trimRight().split('\n');
 
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -2314,29 +2172,21 @@ void insertionSort(int[] arr) {
 
               InkWell(
                 onTap: _copyCode,
-                borderRadius:
-                    BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding:
-                      const EdgeInsets
-                          .symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 9,
                     vertical: 7,
                   ),
-                  decoration:
-                      BoxDecoration(
-                    color: purple
-                        .withOpacity(0.08),
-                    borderRadius:
-                        BorderRadius.circular(8),
+                  decoration: BoxDecoration(
+                    color: purple.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: purple
-                          .withOpacity(0.20),
+                      color: purple.withOpacity(0.20),
                     ),
                   ),
                   child: const Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.copy_rounded,
@@ -2346,12 +2196,10 @@ void insertionSort(int[] arr) {
                       SizedBox(width: 5),
                       Text(
                         'Copy',
-                        style:
-                            TextStyle(
+                        style: TextStyle(
                           color: purple,
                           fontSize: 10,
-                          fontWeight:
-                              FontWeight.w800,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],
@@ -2365,98 +2213,72 @@ void insertionSort(int[] arr) {
 
           Container(
             width: double.infinity,
-            constraints:
-                const BoxConstraints(
+            constraints: const BoxConstraints(
               minHeight: 280,
               maxHeight: 500,
             ),
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 10,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(0xFF050A14),
-              borderRadius:
-                  BorderRadius.circular(11),
+            decoration: BoxDecoration(
+              color: const Color(0xFF050A14),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
+            child: SingleChildScrollView(
               child: Column(
-                children:
-                    List.generate(
+                children: List.generate(
                   lines.length,
                   (index) {
-                    final lineNumber =
-                        index + 1;
+                    final lineNumber = index + 1;
 
                     final active =
-                        lineNumber ==
-                            activeCodeLine;
+                        lineNumber == activeCodeLine;
 
                     return Container(
-                      width:
-                          double.infinity,
-                      padding:
-                          const EdgeInsets
-                              .symmetric(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 2,
                       ),
                       color: active
-                          ? cyan.withOpacity(
-                              0.09,
-                            )
+                          ? cyan.withOpacity(0.09)
                           : Colors.transparent,
                       child: Row(
                         crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                            CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 25,
                             child: Text(
                               '$lineNumber',
-                              textAlign:
-                                  TextAlign.right,
+                              textAlign: TextAlign.right,
                               style: TextStyle(
                                 color: active
                                     ? cyan
                                     : Colors.white
-                                        .withOpacity(
-                                        0.20,
-                                      ),
+                                        .withOpacity(0.20),
                                 fontSize: 9,
-                                fontFamily:
-                                    'monospace',
+                                fontFamily: 'monospace',
                               ),
                             ),
                           ),
 
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          const SizedBox(width: 10),
 
                           Expanded(
                             child: Text(
                               lines[index],
-                              style:
-                                  TextStyle(
+                              style: TextStyle(
                                 color: active
                                     ? Colors.white
                                     : Colors.white
-                                        .withOpacity(
-                                        0.65,
-                                      ),
+                                        .withOpacity(0.65),
                                 fontSize: 10,
                                 height: 1.45,
-                                fontFamily:
-                                    'monospace',
+                                fontFamily: 'monospace',
                                 fontWeight: active
                                     ? FontWeight.w700
                                     : FontWeight.w400,
@@ -2483,8 +2305,7 @@ void insertionSort(int[] arr) {
   Widget _buildExecutionSteps() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -2497,31 +2318,23 @@ void insertionSort(int[] arr) {
               const Spacer(),
 
               Container(
-                padding:
-                    const EdgeInsets
-                        .symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
-                decoration:
-                    BoxDecoration(
-                  color:
-                      cyan.withOpacity(0.07),
-                  borderRadius:
-                      BorderRadius.circular(7),
+                decoration: BoxDecoration(
+                  color: cyan.withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(7),
                   border: Border.all(
-                    color:
-                        cyan.withOpacity(0.14),
+                    color: cyan.withOpacity(0.14),
                   ),
                 ),
                 child: Text(
                   '${executionHistory.length}',
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: cyan,
                     fontSize: 10,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2534,18 +2347,14 @@ void insertionSort(int[] arr) {
             _emptyExecutionState()
           else
             ConstrainedBox(
-              constraints:
-                  const BoxConstraints(
+              constraints: const BoxConstraints(
                 maxHeight: 460,
               ),
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount:
-                    executionHistory.length,
-                itemBuilder:
-                    (context, index) {
-                  final event =
-                      executionHistory[index];
+                itemCount: executionHistory.length,
+                itemBuilder: (context, index) {
+                  final event = executionHistory[index];
 
                   return _executionStepItem(
                     index,
@@ -2560,34 +2369,28 @@ void insertionSort(int[] arr) {
   }
 
   // ==========================================================================
-  // EMPTY STATE
+  // EMPTY EXECUTION STATE
   // ==========================================================================
 
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         vertical: 35,
         horizontal: 15,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            visualizationColor,
-        borderRadius:
-            BorderRadius.circular(10),
+      decoration: BoxDecoration(
+        color: visualizationColor,
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.06),
+          color: Colors.white.withOpacity(0.06),
         ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white
-                .withOpacity(0.20),
+            color: Colors.white.withOpacity(0.20),
             size: 32,
           ),
 
@@ -2596,11 +2399,9 @@ void insertionSort(int[] arr) {
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.55),
+              color: Colors.white.withOpacity(0.55),
               fontSize: 12,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2609,8 +2410,7 @@ void insertionSort(int[] arr) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.30),
+              color: Colors.white.withOpacity(0.30),
               fontSize: 10,
             ),
           ),
@@ -2627,40 +2427,29 @@ void insertionSort(int[] arr) {
     int index,
     InsertionSortEvent event,
   ) {
-    final color =
-        _eventColor(event.type);
+    final color = _eventColor(event.type);
 
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 7,
       ),
-      padding:
-          const EdgeInsets.all(10),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.045),
-        borderRadius:
-            BorderRadius.circular(9),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.045),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.14),
+          color: color.withOpacity(0.14),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 27,
             height: 27,
-            decoration:
-                BoxDecoration(
-              color:
-                  color.withOpacity(0.10),
-              borderRadius:
-                  BorderRadius.circular(7),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(
               _eventIcon(event.type),
@@ -2673,35 +2462,27 @@ void insertionSort(int[] arr) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Expanded(
                       child: Text(
                         event.title,
-                        style:
-                            TextStyle(
+                        style: TextStyle(
                           color: color,
                           fontSize: 10.5,
-                          fontWeight:
-                              FontWeight.w800,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
 
                     Text(
                       '#${index + 1}',
-                      style:
-                          TextStyle(
-                        color: Colors.white
-                            .withOpacity(
-                          0.22,
-                        ),
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.22),
                         fontSize: 9,
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -2712,8 +2493,7 @@ void insertionSort(int[] arr) {
                 Text(
                   event.description,
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.53),
+                    color: Colors.white.withOpacity(0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -2724,11 +2504,9 @@ void insertionSort(int[] arr) {
                 Text(
                   event.operation,
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.30),
+                    color: Colors.white.withOpacity(0.30),
                     fontSize: 8.5,
-                    fontFamily:
-                        'monospace',
+                    fontFamily: 'monospace',
                   ),
                 ),
               ],
@@ -2748,24 +2526,18 @@ void insertionSort(int[] arr) {
   }) {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(14),
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
         color: cardColor,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.065),
+          color: Colors.white.withOpacity(0.065),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withOpacity(0.18),
+            color: Colors.black.withOpacity(0.18),
             blurRadius: 16,
-            offset:
-                const Offset(0, 7),
+            offset: const Offset(0, 7),
           ),
         ],
       ),
@@ -2783,18 +2555,14 @@ void insertionSort(int[] arr) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 30,
           height: 30,
-          decoration:
-              BoxDecoration(
-            color:
-                color.withOpacity(0.09),
-            borderRadius:
-                BorderRadius.circular(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.09),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
@@ -2807,12 +2575,10 @@ void insertionSort(int[] arr) {
 
         Text(
           title,
-          style:
-              const TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 13,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -2829,34 +2595,26 @@ void insertionSort(int[] arr) {
     Color color,
   ) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 9,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.055),
-        borderRadius:
-            BorderRadius.circular(9),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.055),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.16),
+          color: color.withOpacity(0.16),
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              color:
-                  color.withOpacity(0.8),
+              color: color.withOpacity(0.8),
               fontSize: 9,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2864,12 +2622,10 @@ void insertionSort(int[] arr) {
 
           Text(
             value,
-            style:
-                const TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -2888,31 +2644,26 @@ void insertionSort(int[] arr) {
   ) {
     return Expanded(
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 8,
           vertical: 8,
         ),
-        decoration:
-            BoxDecoration(
-          color:
-              color.withOpacity(0.07),
-          borderRadius:
-              BorderRadius.circular(9),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(9),
           border: Border.all(
-            color:
-                color.withOpacity(0.18),
+            color: color.withOpacity(0.18),
           ),
         ),
         child: Column(
           children: [
             Text(
               title,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: color,
                 fontSize: 8,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
               ),
             ),
@@ -2921,14 +2672,11 @@ void insertionSort(int[] arr) {
 
             Text(
               value,
-              overflow:
-                  TextOverflow.ellipsis,
-              style:
-                  const TextStyle(
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],

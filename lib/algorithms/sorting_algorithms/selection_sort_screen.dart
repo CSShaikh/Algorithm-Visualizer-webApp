@@ -34,6 +34,7 @@ enum SelectionSortEventType {
 class SelectionSortEvent {
   final SelectionSortEventType type;
 
+  /// Snapshot of the array for this exact step.
   final List<int> array;
 
   final int currentIndex;
@@ -68,50 +69,39 @@ class SelectionSortEvent {
 // STATE
 // ============================================================================
 
-class _SelectionSortScreenState
-    extends State<SelectionSortScreen> {
+class _SelectionSortScreenState extends State<SelectionSortScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
 
-  static const Color background =
-      Color(0xFF030712);
+  static const Color background = Color(0xFF030712);
+  static const Color background2 = Color(0xFF07101F);
+  static const Color cardColor = Color(0xFF0B1428);
+  static const Color visualizationColor = Color(0xFF0A1020);
 
-  static const Color background2 =
-      Color(0xFF07101F);
-
-  static const Color cardColor =
-      Color(0xFF0B1428);
-
-  static const Color visualizationColor =
-      Color(0xFF0A1020);
-
-  static const Color cyan =
-      Color(0xFF00E5FF);
-
-  static const Color blue =
-      Color(0xFF2979FF);
-
-  static const Color purple =
-      Color(0xFF9C27FF);
-
-  static const Color green =
-      Color(0xFF00E676);
-
-  static const Color orange =
-      Color(0xFFFFB300);
-
-  static const Color pink =
-      Color(0xFFFF4081);
-
-  static const Color red =
-      Color(0xFFFF5252);
+  static const Color cyan = Color(0xFF00E5FF);
+  static const Color blue = Color(0xFF2979FF);
+  static const Color purple = Color(0xFF9C27FF);
+  static const Color green = Color(0xFF00E676);
+  static const Color orange = Color(0xFFFFB300);
+  static const Color pink = Color(0xFFFF4081);
+  static const Color red = Color(0xFFFF5252);
 
   // ==========================================================================
   // DATA
   // ==========================================================================
 
   List<int> array = [
+    64,
+    25,
+    12,
+    22,
+    11,
+  ];
+
+  /// Original unsorted array.
+  /// Used when Reset is pressed.
+  List<int> originalArray = [
     64,
     25,
     12,
@@ -162,7 +152,7 @@ class _SelectionSortScreenState
 
   int sortedCount = 0;
 
-  Set<int> sortedIndexes = {};
+  Set<int> sortedIndexes = <int>{};
 
   int activeCodeLine = 0;
 
@@ -203,6 +193,8 @@ void selectionSort(int[] arr) {
   void initState() {
     super.initState();
 
+    originalArray = [...array];
+
     _generateEvents();
   }
 
@@ -223,13 +215,13 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   void _generateEvents() {
-    final working = [...array];
+    final List<int> working = [...originalArray];
 
-    final generated =
+    final List<SelectionSortEvent> generated =
         <SelectionSortEvent>[];
 
     if (working.isEmpty) {
-      events = generated;
+      events = <SelectionSortEvent>[];
       return;
     }
 
@@ -239,8 +231,7 @@ void selectionSort(int[] arr) {
 
     generated.add(
       SelectionSortEvent(
-        type:
-            SelectionSortEventType.initialize,
+        type: SelectionSortEventType.initialize,
         array: [...working],
         currentIndex: -1,
         compareIndex: -1,
@@ -251,8 +242,7 @@ void selectionSort(int[] arr) {
         title: 'Selection Sort Initialized',
         description:
             'The algorithm will find the minimum element from the unsorted part.',
-        operation:
-            'Start Selection Sort',
+        operation: 'Start Selection Sort',
       ),
     );
 
@@ -260,11 +250,7 @@ void selectionSort(int[] arr) {
     // SELECTION SORT
     // ------------------------------------------------------------------------
 
-    for (
-      int i = 0;
-      i < working.length - 1;
-      i++
-    ) {
+    for (int i = 0; i < working.length - 1; i++) {
       int min = i;
 
       // ----------------------------------------------------------------------
@@ -273,8 +259,7 @@ void selectionSort(int[] arr) {
 
       generated.add(
         SelectionSortEvent(
-          type:
-              SelectionSortEventType.selectMinimum,
+          type: SelectionSortEventType.selectMinimum,
           array: [...working],
           currentIndex: i,
           compareIndex: -1,
@@ -285,8 +270,7 @@ void selectionSort(int[] arr) {
           title: 'Select Minimum',
           description:
               'Assume ${working[i]} is the minimum element of the unsorted part.',
-          operation:
-              'minIndex = $i',
+          operation: 'minIndex = $i',
         ),
       );
 
@@ -294,27 +278,28 @@ void selectionSort(int[] arr) {
       // FIND MINIMUM
       // ----------------------------------------------------------------------
 
-      for (
-        int j = i + 1;
-        j < working.length;
-        j++
-      ) {
+      for (int j = i + 1; j < working.length; j++) {
+        final int currentValue = working[j];
+        final int minimumValue = working[min];
+
+        // --------------------------------------------------------------------
+        // COMPARE
+        // --------------------------------------------------------------------
+
         generated.add(
           SelectionSortEvent(
-            type:
-                SelectionSortEventType.compare,
+            type: SelectionSortEventType.compare,
             array: [...working],
             currentIndex: i,
             compareIndex: j,
             minIndex: min,
-            firstValue: working[j],
-            secondValue: working[min],
+            firstValue: currentValue,
+            secondValue: minimumValue,
             sortedCount: i,
             title: 'Compare',
             description:
-                'Compare ${working[j]} with current minimum ${working[min]}.',
-            operation:
-                'arr[$j] < arr[$min]',
+                'Compare $currentValue with current minimum $minimumValue.',
+            operation: 'arr[$j] < arr[$min]',
           ),
         );
 
@@ -322,25 +307,23 @@ void selectionSort(int[] arr) {
         // NEW MINIMUM
         // --------------------------------------------------------------------
 
-        if (working[j] < working[min]) {
+        if (currentValue < minimumValue) {
           min = j;
 
           generated.add(
             SelectionSortEvent(
-              type:
-                  SelectionSortEventType.newMinimum,
+              type: SelectionSortEventType.newMinimum,
               array: [...working],
               currentIndex: i,
               compareIndex: j,
               minIndex: min,
-              firstValue: working[j],
-              secondValue: working[min],
+              firstValue: currentValue,
+              secondValue: currentValue,
               sortedCount: i,
               title: 'New Minimum Found',
               description:
-                  '${working[j]} is smaller, so it becomes the new minimum.',
-              operation:
-                  'minIndex = $j',
+                  '$currentValue is smaller, so it becomes the new minimum.',
+              operation: 'minIndex = $j',
             ),
           );
         } else {
@@ -350,20 +333,18 @@ void selectionSort(int[] arr) {
 
           generated.add(
             SelectionSortEvent(
-              type:
-                  SelectionSortEventType.noChange,
+              type: SelectionSortEventType.noChange,
               array: [...working],
               currentIndex: i,
               compareIndex: j,
               minIndex: min,
-              firstValue: working[j],
+              firstValue: currentValue,
               secondValue: working[min],
               sortedCount: i,
               title: 'Minimum Unchanged',
               description:
-                  '${working[j]} is not smaller than ${working[min]}.',
-              operation:
-                  'minIndex remains $min',
+                  '$currentValue is not smaller than ${working[min]}.',
+              operation: 'minIndex remains $min',
             ),
           );
         }
@@ -374,13 +355,18 @@ void selectionSort(int[] arr) {
       // ----------------------------------------------------------------------
 
       if (min != i) {
-        final first = working[i];
-        final second = working[min];
+        final int first = working[i];
+        final int second = working[min];
+
+        // IMPORTANT:
+        // Perform the swap BEFORE storing the swap event snapshot.
+        final int temp = working[i];
+        working[i] = working[min];
+        working[min] = temp;
 
         generated.add(
           SelectionSortEvent(
-            type:
-                SelectionSortEventType.swap,
+            type: SelectionSortEventType.swap,
             array: [...working],
             currentIndex: i,
             compareIndex: min,
@@ -391,14 +377,30 @@ void selectionSort(int[] arr) {
             title: 'Swap',
             description:
                 'Swap $first with minimum value $second.',
-            operation:
-                'Swap arr[$i] and arr[$min]',
+            operation: 'arr[$i] ↔ arr[$min]',
           ),
         );
+      } else {
+        // --------------------------------------------------------------------
+        // NO SWAP
+        // --------------------------------------------------------------------
 
-        final temp = working[i];
-        working[i] = working[min];
-        working[min] = temp;
+        generated.add(
+          SelectionSortEvent(
+            type: SelectionSortEventType.noChange,
+            array: [...working],
+            currentIndex: i,
+            compareIndex: -1,
+            minIndex: min,
+            firstValue: working[i],
+            secondValue: working[min],
+            sortedCount: i,
+            title: 'No Swap Needed',
+            description:
+                '${working[i]} is already the minimum for this position.',
+            operation: 'minIndex == $i',
+          ),
+        );
       }
 
       // ----------------------------------------------------------------------
@@ -407,8 +409,7 @@ void selectionSort(int[] arr) {
 
       generated.add(
         SelectionSortEvent(
-          type:
-              SelectionSortEventType.sorted,
+          type: SelectionSortEventType.sorted,
           array: [...working],
           currentIndex: i,
           compareIndex: -1,
@@ -419,8 +420,30 @@ void selectionSort(int[] arr) {
           title: 'Position Sorted',
           description:
               '${working[i]} is now in its final position.',
-          operation:
-              'Sorted index $i',
+          operation: 'Sorted index $i',
+        ),
+      );
+    }
+
+    // ------------------------------------------------------------------------
+    // LAST ELEMENT IS AUTOMATICALLY SORTED
+    // ------------------------------------------------------------------------
+
+    if (working.isNotEmpty) {
+      generated.add(
+        SelectionSortEvent(
+          type: SelectionSortEventType.sorted,
+          array: [...working],
+          currentIndex: working.length - 1,
+          compareIndex: -1,
+          minIndex: working.length - 1,
+          firstValue: working.last,
+          secondValue: -1,
+          sortedCount: working.length,
+          title: 'Final Position Sorted',
+          description:
+              '${working.last} is the final remaining element and is already in its correct position.',
+          operation: 'Sorted index ${working.length - 1}',
         ),
       );
     }
@@ -431,8 +454,7 @@ void selectionSort(int[] arr) {
 
     generated.add(
       SelectionSortEvent(
-        type:
-            SelectionSortEventType.complete,
+        type: SelectionSortEventType.complete,
         array: [...working],
         currentIndex: -1,
         compareIndex: -1,
@@ -443,8 +465,7 @@ void selectionSort(int[] arr) {
         title: 'Selection Sort Complete',
         description:
             'All elements are now sorted in ascending order.',
-        operation:
-            'Sorting completed',
+        operation: 'Sorting completed',
       ),
     );
 
@@ -452,12 +473,35 @@ void selectionSort(int[] arr) {
   }
 
   // ==========================================================================
+  // PARSE INPUT
+  // ==========================================================================
+
+  List<int> _parseInput(String text) {
+    final parts = text.split(RegExp(r'[\s,]+'));
+
+    final List<int> values = <int>[];
+
+    for (final part in parts) {
+      if (part.trim().isEmpty) {
+        continue;
+      }
+
+      final int? value = int.tryParse(part.trim());
+
+      if (value != null) {
+        values.add(value);
+      }
+    }
+
+    return values;
+  }
+
+  // ==========================================================================
   // LOAD ARRAY
   // ==========================================================================
 
   void _loadArray() {
-    final text =
-        arrayController.text.trim();
+    final String text = arrayController.text.trim();
 
     if (text.isEmpty) {
       _showSnackBar(
@@ -467,18 +511,7 @@ void selectionSort(int[] arr) {
       return;
     }
 
-    final parts =
-        text.split(RegExp(r'[\s,]+'));
-
-    final values = <int>[];
-
-    for (final part in parts) {
-      final value = int.tryParse(part);
-
-      if (value != null) {
-        values.add(value);
-      }
-    }
+    final List<int> values = _parseInput(text);
 
     if (values.isEmpty) {
       _showSnackBar(
@@ -491,6 +524,8 @@ void selectionSort(int[] arr) {
     timer?.cancel();
 
     setState(() {
+      originalArray = [...values];
+
       array = [...values];
 
       executionHistory.clear();
@@ -530,20 +565,20 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   void _generateNumbers() {
-    final random = Random();
+    final Random random = Random();
 
-    final generated =
-        List.generate(
+    final List<int> generated = List<int>.generate(
       8,
       (_) => random.nextInt(90) + 10,
     );
 
-    arrayController.text =
-        generated.join(', ');
+    arrayController.text = generated.join(', ');
 
     timer?.cancel();
 
     setState(() {
+      originalArray = [...generated];
+
       array = [...generated];
 
       executionHistory.clear();
@@ -571,6 +606,11 @@ void selectionSort(int[] arr) {
     });
 
     _generateEvents();
+
+    _showSnackBar(
+      'New numbers generated.',
+      purple,
+    );
   }
 
   // ==========================================================================
@@ -578,8 +618,11 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   void _play() {
-    if (events.isEmpty ||
-        isCompleted) {
+    if (events.isEmpty) {
+      return;
+    }
+
+    if (isCompleted) {
       return;
     }
 
@@ -589,10 +632,8 @@ void selectionSort(int[] arr) {
       isRunning = true;
     });
 
-    final milliseconds =
-        (900 / speed)
-            .round()
-            .clamp(100, 2000);
+    final int milliseconds =
+        (900 / speed).round().clamp(100, 2000);
 
     timer = Timer.periodic(
       Duration(
@@ -626,6 +667,10 @@ void selectionSort(int[] arr) {
 
   void _pause() {
     timer?.cancel();
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       isRunning = false;
@@ -661,7 +706,7 @@ void selectionSort(int[] arr) {
       return;
     }
 
-    final event =
+    final SelectionSortEvent event =
         events[currentStep];
 
     executionHistory.add(event);
@@ -673,10 +718,12 @@ void selectionSort(int[] arr) {
     if (currentStep >= events.length) {
       timer?.cancel();
 
-      setState(() {
-        isRunning = false;
-        isCompleted = true;
-      });
+      if (mounted) {
+        setState(() {
+          isRunning = false;
+          isCompleted = true;
+        });
+      }
     }
   }
 
@@ -693,15 +740,16 @@ void selectionSort(int[] arr) {
 
     executionHistory.removeLast();
 
-    currentStep =
-        executionHistory.length;
+    currentStep = executionHistory.length;
 
     _rebuildVisualState();
 
-    setState(() {
-      isRunning = false;
-      isCompleted = false;
-    });
+    if (mounted) {
+      setState(() {
+        isRunning = false;
+        isCompleted = false;
+      });
+    }
   }
 
   // ==========================================================================
@@ -709,29 +757,38 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   void _rebuildVisualState() {
+    // Restore original array first.
+    array = [...originalArray];
+
     currentIndex = -1;
-
     compareIndex = -1;
-
     minIndex = -1;
-
     sortedCount = 0;
-
     sortedIndexes.clear();
-
     activeCodeLine = 0;
 
     executionMessage =
         'Ready to start Selection Sort.';
 
-    for (final event in executionHistory) {
+    for (final SelectionSortEvent event
+        in executionHistory) {
       _applyEvent(
         event,
         updateState: false,
       );
     }
 
-    setState(() {});
+    if (executionHistory.isNotEmpty) {
+      final SelectionSortEvent lastEvent =
+          executionHistory.last;
+
+      executionMessage =
+          '${lastEvent.title}: ${lastEvent.description}';
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   // ==========================================================================
@@ -742,23 +799,32 @@ void selectionSort(int[] arr) {
     SelectionSortEvent event, {
     bool updateState = true,
   }) {
-    currentIndex =
-        event.currentIndex;
+    // ========================================================================
+    // IMPORTANT FIX
+    //
+    // Every event contains its own array snapshot.
+    // We MUST update the visual array from that snapshot.
+    // ========================================================================
 
-    compareIndex =
-        event.compareIndex;
+    array = [...event.array];
 
-    minIndex =
-        event.minIndex;
+    currentIndex = event.currentIndex;
 
-    sortedCount =
-        event.sortedCount;
+    compareIndex = event.compareIndex;
+
+    minIndex = event.minIndex;
+
+    sortedCount = event.sortedCount;
 
     executionMessage =
         '${event.title}: ${event.description}';
 
     activeCodeLine =
         _codeLineForEvent(event.type);
+
+    // ------------------------------------------------------------------------
+    // SORTED POSITION
+    // ------------------------------------------------------------------------
 
     if (event.type ==
         SelectionSortEventType.sorted) {
@@ -769,22 +835,27 @@ void selectionSort(int[] arr) {
       }
     }
 
+    // ------------------------------------------------------------------------
+    // COMPLETE
+    // ------------------------------------------------------------------------
+
     if (event.type ==
         SelectionSortEventType.complete) {
-      sortedIndexes =
-          Set<int>.from(
-        List.generate(
+      sortedIndexes = Set<int>.from(
+        List<int>.generate(
           array.length,
           (index) => index,
         ),
       );
+
+      sortedCount = array.length;
 
       currentIndex = -1;
       compareIndex = -1;
       minIndex = -1;
     }
 
-    if (updateState) {
+    if (updateState && mounted) {
       setState(() {});
     }
   }
@@ -797,6 +868,9 @@ void selectionSort(int[] arr) {
     timer?.cancel();
 
     setState(() {
+      // Restore original unsorted array.
+      array = [...originalArray];
+
       executionHistory.clear();
 
       currentStep = 0;
@@ -939,7 +1013,7 @@ void selectionSort(int[] arr) {
   }
 
   // ==========================================================================
-  // COPY
+  // COPY CODE
   // ==========================================================================
 
   Future<void> _copyCode() async {
@@ -948,6 +1022,10 @@ void selectionSort(int[] arr) {
         text: sourceCode,
       ),
     );
+
+    if (!mounted) {
+      return;
+    }
 
     _showSnackBar(
       'Source code copied.',
@@ -973,14 +1051,11 @@ void selectionSort(int[] arr) {
           message,
           style: const TextStyle(
             color: Colors.white,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor:
-            color.withOpacity(0.85),
-        behavior:
-            SnackBarBehavior.floating,
+        backgroundColor: color.withOpacity(0.85),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -990,18 +1065,14 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
       body: SafeArea(
         child: LayoutBuilder(
-          builder:
-              (context, constraints) {
+          builder: (context, constraints) {
             return SingleChildScrollView(
-              padding:
-                  const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
@@ -1036,18 +1107,15 @@ void selectionSort(int[] arr) {
 
   Widget _buildHeader() {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 12,
       ),
       decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              purple.withOpacity(0.16),
+          color: purple.withOpacity(0.16),
         ),
       ),
       child: Row(
@@ -1056,21 +1124,17 @@ void selectionSort(int[] arr) {
             onTap: () {
               Navigator.pop(context);
             },
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 40,
               height: 40,
-              decoration:
-                  BoxDecoration(
+              decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius:
-                    BorderRadius.circular(
-                  10,
-                ),
+                    BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white
-                      .withOpacity(0.08),
+                  color:
+                      Colors.white.withOpacity(0.08),
                 ),
               ),
               child: const Icon(
@@ -1086,10 +1150,8 @@ void selectionSort(int[] arr) {
           Container(
             width: 42,
             height: 42,
-            decoration:
-                BoxDecoration(
-              gradient:
-                  const LinearGradient(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
                 colors: [
                   purple,
                   cyan,
@@ -1117,16 +1179,17 @@ void selectionSort(int[] arr) {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
+
                 const SizedBox(height: 3),
+
                 Text(
                   'Find minimum and place it in the correct position',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.55),
+                    color:
+                        Colors.white.withOpacity(0.55),
                     fontSize: 12,
                   ),
                 ),
@@ -1146,7 +1209,6 @@ void selectionSort(int[] arr) {
 
   Widget _statusBadge() {
     Color color = cyan;
-
     String text = 'READY';
 
     if (isRunning) {
@@ -1155,34 +1217,30 @@ void selectionSort(int[] arr) {
     } else if (isCompleted) {
       color = green;
       text = 'SORTED';
+    } else if (currentStep > 0) {
+      color = purple;
+      text = 'PAUSED';
     }
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 7,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.10),
-        borderRadius:
-            BorderRadius.circular(20),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              color.withOpacity(0.35),
+          color: color.withOpacity(0.35),
         ),
       ),
       child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 7,
             height: 7,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
             ),
@@ -1195,8 +1253,7 @@ void selectionSort(int[] arr) {
             style: TextStyle(
               color: color,
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
             ),
           ),
@@ -1206,7 +1263,7 @@ void selectionSort(int[] arr) {
   }
 
   // ==========================================================================
-  // ALGORITHM INFO
+  // ALGORITHM INFORMATION
   // ==========================================================================
 
   Widget _buildAlgorithmInfo() {
@@ -1229,8 +1286,7 @@ void selectionSort(int[] arr) {
             'finds the smallest element from the unsorted '
             'part and places it at the beginning.',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.64),
+              color: Colors.white.withOpacity(0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
@@ -1298,10 +1354,8 @@ void selectionSort(int[] arr) {
           const SizedBox(height: 12),
 
           LayoutBuilder(
-            builder:
-                (context, constraints) {
-              if (constraints.maxWidth <
-                  700) {
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 700) {
                 return Column(
                   children: [
                     _inputField(),
@@ -1311,13 +1365,10 @@ void selectionSort(int[] arr) {
                     Row(
                       children: [
                         Expanded(
-                          child:
-                              _generateButton(),
+                          child: _generateButton(),
                         ),
 
-                        const SizedBox(
-                          width: 10,
-                        ),
+                        const SizedBox(width: 10),
 
                         Expanded(
                           child: _loadButton(),
@@ -1340,16 +1391,14 @@ void selectionSort(int[] arr) {
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _generateButton(),
+                    child: _generateButton(),
                   ),
 
                   const SizedBox(width: 10),
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _loadButton(),
+                    child: _loadButton(),
                   ),
                 ],
               );
@@ -1362,8 +1411,7 @@ void selectionSort(int[] arr) {
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color:
-                    orange.withOpacity(0.85),
+                color: orange.withOpacity(0.85),
                 size: 15,
               ),
 
@@ -1373,8 +1421,8 @@ void selectionSort(int[] arr) {
                 child: Text(
                   'Selection Sort finds the minimum element during every pass.',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.45),
+                    color:
+                        Colors.white.withOpacity(0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -1398,51 +1446,39 @@ void selectionSort(int[] arr) {
         fontSize: 13,
       ),
       cursorColor: cyan,
-      decoration:
-          InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Enter Numbers',
-        hintText:
-            '64, 25, 12, 22, 11...',
+        hintText: '64, 25, 12, 22, 11...',
         labelStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.58),
+          color: Colors.white.withOpacity(0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.25),
+          color: Colors.white.withOpacity(0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
           Icons.data_array_rounded,
-          color:
-              cyan.withOpacity(0.8),
+          color: cyan.withOpacity(0.8),
           size: 19,
         ),
         filled: true,
-        fillColor:
-            visualizationColor,
+        fillColor: visualizationColor,
         contentPadding:
             const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 13,
         ),
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: Colors.white
-                .withOpacity(0.08),
+            color: Colors.white.withOpacity(0.08),
           ),
         ),
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color:
-                cyan.withOpacity(0.55),
+            color: cyan.withOpacity(0.55),
           ),
         ),
       ),
@@ -1463,26 +1499,20 @@ void selectionSort(int[] arr) {
       label: const Text(
         'Generate Numbers',
         style: TextStyle(
-          fontWeight:
-              FontWeight.w700,
+          fontWeight: FontWeight.w700,
           fontSize: 12,
         ),
       ),
-      style:
-          ElevatedButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         backgroundColor: purple,
-        foregroundColor:
-            Colors.white,
+        foregroundColor: Colors.white,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 12,
         ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1502,26 +1532,20 @@ void selectionSort(int[] arr) {
       label: const Text(
         'LOAD ARRAY',
         style: TextStyle(
-          fontWeight:
-              FontWeight.w800,
+          fontWeight: FontWeight.w800,
           fontSize: 12,
         ),
       ),
-      style:
-          ElevatedButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
-        foregroundColor:
-            background,
+        foregroundColor: background,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 12,
         ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1531,9 +1555,7 @@ void selectionSort(int[] arr) {
   // MAIN WORKSPACE
   // ==========================================================================
 
-  Widget _buildMainWorkspace(
-    double width,
-  ) {
+  Widget _buildMainWorkspace(double width) {
     if (width < 900) {
       return Column(
         children: [
@@ -1641,8 +1663,7 @@ void selectionSort(int[] arr) {
 
               _miniBadge(
                 'SORTED',
-                sortedIndexes.length
-                    .toString(),
+                sortedIndexes.length.toString(),
                 green,
               ),
             ],
@@ -1652,36 +1673,23 @@ void selectionSort(int[] arr) {
 
           Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 10,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  visualizationColor,
-              borderRadius:
-                  BorderRadius.circular(
-                12,
-              ),
+            decoration: BoxDecoration(
+              color: visualizationColor,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
-              scrollDirection:
-                  Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Row(
-                children:
-                    List.generate(
+                children: List.generate(
                   array.length,
-                  (index) =>
-                      _buildArrayItem(
-                    index,
-                  ),
+                  (index) => _buildArrayItem(index),
                 ),
               ),
             ),
@@ -1707,10 +1715,8 @@ void selectionSort(int[] arr) {
   // ARRAY ITEM
   // ==========================================================================
 
-  Widget _buildArrayItem(
-    int index,
-  ) {
-    final value = array[index];
+  Widget _buildArrayItem(int index) {
+    final int value = array[index];
 
     final bool isCurrent =
         index == currentIndex;
@@ -1725,17 +1731,12 @@ void selectionSort(int[] arr) {
         sortedIndexes.contains(index);
 
     Color itemColor =
-        Colors.white.withOpacity(
-      0.08,
-    );
+        Colors.white.withOpacity(0.08);
 
     Color borderColor =
-        Colors.white.withOpacity(
-      0.08,
-    );
+        Colors.white.withOpacity(0.08);
 
-    Color textColor =
-        Colors.white;
+    Color textColor = Colors.white;
 
     String label = '';
 
@@ -1744,13 +1745,9 @@ void selectionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isSorted) {
-      itemColor =
-          green.withOpacity(0.18);
-
+      itemColor = green.withOpacity(0.18);
       borderColor = green;
-
       textColor = green;
-
       label = 'SORTED';
     }
 
@@ -1759,13 +1756,9 @@ void selectionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isCurrent) {
-      itemColor =
-          purple.withOpacity(0.18);
-
+      itemColor = purple.withOpacity(0.18);
       borderColor = purple;
-
       textColor = purple;
-
       label = 'CURRENT';
     }
 
@@ -1774,35 +1767,37 @@ void selectionSort(int[] arr) {
     // ------------------------------------------------------------------------
 
     if (isMinimum) {
-      itemColor =
-          orange.withOpacity(0.20);
-
+      itemColor = orange.withOpacity(0.20);
       borderColor = orange;
-
       textColor = orange;
-
       label = 'MIN';
     }
 
     // ------------------------------------------------------------------------
-    // COMPARISON
+    // COMPARE
     // ------------------------------------------------------------------------
 
     if (isCompare) {
-      itemColor =
-          cyan.withOpacity(0.18);
-
+      itemColor = cyan.withOpacity(0.18);
       borderColor = cyan;
-
       textColor = cyan;
-
       label = 'COMPARE';
+    }
+
+    // ------------------------------------------------------------------------
+    // COMPLETE
+    // ------------------------------------------------------------------------
+
+    if (isCompleted) {
+      itemColor = green.withOpacity(0.18);
+      borderColor = green;
+      textColor = green;
+      label = 'SORTED';
     }
 
     return Container(
       width: 70,
-      margin:
-          const EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 5,
       ),
       child: Column(
@@ -1813,11 +1808,9 @@ void selectionSort(int[] arr) {
               child: Text(
                 label,
                 style: TextStyle(
-                  color:
-                      borderColor,
+                  color: borderColor,
                   fontSize: 7.5,
-                  fontWeight:
-                      FontWeight.w900,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
             ),
@@ -1826,20 +1819,18 @@ void selectionSort(int[] arr) {
           Container(
             height: 58,
             width: 58,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: itemColor,
               borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+                  BorderRadius.circular(11),
               border: Border.all(
                 color: borderColor,
                 width:
                     isCurrent ||
                             isCompare ||
                             isMinimum ||
-                            isSorted
+                            isSorted ||
+                            isCompleted
                         ? 1.6
                         : 1,
               ),
@@ -1847,14 +1838,12 @@ void selectionSort(int[] arr) {
                   isCurrent ||
                           isCompare ||
                           isMinimum ||
-                          isSorted
+                          isSorted ||
+                          isCompleted
                       ? [
                           BoxShadow(
-                            color:
-                                borderColor
-                                    .withOpacity(
-                              0.18,
-                            ),
+                            color: borderColor
+                                .withOpacity(0.18),
                             blurRadius: 12,
                             spreadRadius: 1,
                           ),
@@ -1867,8 +1856,7 @@ void selectionSort(int[] arr) {
                 style: TextStyle(
                   color: textColor,
                   fontSize: 16,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -1879,11 +1867,9 @@ void selectionSort(int[] arr) {
           Text(
             '[$index]',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.4),
+              color: Colors.white.withOpacity(0.4),
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1929,19 +1915,15 @@ void selectionSort(int[] arr) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 9,
           height: 9,
-          decoration:
-              BoxDecoration(
+          decoration: BoxDecoration(
             color: color,
             borderRadius:
-                BorderRadius.circular(
-              3,
-            ),
+                BorderRadius.circular(3),
           ),
         ),
 
@@ -1950,11 +1932,9 @@ void selectionSort(int[] arr) {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white
-                .withOpacity(0.58),
+            color: Colors.white.withOpacity(0.58),
             fontSize: 10,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -1966,8 +1946,7 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   Widget _buildCurrentInfo() {
-    String message =
-        'Waiting for execution';
+    String message = 'Waiting for execution';
 
     if (currentIndex >= 0 &&
         currentIndex < array.length) {
@@ -1988,21 +1967,16 @@ void selectionSort(int[] arr) {
     }
 
     if (isCompleted) {
-      message =
-          'Array sorted successfully';
+      message = 'Array sorted successfully';
     }
 
     return Container(
-      padding:
-          const EdgeInsets.all(12),
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              cyan.withOpacity(0.14),
+          color: cyan.withOpacity(0.14),
         ),
       ),
       child: Row(
@@ -2010,14 +1984,10 @@ void selectionSort(int[] arr) {
           Container(
             width: 34,
             height: 34,
-            decoration:
-                BoxDecoration(
-              color:
-                  orange.withOpacity(0.09),
+            decoration: BoxDecoration(
+              color: orange.withOpacity(0.09),
               borderRadius:
-                  BorderRadius.circular(
-                8,
-              ),
+                  BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.search_rounded,
@@ -2036,11 +2006,10 @@ void selectionSort(int[] arr) {
                 Text(
                   'Current Operation',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.42),
+                    color:
+                        Colors.white.withOpacity(0.42),
                     fontSize: 9,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -2051,8 +2020,7 @@ void selectionSort(int[] arr) {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -2060,26 +2028,21 @@ void selectionSort(int[] arr) {
           ),
 
           Container(
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 9,
               vertical: 6,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  green.withOpacity(0.08),
+            decoration: BoxDecoration(
+              color: green.withOpacity(0.08),
               borderRadius:
                   BorderRadius.circular(7),
             ),
             child: Text(
               '$sortedCount sorted',
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: green,
                 fontSize: 10,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -2100,27 +2063,23 @@ void selectionSort(int[] arr) {
 
     if (isRunning) {
       color = orange;
-      icon =
-          Icons.play_circle_rounded;
+      icon = Icons.play_circle_rounded;
     } else if (isCompleted) {
       color = green;
-      icon =
-          Icons.check_circle_rounded;
+      icon = Icons.check_circle_rounded;
+    } else if (currentStep > 0) {
+      color = purple;
+      icon = Icons.pause_circle_rounded;
     }
 
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(13),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.06),
-        borderRadius:
-            BorderRadius.circular(10),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              color.withOpacity(0.18),
+          color: color.withOpacity(0.18),
         ),
       ),
       child: Row(
@@ -2139,8 +2098,8 @@ void selectionSort(int[] arr) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white
-                    .withOpacity(0.72),
+                color:
+                    Colors.white.withOpacity(0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -2159,58 +2118,110 @@ void selectionSort(int[] arr) {
     return _card(
       child: Column(
         children: [
-          Row(
-            children: [
-              _controlButton(
-                icon:
-                    Icons.skip_previous_rounded,
-                label: 'Previous',
-                onPressed:
-                    executionHistory
-                            .isEmpty
-                        ? null
-                        : _previousStep,
-              ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 600) {
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _controlButton(
+                      icon:
+                          Icons.skip_previous_rounded,
+                      label: 'Previous',
+                      onPressed:
+                          executionHistory.isEmpty
+                              ? null
+                              : _previousStep,
+                    ),
 
-              const SizedBox(width: 8),
+                    _controlButton(
+                      icon: isRunning
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      label: isRunning
+                          ? 'Pause'
+                          : 'Play',
+                      onPressed: isCompleted
+                          ? null
+                          : _togglePlayPause,
+                      primary: true,
+                    ),
 
-              Expanded(
-                child: _controlButton(
-                  icon: isRunning
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
-                  label: isRunning
-                      ? 'Pause'
-                      : 'Play',
-                  onPressed: isCompleted
-                      ? null
-                      : _togglePlayPause,
-                  primary: true,
-                ),
-              ),
+                    _controlButton(
+                      icon:
+                          Icons.skip_next_rounded,
+                      label: 'Next',
+                      onPressed:
+                          currentStep >=
+                                  events.length
+                              ? null
+                              : _nextStep,
+                    ),
 
-              const SizedBox(width: 8),
+                    _controlButton(
+                      icon:
+                          Icons.restart_alt_rounded,
+                      label: 'Reset',
+                      onPressed: _reset,
+                    ),
+                  ],
+                );
+              }
 
-              _controlButton(
-                icon:
-                    Icons.skip_next_rounded,
-                label: 'Next Step',
-                onPressed:
-                    currentStep >=
-                            events.length
-                        ? null
-                        : _nextStep,
-              ),
+              return Row(
+                children: [
+                  _controlButton(
+                    icon:
+                        Icons.skip_previous_rounded,
+                    label: 'Previous',
+                    onPressed:
+                        executionHistory.isEmpty
+                            ? null
+                            : _previousStep,
+                  ),
 
-              const SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
-              _controlButton(
-                icon:
-                    Icons.restart_alt_rounded,
-                label: 'Reset',
-                onPressed: _reset,
-              ),
-            ],
+                  Expanded(
+                    child: _controlButton(
+                      icon: isRunning
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      label: isRunning
+                          ? 'Pause'
+                          : 'Play',
+                      onPressed: isCompleted
+                          ? null
+                          : _togglePlayPause,
+                      primary: true,
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  _controlButton(
+                    icon:
+                        Icons.skip_next_rounded,
+                    label: 'Next Step',
+                    onPressed:
+                        currentStep >=
+                                events.length
+                            ? null
+                            : _nextStep,
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  _controlButton(
+                    icon:
+                        Icons.restart_alt_rounded,
+                    label: 'Reset',
+                    onPressed: _reset,
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 12),
@@ -2228,11 +2239,10 @@ void selectionSort(int[] arr) {
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.55),
+                  color:
+                      Colors.white.withOpacity(0.55),
                   fontSize: 11,
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
 
@@ -2244,10 +2254,8 @@ void selectionSort(int[] arr) {
                   divisions: 5,
                   activeColor: cyan,
                   inactiveColor:
-                      Colors.white
-                          .withOpacity(0.08),
-                  onChanged:
-                      _setSpeed,
+                      Colors.white.withOpacity(0.08),
+                  onChanged: _setSpeed,
                 ),
               ),
 
@@ -2255,14 +2263,11 @@ void selectionSort(int[] arr) {
                 width: 48,
                 child: Text(
                   '${speed.toStringAsFixed(1)}x',
-                  textAlign:
-                      TextAlign.center,
-                  style:
-                      const TextStyle(
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
                     color: cyan,
                     fontSize: 11,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2274,19 +2279,17 @@ void selectionSort(int[] arr) {
           ClipRRect(
             borderRadius:
                 BorderRadius.circular(4),
-            child:
-                LinearProgressIndicator(
+            child: LinearProgressIndicator(
               value: events.isEmpty
                   ? 0
-                  : currentStep /
-                      events.length,
+                  : (currentStep /
+                          events.length)
+                      .clamp(0.0, 1.0),
               minHeight: 4,
               backgroundColor:
-                  Colors.white
-                      .withOpacity(0.06),
+                  Colors.white.withOpacity(0.06),
               valueColor:
-                  const AlwaysStoppedAnimation<
-                      Color>(
+                  const AlwaysStoppedAnimation<Color>(
                 cyan,
               ),
             ),
@@ -2296,35 +2299,36 @@ void selectionSort(int[] arr) {
 
           Row(
             mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.45),
+                  color:
+                      Colors.white.withOpacity(0.45),
                   fontSize: 10,
                 ),
               ),
+
               Text(
                 isCompleted
                     ? 'Execution Finished'
                     : isRunning
                         ? 'Running...'
-                        : 'Paused',
+                        : currentStep > 0
+                            ? 'Paused'
+                            : 'Ready',
                 style: TextStyle(
                   color: isCompleted
                       ? green
                       : isRunning
                           ? orange
-                          : Colors.white
-                              .withOpacity(
-                              0.4,
-                            ),
+                          : currentStep > 0
+                              ? purple
+                              : Colors.white
+                                  .withOpacity(0.4),
                   fontSize: 10,
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -2354,43 +2358,31 @@ void selectionSort(int[] arr) {
         ),
         label: Text(
           label,
-          style:
-              const TextStyle(
+          style: const TextStyle(
             fontSize: 10,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor: primary
-              ? cyan
-              : cardColor,
-          foregroundColor: primary
-              ? background
-              : Colors.white,
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              primary ? cyan : cardColor,
+          foregroundColor:
+              primary ? background : Colors.white,
           disabledBackgroundColor:
-              Colors.white
-                  .withOpacity(0.04),
+              Colors.white.withOpacity(0.04),
           disabledForegroundColor:
-              Colors.white
-                  .withOpacity(0.20),
+              Colors.white.withOpacity(0.20),
           elevation: 0,
-          padding:
-              const EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 10,
           ),
-          shape:
-              RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius:
-                BorderRadius.circular(
-              9,
-            ),
+                BorderRadius.circular(9),
             side: BorderSide(
               color: primary
                   ? cyan
-                  : Colors.white
-                      .withOpacity(0.08),
+                  : Colors.white.withOpacity(0.08),
             ),
           ),
         ),
@@ -2403,7 +2395,7 @@ void selectionSort(int[] arr) {
   // ==========================================================================
 
   Widget _buildSourceCode() {
-    final lines =
+    final List<String> lines =
         sourceCode.trimRight().split('\n');
 
     return _card(
@@ -2427,22 +2419,18 @@ void selectionSort(int[] arr) {
                     BorderRadius.circular(8),
                 child: Container(
                   padding:
-                      const EdgeInsets
-                          .symmetric(
+                      const EdgeInsets.symmetric(
                     horizontal: 9,
                     vertical: 7,
                   ),
-                  decoration:
-                      BoxDecoration(
-                    color: purple
-                        .withOpacity(0.08),
+                  decoration: BoxDecoration(
+                    color:
+                        purple.withOpacity(0.08),
                     borderRadius:
-                        BorderRadius.circular(
-                      8,
-                    ),
+                        BorderRadius.circular(8),
                     border: Border.all(
-                      color: purple
-                          .withOpacity(0.20),
+                      color:
+                          purple.withOpacity(0.20),
                     ),
                   ),
                   child: const Row(
@@ -2454,11 +2442,12 @@ void selectionSort(int[] arr) {
                         color: purple,
                         size: 14,
                       ),
+
                       SizedBox(width: 5),
+
                       Text(
                         'Copy',
-                        style:
-                            TextStyle(
+                        style: TextStyle(
                           color: purple,
                           fontSize: 10,
                           fontWeight:
@@ -2485,65 +2474,52 @@ void selectionSort(int[] arr) {
                 const EdgeInsets.symmetric(
               vertical: 10,
             ),
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color:
                   const Color(0xFF050A14),
               borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+                  BorderRadius.circular(11),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color:
+                    Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
+            child: SingleChildScrollView(
               child: Column(
-                children:
-                    List.generate(
+                children: List.generate(
                   lines.length,
                   (index) {
-                    final lineNumber =
+                    final int lineNumber =
                         index + 1;
 
-                    final active =
+                    final bool active =
                         lineNumber ==
                             activeCodeLine;
 
                     return Container(
-                      width:
-                          double.infinity,
+                      width: double.infinity,
                       padding:
-                          const EdgeInsets
-                              .symmetric(
+                          const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 2,
                       ),
                       color: active
-                          ? cyan.withOpacity(
-                              0.09,
-                            )
-                          : Colors
-                              .transparent,
+                          ? cyan.withOpacity(0.09)
+                          : Colors.transparent,
                       child: Row(
                         crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                            CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 25,
                             child: Text(
                               '$lineNumber',
                               textAlign:
-                                  TextAlign
-                                      .right,
+                                  TextAlign.right,
                               style: TextStyle(
                                 color: active
                                     ? cyan
-                                    : Colors
-                                        .white
+                                    : Colors.white
                                         .withOpacity(
                                         0.20,
                                       ),
@@ -2561,13 +2537,10 @@ void selectionSort(int[] arr) {
                           Expanded(
                             child: Text(
                               lines[index],
-                              style:
-                                  TextStyle(
+                              style: TextStyle(
                                 color: active
-                                    ? Colors
-                                        .white
-                                    : Colors
-                                        .white
+                                    ? Colors.white
+                                    : Colors.white
                                         .withOpacity(
                                         0.65,
                                       ),
@@ -2576,10 +2549,8 @@ void selectionSort(int[] arr) {
                                 fontFamily:
                                     'monospace',
                                 fontWeight: active
-                                    ? FontWeight
-                                        .w700
-                                    : FontWeight
-                                        .w400,
+                                    ? FontWeight.w700
+                                    : FontWeight.w400,
                               ),
                             ),
                           ),
@@ -2618,36 +2589,26 @@ void selectionSort(int[] arr) {
 
               Container(
                 padding:
-                    const EdgeInsets
-                        .symmetric(
+                    const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   color:
-                      cyan.withOpacity(
-                    0.07,
-                  ),
+                      cyan.withOpacity(0.07),
                   borderRadius:
-                      BorderRadius.circular(
-                    7,
-                  ),
+                      BorderRadius.circular(7),
                   border: Border.all(
                     color:
-                        cyan.withOpacity(
-                      0.14,
-                    ),
+                        cyan.withOpacity(0.14),
                   ),
                 ),
                 child: Text(
                   '${executionHistory.length}',
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: cyan,
                     fontSize: 10,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2670,9 +2631,8 @@ void selectionSort(int[] arr) {
                     executionHistory.length,
                 itemBuilder:
                     (context, index) {
-                  final event =
-                      executionHistory[
-                          index];
+                  final SelectionSortEvent event =
+                      executionHistory[index];
 
                   return _executionStepItem(
                     index,
@@ -2698,23 +2658,21 @@ void selectionSort(int[] arr) {
         vertical: 35,
         horizontal: 15,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            visualizationColor,
+      decoration: BoxDecoration(
+        color: visualizationColor,
         borderRadius:
             BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.06),
+          color:
+              Colors.white.withOpacity(0.06),
         ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white
-                .withOpacity(0.20),
+            color:
+                Colors.white.withOpacity(0.20),
             size: 32,
           ),
 
@@ -2723,11 +2681,10 @@ void selectionSort(int[] arr) {
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.55),
+              color:
+                  Colors.white.withOpacity(0.55),
               fontSize: 12,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2736,8 +2693,8 @@ void selectionSort(int[] arr) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.30),
+              color:
+                  Colors.white.withOpacity(0.30),
               fontSize: 10,
             ),
           ),
@@ -2754,25 +2711,19 @@ void selectionSort(int[] arr) {
     int index,
     SelectionSortEvent event,
   ) {
-    final color =
+    final Color color =
         _eventColor(event.type);
 
     return Container(
       margin:
-          const EdgeInsets.only(
-        bottom: 7,
-      ),
-      padding:
-          const EdgeInsets.all(10),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.045),
+          const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.045),
         borderRadius:
             BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.14),
+          color: color.withOpacity(0.14),
         ),
       ),
       child: Row(
@@ -2782,12 +2733,8 @@ void selectionSort(int[] arr) {
           Container(
             width: 27,
             height: 27,
-            decoration:
-                BoxDecoration(
-              color:
-                  color.withOpacity(
-                0.10,
-              ),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
               borderRadius:
                   BorderRadius.circular(7),
             ),
@@ -2810,8 +2757,7 @@ void selectionSort(int[] arr) {
                     Expanded(
                       child: Text(
                         event.title,
-                        style:
-                            TextStyle(
+                        style: TextStyle(
                           color: color,
                           fontSize: 10.5,
                           fontWeight:
@@ -2822,12 +2768,9 @@ void selectionSort(int[] arr) {
 
                     Text(
                       '#${index + 1}',
-                      style:
-                          TextStyle(
+                      style: TextStyle(
                         color: Colors.white
-                            .withOpacity(
-                          0.22,
-                        ),
+                            .withOpacity(0.22),
                         fontSize: 9,
                         fontWeight:
                             FontWeight.w700,
@@ -2842,9 +2785,7 @@ void selectionSort(int[] arr) {
                   event.description,
                   style: TextStyle(
                     color: Colors.white
-                        .withOpacity(
-                      0.53,
-                    ),
+                        .withOpacity(0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -2856,12 +2797,9 @@ void selectionSort(int[] arr) {
                   event.operation,
                   style: TextStyle(
                     color: Colors.white
-                        .withOpacity(
-                      0.30,
-                    ),
+                        .withOpacity(0.30),
                     fontSize: 8.5,
-                    fontFamily:
-                        'monospace',
+                    fontFamily: 'monospace',
                   ),
                 ),
               ],
@@ -2881,24 +2819,21 @@ void selectionSort(int[] arr) {
   }) {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(14),
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
         color: cardColor,
         borderRadius:
             BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.065),
+          color:
+              Colors.white.withOpacity(0.065),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withOpacity(0.18),
+            color:
+                Colors.black.withOpacity(0.18),
             blurRadius: 16,
-            offset:
-                const Offset(0, 7),
+            offset: const Offset(0, 7),
           ),
         ],
       ),
@@ -2916,16 +2851,13 @@ void selectionSort(int[] arr) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 30,
           height: 30,
-          decoration:
-              BoxDecoration(
-            color:
-                color.withOpacity(0.09),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.09),
             borderRadius:
                 BorderRadius.circular(8),
           ),
@@ -2940,12 +2872,10 @@ void selectionSort(int[] arr) {
 
         Text(
           title,
-          style:
-              const TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 13,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -2967,15 +2897,12 @@ void selectionSort(int[] arr) {
         horizontal: 12,
         vertical: 9,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.055),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.055),
         borderRadius:
             BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.16),
+          color: color.withOpacity(0.16),
         ),
       ),
       child: Column(
@@ -2985,11 +2912,9 @@ void selectionSort(int[] arr) {
           Text(
             title,
             style: TextStyle(
-              color:
-                  color.withOpacity(0.8),
+              color: color.withOpacity(0.8),
               fontSize: 9,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2997,12 +2922,10 @@ void selectionSort(int[] arr) {
 
           Text(
             value,
-            style:
-                const TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -3026,15 +2949,12 @@ void selectionSort(int[] arr) {
           horizontal: 8,
           vertical: 8,
         ),
-        decoration:
-            BoxDecoration(
-          color:
-              color.withOpacity(0.07),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.07),
           borderRadius:
               BorderRadius.circular(9),
           border: Border.all(
-            color:
-                color.withOpacity(0.18),
+            color: color.withOpacity(0.18),
           ),
         ),
         child: Column(
@@ -3044,8 +2964,7 @@ void selectionSort(int[] arr) {
               style: TextStyle(
                 color: color,
                 fontSize: 8,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
               ),
             ),
@@ -3054,14 +2973,11 @@ void selectionSort(int[] arr) {
 
             Text(
               value,
-              overflow:
-                  TextOverflow.ellipsis,
-              style:
-                  const TextStyle(
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],

@@ -31,6 +31,7 @@ enum BubbleSortEventType {
 class BubbleSortEvent {
   final BubbleSortEventType type;
 
+  /// Snapshot of the array at this exact event.
   final List<int> array;
 
   final int index;
@@ -63,50 +64,38 @@ class BubbleSortEvent {
 // STATE
 // ============================================================================
 
-class _BubbleSortScreenState
-    extends State<BubbleSortScreen> {
+class _BubbleSortScreenState extends State<BubbleSortScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
 
-  static const Color background =
-      Color(0xFF030712);
+  static const Color background = Color(0xFF030712);
+  static const Color background2 = Color(0xFF07101F);
+  static const Color cardColor = Color(0xFF0B1428);
+  static const Color visualizationColor = Color(0xFF0A1020);
 
-  static const Color background2 =
-      Color(0xFF07101F);
-
-  static const Color cardColor =
-      Color(0xFF0B1428);
-
-  static const Color visualizationColor =
-      Color(0xFF0A1020);
-
-  static const Color cyan =
-      Color(0xFF00E5FF);
-
-  static const Color blue =
-      Color(0xFF2979FF);
-
-  static const Color purple =
-      Color(0xFF9C27FF);
-
-  static const Color green =
-      Color(0xFF00E676);
-
-  static const Color orange =
-      Color(0xFFFFB300);
-
-  static const Color pink =
-      Color(0xFFFF4081);
-
-  static const Color red =
-      Color(0xFFFF5252);
+  static const Color cyan = Color(0xFF00E5FF);
+  static const Color blue = Color(0xFF2979FF);
+  static const Color purple = Color(0xFF9C27FF);
+  static const Color green = Color(0xFF00E676);
+  static const Color orange = Color(0xFFFFB300);
+  static const Color pink = Color(0xFFFF4081);
+  static const Color red = Color(0xFFFF5252);
 
   // ==========================================================================
   // DATA
   // ==========================================================================
 
   List<int> array = [
+    64,
+    25,
+    12,
+    22,
+    11,
+  ];
+
+  /// Original state used by Reset.
+  List<int> originalArray = [
     64,
     25,
     12,
@@ -163,8 +152,7 @@ class _BubbleSortScreenState
 
   int activeCodeLine = 0;
 
-  String executionMessage =
-      'Ready to start Bubble Sort.';
+  String executionMessage = 'Ready to start Bubble Sort.';
 
   // ==========================================================================
   // SOURCE CODE
@@ -173,16 +161,19 @@ class _BubbleSortScreenState
   final String sourceCode = '''
 void bubbleSort(int[] arr) {
   for (int i = 0; i < arr.length - 1; i++) {
+    bool swapped = false;
 
     for (int j = 0; j < arr.length - i - 1; j++) {
-
       if (arr[j] > arr[j + 1]) {
-
         int temp = arr[j];
         arr[j] = arr[j + 1];
         arr[j + 1] = temp;
-
+        swapped = true;
       }
+    }
+
+    if (!swapped) {
+      break;
     }
   }
 }
@@ -196,6 +187,8 @@ void bubbleSort(int[] arr) {
   void initState() {
     super.initState();
 
+    originalArray = [...array];
+
     _generateEvents();
   }
 
@@ -206,7 +199,6 @@ void bubbleSort(int[] arr) {
   @override
   void dispose() {
     timer?.cancel();
-
     arrayController.dispose();
 
     super.dispose();
@@ -219,8 +211,7 @@ void bubbleSort(int[] arr) {
   void _generateEvents() {
     final working = [...array];
 
-    final generated =
-        <BubbleSortEvent>[];
+    final generated = <BubbleSortEvent>[];
 
     if (working.isEmpty) {
       events = generated;
@@ -233,8 +224,7 @@ void bubbleSort(int[] arr) {
 
     generated.add(
       BubbleSortEvent(
-        type:
-            BubbleSortEventType.initialize,
+        type: BubbleSortEventType.initialize,
         array: [...working],
         index: -1,
         secondIndex: -1,
@@ -244,8 +234,7 @@ void bubbleSort(int[] arr) {
         title: 'Bubble Sort Initialized',
         description:
             'The array will be sorted by repeatedly comparing adjacent elements.',
-        operation:
-            'Start Bubble Sort',
+        operation: 'Start Bubble Sort',
       ),
     );
 
@@ -255,18 +244,14 @@ void bubbleSort(int[] arr) {
 
     int totalSorted = 0;
 
-    for (
-      int i = 0;
-      i < working.length - 1;
-      i++
-    ) {
+    for (int i = 0; i < working.length - 1; i++) {
       bool swapped = false;
 
-      for (
-        int j = 0;
-        j < working.length - i - 1;
-        j++
-      ) {
+      // ----------------------------------------------------------------------
+      // INNER LOOP
+      // ----------------------------------------------------------------------
+
+      for (int j = 0; j < working.length - i - 1; j++) {
         final left = working[j];
         final right = working[j + 1];
 
@@ -276,20 +261,16 @@ void bubbleSort(int[] arr) {
 
         generated.add(
           BubbleSortEvent(
-            type:
-                BubbleSortEventType.compare,
+            type: BubbleSortEventType.compare,
             array: [...working],
             index: j,
             secondIndex: j + 1,
             firstValue: left,
             secondValue: right,
             sortedCount: totalSorted,
-            title:
-                'Comparing Adjacent Elements',
-            description:
-                'Compare $left and $right.',
-            operation:
-                'arr[$j] > arr[${j + 1}]',
+            title: 'Comparing Adjacent Elements',
+            description: 'Compare $left and $right.',
+            operation: 'arr[$j] > arr[${j + 1}]',
           ),
         );
 
@@ -298,10 +279,16 @@ void bubbleSort(int[] arr) {
         // --------------------------------------------------------------------
 
         if (left > right) {
+          // Perform the actual swap FIRST.
+          working[j] = right;
+          working[j + 1] = left;
+
+          swapped = true;
+
+          // Store the UPDATED array snapshot.
           generated.add(
             BubbleSortEvent(
-              type:
-                  BubbleSortEventType.swap,
+              type: BubbleSortEventType.swap,
               array: [...working],
               index: j,
               secondIndex: j + 1,
@@ -311,15 +298,9 @@ void bubbleSort(int[] arr) {
               title: 'Swap Required',
               description:
                   '$left is greater than $right, so the elements are swapped.',
-              operation:
-                  'Swap arr[$j] and arr[${j + 1}]',
+              operation: 'Swap arr[$j] and arr[${j + 1}]',
             ),
           );
-
-          working[j] = right;
-          working[j + 1] = left;
-
-          swapped = true;
         } else {
           // ------------------------------------------------------------------
           // NO SWAP
@@ -327,8 +308,7 @@ void bubbleSort(int[] arr) {
 
           generated.add(
             BubbleSortEvent(
-              type:
-                  BubbleSortEventType.noSwap,
+              type: BubbleSortEventType.noSwap,
               array: [...working],
               index: j,
               secondIndex: j + 1,
@@ -338,8 +318,7 @@ void bubbleSort(int[] arr) {
               title: 'No Swap',
               description:
                   '$left is already smaller than or equal to $right.',
-              operation:
-                  'arr[$j] <= arr[${j + 1}]',
+              operation: 'arr[$j] <= arr[${j + 1}]',
             ),
           );
         }
@@ -351,13 +330,11 @@ void bubbleSort(int[] arr) {
 
       totalSorted++;
 
-      final sortedIndex =
-          working.length - i - 1;
+      final sortedIndex = working.length - i - 1;
 
       generated.add(
         BubbleSortEvent(
-          type:
-              BubbleSortEventType.sorted,
+          type: BubbleSortEventType.sorted,
           array: [...working],
           index: sortedIndex,
           secondIndex: -1,
@@ -367,10 +344,13 @@ void bubbleSort(int[] arr) {
           title: 'Element Sorted',
           description:
               'Value ${working[sortedIndex]} is now in its final position.',
-          operation:
-              'Sorted position $sortedIndex',
+          operation: 'Sorted position $sortedIndex',
         ),
       );
+
+      // ----------------------------------------------------------------------
+      // OPTIMIZATION
+      // ----------------------------------------------------------------------
 
       if (!swapped) {
         break;
@@ -383,20 +363,17 @@ void bubbleSort(int[] arr) {
 
     generated.add(
       BubbleSortEvent(
-        type:
-            BubbleSortEventType.complete,
+        type: BubbleSortEventType.complete,
         array: [...working],
         index: -1,
         secondIndex: -1,
         firstValue: -1,
         secondValue: -1,
-        sortedCount:
-            working.length,
+        sortedCount: working.length,
         title: 'Bubble Sort Complete',
         description:
             'The array is now sorted in ascending order.',
-        operation:
-            'Sorting completed',
+        operation: 'Sorting completed',
       ),
     );
 
@@ -408,8 +385,7 @@ void bubbleSort(int[] arr) {
   // ==========================================================================
 
   void _loadArray() {
-    final text =
-        arrayController.text.trim();
+    final text = arrayController.text.trim();
 
     if (text.isEmpty) {
       _showSnackBar(
@@ -419,14 +395,12 @@ void bubbleSort(int[] arr) {
       return;
     }
 
-    final parts =
-        text.split(RegExp(r'[\s,]+'));
+    final parts = text.split(RegExp(r'[\s,]+'));
 
     final values = <int>[];
 
     for (final part in parts) {
-      final value =
-          int.tryParse(part);
+      final value = int.tryParse(part);
 
       if (value != null) {
         values.add(value);
@@ -445,6 +419,9 @@ void bubbleSort(int[] arr) {
 
     setState(() {
       array = [...values];
+
+      // Save this as the new reset state.
+      originalArray = [...values];
 
       executionHistory.clear();
 
@@ -487,19 +464,20 @@ void bubbleSort(int[] arr) {
   void _generateNumbers() {
     final random = Random();
 
-    final generated =
-        List.generate(
+    final generated = List.generate(
       8,
       (_) => random.nextInt(90) + 10,
     );
 
-    arrayController.text =
-        generated.join(', ');
+    arrayController.text = generated.join(', ');
 
     timer?.cancel();
 
     setState(() {
       array = [...generated];
+
+      // Generated array becomes the new reset state.
+      originalArray = [...generated];
 
       executionHistory.clear();
 
@@ -528,6 +506,11 @@ void bubbleSort(int[] arr) {
     });
 
     _generateEvents();
+
+    _showSnackBar(
+      'New numbers generated.',
+      purple,
+    );
   }
 
   // ==========================================================================
@@ -535,8 +518,7 @@ void bubbleSort(int[] arr) {
   // ==========================================================================
 
   void _play() {
-    if (events.isEmpty ||
-        isCompleted) {
+    if (events.isEmpty || isCompleted) {
       return;
     }
 
@@ -547,9 +529,7 @@ void bubbleSort(int[] arr) {
     });
 
     final milliseconds =
-        (900 / speed)
-            .round()
-            .clamp(100, 2000);
+        (900 / speed).round().clamp(100, 2000);
 
     timer = Timer.periodic(
       Duration(
@@ -561,8 +541,7 @@ void bubbleSort(int[] arr) {
           return;
         }
 
-        if (currentStep >=
-            events.length) {
+        if (currentStep >= events.length) {
           timer?.cancel();
 
           setState(() {
@@ -584,6 +563,8 @@ void bubbleSort(int[] arr) {
 
   void _pause() {
     timer?.cancel();
+
+    if (!mounted) return;
 
     setState(() {
       isRunning = false;
@@ -607,8 +588,7 @@ void bubbleSort(int[] arr) {
   // ==========================================================================
 
   void _nextStep() {
-    if (currentStep >=
-        events.length) {
+    if (currentStep >= events.length) {
       return;
     }
 
@@ -616,13 +596,11 @@ void bubbleSort(int[] arr) {
   }
 
   void _nextStepInternal() {
-    if (currentStep >=
-        events.length) {
+    if (currentStep >= events.length) {
       return;
     }
 
-    final event =
-        events[currentStep];
+    final event = events[currentStep];
 
     executionHistory.add(event);
 
@@ -630,8 +608,7 @@ void bubbleSort(int[] arr) {
 
     _applyEvent(event);
 
-    if (currentStep >=
-        events.length) {
+    if (currentStep >= events.length) {
       timer?.cancel();
 
       setState(() {
@@ -654,8 +631,7 @@ void bubbleSort(int[] arr) {
 
     executionHistory.removeLast();
 
-    currentStep =
-        executionHistory.length;
+    currentStep = executionHistory.length;
 
     _rebuildVisualState();
 
@@ -666,10 +642,13 @@ void bubbleSort(int[] arr) {
   }
 
   // ==========================================================================
-  // REBUILD
+  // REBUILD VISUAL STATE
   // ==========================================================================
 
   void _rebuildVisualState() {
+    // Restore the original array first.
+    array = [...originalArray];
+
     comparingIndex = -1;
 
     secondComparingIndex = -1;
@@ -687,15 +666,13 @@ void bubbleSort(int[] arr) {
     executionMessage =
         'Ready to start Bubble Sort.';
 
-    for (final event
-        in executionHistory) {
+    // Replay all previous events.
+    for (final event in executionHistory) {
       _applyEvent(
         event,
         updateState: false,
       );
     }
-
-    setState(() {});
   }
 
   // ==========================================================================
@@ -706,18 +683,32 @@ void bubbleSort(int[] arr) {
     BubbleSortEvent event, {
     bool updateState = true,
   }) {
-    comparingIndex =
-        event.index;
+    // ========================================================================
+    // IMPORTANT FIX
+    // ========================================================================
+    //
+    // Every event contains an exact array snapshot.
+    // Apply that snapshot to the visualization.
+    //
+    // This fixes the problem where the UI kept showing:
+    //
+    // 64 5 12 2 11 6
+    //
+    // even after the algorithm was completed.
+    //
+    // ========================================================================
 
-    secondComparingIndex =
-        event.secondIndex;
+    array = [...event.array];
+
+    comparingIndex = -1;
+
+    secondComparingIndex = -1;
 
     swappingIndex = -1;
 
     secondSwappingIndex = -1;
 
-    sortedCount =
-        event.sortedCount;
+    sortedCount = event.sortedCount;
 
     executionMessage =
         '${event.title}: ${event.description}';
@@ -725,28 +716,44 @@ void bubbleSort(int[] arr) {
     activeCodeLine =
         _codeLineForEvent(event.type);
 
-    if (event.type ==
-        BubbleSortEventType.swap) {
-      swappingIndex =
-          event.index;
+    // ------------------------------------------------------------------------
+    // COMPARE / NO SWAP
+    // ------------------------------------------------------------------------
 
-      secondSwappingIndex =
-          event.secondIndex;
+    if (event.type == BubbleSortEventType.compare ||
+        event.type == BubbleSortEventType.noSwap) {
+      comparingIndex = event.index;
+      secondComparingIndex = event.secondIndex;
     }
 
-    if (event.type ==
-        BubbleSortEventType.sorted) {
+    // ------------------------------------------------------------------------
+    // SWAP
+    // ------------------------------------------------------------------------
+
+    if (event.type == BubbleSortEventType.swap) {
+      swappingIndex = event.index;
+      secondSwappingIndex = event.secondIndex;
+    }
+
+    // ------------------------------------------------------------------------
+    // SORTED
+    // ------------------------------------------------------------------------
+
+    if (event.type == BubbleSortEventType.sorted) {
       if (event.index >= 0) {
-        sortedIndexes.add(
-          event.index,
-        );
+        sortedIndexes.add(event.index);
       }
+
+      comparingIndex = -1;
+      secondComparingIndex = -1;
     }
 
-    if (event.type ==
-        BubbleSortEventType.complete) {
-      sortedIndexes =
-          Set<int>.from(
+    // ------------------------------------------------------------------------
+    // COMPLETE
+    // ------------------------------------------------------------------------
+
+    if (event.type == BubbleSortEventType.complete) {
+      sortedIndexes = Set<int>.from(
         List.generate(
           array.length,
           (index) => index,
@@ -760,6 +767,11 @@ void bubbleSort(int[] arr) {
       swappingIndex = -1;
 
       secondSwappingIndex = -1;
+
+      sortedCount = array.length;
+
+      executionMessage =
+          'Bubble Sort Complete: The array is now sorted in ascending order.';
     }
 
     if (updateState) {
@@ -775,6 +787,9 @@ void bubbleSort(int[] arr) {
     timer?.cancel();
 
     setState(() {
+      // Restore the exact original input.
+      array = [...originalArray];
+
       executionHistory.clear();
 
       currentStep = 0;
@@ -800,15 +815,15 @@ void bubbleSort(int[] arr) {
       executionMessage =
           'Ready to start Bubble Sort.';
     });
+
+    _generateEvents();
   }
 
   // ==========================================================================
   // SPEED
   // ==========================================================================
 
-  void _setSpeed(
-    double value,
-  ) {
+  void _setSpeed(double value) {
     setState(() {
       speed = value;
     });
@@ -830,16 +845,16 @@ void bubbleSort(int[] arr) {
         return 1;
 
       case BubbleSortEventType.compare:
-        return 5;
+        return 6;
 
       case BubbleSortEventType.noSwap:
-        return 5;
+        return 6;
 
       case BubbleSortEventType.swap:
         return 7;
 
       case BubbleSortEventType.sorted:
-        return 3;
+        return 12;
 
       case BubbleSortEventType.complete:
         return 1;
@@ -927,24 +942,19 @@ void bubbleSort(int[] arr) {
     String message,
     Color color,
   ) {
-    ScaffoldMessenger.of(context)
-        .hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
           style: const TextStyle(
             color: Colors.white,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor:
-            color.withOpacity(0.85),
-        behavior:
-            SnackBarBehavior.floating,
+        backgroundColor: color.withOpacity(0.85),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -954,39 +964,28 @@ void bubbleSort(int[] arr) {
   // ==========================================================================
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
       body: SafeArea(
         child: LayoutBuilder(
-          builder:
-              (context, constraints) {
+          builder: (context, constraints) {
             return SingleChildScrollView(
-              padding:
-                  const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(18),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
 
-                  const SizedBox(
-                    height: 16,
-                  ),
+                  const SizedBox(height: 16),
 
                   _buildAlgorithmInfo(),
 
-                  const SizedBox(
-                    height: 16,
-                  ),
+                  const SizedBox(height: 16),
 
                   _buildInputSection(),
 
-                  const SizedBox(
-                    height: 16,
-                  ),
+                  const SizedBox(height: 16),
 
                   _buildMainWorkspace(
                     constraints.maxWidth,
@@ -1006,18 +1005,15 @@ void bubbleSort(int[] arr) {
 
   Widget _buildHeader() {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 12,
       ),
       decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              orange.withOpacity(0.16),
+          color: orange.withOpacity(0.16),
         ),
       ),
       child: Row(
@@ -1026,21 +1022,15 @@ void bubbleSort(int[] arr) {
             onTap: () {
               Navigator.pop(context);
             },
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 40,
               height: 40,
-              decoration:
-                  BoxDecoration(
+              decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius:
-                    BorderRadius.circular(
-                  10,
-                ),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white
-                      .withOpacity(0.08),
+                  color: Colors.white.withOpacity(0.08),
                 ),
               ),
               child: const Icon(
@@ -1056,19 +1046,14 @@ void bubbleSort(int[] arr) {
           Container(
             width: 42,
             height: 42,
-            decoration:
-                BoxDecoration(
-              gradient:
-                  const LinearGradient(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
                 colors: [
                   orange,
                   pink,
                 ],
               ),
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+              borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
               Icons.bubble_chart_rounded,
@@ -1081,16 +1066,14 @@ void bubbleSort(int[] arr) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Bubble Sort',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
 
@@ -1099,8 +1082,7 @@ void bubbleSort(int[] arr) {
                 Text(
                   'Sort elements using adjacent comparisons',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.55),
+                    color: Colors.white.withOpacity(0.55),
                     fontSize: 12,
                   ),
                 ),
@@ -1132,31 +1114,24 @@ void bubbleSort(int[] arr) {
     }
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 7,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.10),
-        borderRadius:
-            BorderRadius.circular(20),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              color.withOpacity(0.35),
+          color: color.withOpacity(0.35),
         ),
       ),
       child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 7,
             height: 7,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
             ),
@@ -1169,8 +1144,7 @@ void bubbleSort(int[] arr) {
             style: TextStyle(
               color: color,
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
             ),
           ),
@@ -1186,8 +1160,7 @@ void bubbleSort(int[] arr) {
   Widget _buildAlgorithmInfo() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.info_outline_rounded,
@@ -1204,8 +1177,7 @@ void bubbleSort(int[] arr) {
             'largest unsorted element moves to its '
             'correct position.',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.64),
+              color: Colors.white.withOpacity(0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
@@ -1261,8 +1233,7 @@ void bubbleSort(int[] arr) {
   Widget _buildInputSection() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.input_rounded,
@@ -1273,28 +1244,21 @@ void bubbleSort(int[] arr) {
           const SizedBox(height: 12),
 
           LayoutBuilder(
-            builder:
-                (context, constraints) {
-              if (constraints.maxWidth <
-                  700) {
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 700) {
                 return Column(
                   children: [
                     _inputField(),
 
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 10),
 
                     Row(
                       children: [
                         Expanded(
-                          child:
-                              _generateButton(),
+                          child: _generateButton(),
                         ),
 
-                        const SizedBox(
-                          width: 10,
-                        ),
+                        const SizedBox(width: 10),
 
                         Expanded(
                           child: _loadButton(),
@@ -1306,31 +1270,24 @@ void bubbleSort(int[] arr) {
               }
 
               return Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: _inputField(),
                   ),
 
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _generateButton(),
+                    child: _generateButton(),
                   ),
 
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _loadButton(),
+                    child: _loadButton(),
                   ),
                 ],
               );
@@ -1343,8 +1300,7 @@ void bubbleSort(int[] arr) {
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color:
-                    orange.withOpacity(0.85),
+                color: orange.withOpacity(0.85),
                 size: 15,
               ),
 
@@ -1354,8 +1310,7 @@ void bubbleSort(int[] arr) {
                 child: Text(
                   'Try different numbers to see comparisons and swaps.',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.45),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -1379,51 +1334,38 @@ void bubbleSort(int[] arr) {
         fontSize: 13,
       ),
       cursorColor: cyan,
-      decoration:
-          InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Enter Numbers',
-        hintText:
-            '64, 25, 12, 22, 11...',
+        hintText: '64, 25, 12, 22, 11...',
         labelStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.58),
+          color: Colors.white.withOpacity(0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.25),
+          color: Colors.white.withOpacity(0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
           Icons.data_array_rounded,
-          color:
-              cyan.withOpacity(0.8),
+          color: cyan.withOpacity(0.8),
           size: 19,
         ),
         filled: true,
-        fillColor:
-            visualizationColor,
-        contentPadding:
-            const EdgeInsets.symmetric(
+        fillColor: visualizationColor,
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 13,
         ),
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: Colors.white
-                .withOpacity(0.08),
+            color: Colors.white.withOpacity(0.08),
           ),
         ),
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color:
-                cyan.withOpacity(0.55),
+            color: cyan.withOpacity(0.55),
           ),
         ),
       ),
@@ -1444,26 +1386,20 @@ void bubbleSort(int[] arr) {
       label: const Text(
         'Generate Numbers',
         style: TextStyle(
-          fontWeight:
-              FontWeight.w700,
+          fontWeight: FontWeight.w700,
           fontSize: 12,
         ),
       ),
-      style:
-          ElevatedButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         backgroundColor: purple,
-        foregroundColor:
-            Colors.white,
+        foregroundColor: Colors.white,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 12,
         ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1483,26 +1419,20 @@ void bubbleSort(int[] arr) {
       label: const Text(
         'LOAD ARRAY',
         style: TextStyle(
-          fontWeight:
-              FontWeight.w800,
+          fontWeight: FontWeight.w800,
           fontSize: 12,
         ),
       ),
-      style:
-          ElevatedButton.styleFrom(
+      style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
-        foregroundColor:
-            background,
+        foregroundColor: background,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 12,
         ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1512,9 +1442,7 @@ void bubbleSort(int[] arr) {
   // WORKSPACE
   // ==========================================================================
 
-  Widget _buildMainWorkspace(
-    double width,
-  ) {
+  Widget _buildMainWorkspace(double width) {
     if (width < 900) {
       return Column(
         children: [
@@ -1536,8 +1464,7 @@ void bubbleSort(int[] arr) {
     }
 
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 3,
@@ -1577,8 +1504,7 @@ void bubbleSort(int[] arr) {
   Widget _buildVisualization() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.bar_chart_rounded,
@@ -1602,8 +1528,7 @@ void bubbleSort(int[] arr) {
 
               _miniBadge(
                 'SECOND',
-                secondComparingIndex >=
-                        0
+                secondComparingIndex >= 0
                     ? '$secondComparingIndex'
                     : '-',
                 blue,
@@ -1613,8 +1538,7 @@ void bubbleSort(int[] arr) {
 
               _miniBadge(
                 'SORTED',
-                sortedIndexes.length
-                    .toString(),
+                sortedIndexes.length.toString(),
                 green,
               ),
 
@@ -1622,8 +1546,7 @@ void bubbleSort(int[] arr) {
 
               _miniBadge(
                 'STEPS',
-                executionHistory.length
-                    .toString(),
+                executionHistory.length.toString(),
                 purple,
               ),
             ],
@@ -1633,36 +1556,23 @@ void bubbleSort(int[] arr) {
 
           Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 10,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  visualizationColor,
-              borderRadius:
-                  BorderRadius.circular(
-                12,
-              ),
+            decoration: BoxDecoration(
+              color: visualizationColor,
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
-              scrollDirection:
-                  Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Row(
-                children:
-                    List.generate(
+                children: List.generate(
                   array.length,
-                  (index) =>
-                      _buildArrayItem(
-                    index,
-                  ),
+                  (index) => _buildArrayItem(index),
                 ),
               ),
             ),
@@ -1688,9 +1598,7 @@ void bubbleSort(int[] arr) {
   // ARRAY ITEM
   // ==========================================================================
 
-  Widget _buildArrayItem(
-    int index,
-  ) {
+  Widget _buildArrayItem(int index) {
     final value = array[index];
 
     final bool isComparing =
@@ -1705,57 +1613,51 @@ void bubbleSort(int[] arr) {
         sortedIndexes.contains(index);
 
     Color itemColor =
-        Colors.white.withOpacity(
-      0.08,
-    );
+        Colors.white.withOpacity(0.08);
 
     Color borderColor =
-        Colors.white.withOpacity(
-      0.08,
-    );
+        Colors.white.withOpacity(0.08);
 
-    Color textColor =
-        Colors.white;
+    Color textColor = Colors.white;
 
     String label = '';
 
+    // ------------------------------------------------------------------------
+    // SORTED
+    // ------------------------------------------------------------------------
+
     if (isSorted) {
-      itemColor =
-          green.withOpacity(0.18);
-
+      itemColor = green.withOpacity(0.18);
       borderColor = green;
-
       textColor = green;
-
       label = 'SORTED';
     }
 
+    // ------------------------------------------------------------------------
+    // COMPARE
+    // ------------------------------------------------------------------------
+
     if (isComparing) {
-      itemColor =
-          cyan.withOpacity(0.18);
-
+      itemColor = cyan.withOpacity(0.18);
       borderColor = cyan;
-
       textColor = cyan;
-
       label = 'COMPARE';
     }
 
+    // ------------------------------------------------------------------------
+    // SWAP
+    // ------------------------------------------------------------------------
+
     if (isSwapping) {
-      itemColor =
-          pink.withOpacity(0.20);
-
+      itemColor = pink.withOpacity(0.20);
       borderColor = pink;
-
       textColor = pink;
-
       label = 'SWAP';
     }
 
     return Container(
       width: 70,
-      margin:
-          const EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 5,
       ),
       child: Column(
@@ -1772,8 +1674,7 @@ void bubbleSort(int[] arr) {
                           ? cyan
                           : green,
                   fontSize: 7.5,
-                  fontWeight:
-                      FontWeight.w900,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
             ),
@@ -1782,13 +1683,9 @@ void bubbleSort(int[] arr) {
           Container(
             height: 58,
             width: 58,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color: itemColor,
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
                 color: borderColor,
                 width:
@@ -1805,8 +1702,7 @@ void bubbleSort(int[] arr) {
                       ? [
                           BoxShadow(
                             color:
-                                borderColor
-                                    .withOpacity(
+                                borderColor.withOpacity(
                               0.18,
                             ),
                             blurRadius: 12,
@@ -1821,8 +1717,7 @@ void bubbleSort(int[] arr) {
                 style: TextStyle(
                   color: textColor,
                   fontSize: 16,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -1833,11 +1728,9 @@ void bubbleSort(int[] arr) {
           Text(
             '[$index]',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.4),
+              color: Colors.white.withOpacity(0.4),
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1879,19 +1772,14 @@ void bubbleSort(int[] arr) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 9,
           height: 9,
-          decoration:
-              BoxDecoration(
+          decoration: BoxDecoration(
             color: color,
-            borderRadius:
-                BorderRadius.circular(
-              3,
-            ),
+            borderRadius: BorderRadius.circular(3),
           ),
         ),
 
@@ -1900,11 +1788,9 @@ void bubbleSort(int[] arr) {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white
-                .withOpacity(0.58),
+            color: Colors.white.withOpacity(0.58),
             fontSize: 10,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -1916,14 +1802,12 @@ void bubbleSort(int[] arr) {
   // ==========================================================================
 
   Widget _buildCurrentInfo() {
-    String message =
-        'Waiting for execution';
+    String message = 'Waiting for execution';
 
     if (comparingIndex >= 0 &&
         secondComparingIndex >= 0 &&
         comparingIndex < array.length &&
-        secondComparingIndex <
-            array.length) {
+        secondComparingIndex < array.length) {
       message =
           'Comparing ${array[comparingIndex]} and ${array[secondComparingIndex]}';
     }
@@ -1931,28 +1815,22 @@ void bubbleSort(int[] arr) {
     if (swappingIndex >= 0 &&
         secondSwappingIndex >= 0 &&
         swappingIndex < array.length &&
-        secondSwappingIndex <
-            array.length) {
+        secondSwappingIndex < array.length) {
       message =
           'Swapping ${array[swappingIndex]} ↔ ${array[secondSwappingIndex]}';
     }
 
     if (isCompleted) {
-      message =
-          'Array sorted successfully';
+      message = 'Array sorted successfully';
     }
 
     return Container(
-      padding:
-          const EdgeInsets.all(12),
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              cyan.withOpacity(0.14),
+          color: cyan.withOpacity(0.14),
         ),
       ),
       child: Row(
@@ -1960,14 +1838,9 @@ void bubbleSort(int[] arr) {
           Container(
             width: 34,
             height: 34,
-            decoration:
-                BoxDecoration(
-              color:
-                  cyan.withOpacity(0.09),
-              borderRadius:
-                  BorderRadius.circular(
-                8,
-              ),
+            decoration: BoxDecoration(
+              color: cyan.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
               Icons.swap_horiz_rounded,
@@ -1980,17 +1853,14 @@ void bubbleSort(int[] arr) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Current Operation',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.42),
+                    color: Colors.white.withOpacity(0.42),
                     fontSize: 9,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
 
@@ -2001,8 +1871,7 @@ void bubbleSort(int[] arr) {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
@@ -2010,26 +1879,20 @@ void bubbleSort(int[] arr) {
           ),
 
           Container(
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 9,
               vertical: 6,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  green.withOpacity(0.08),
-              borderRadius:
-                  BorderRadius.circular(7),
+            decoration: BoxDecoration(
+              color: green.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(7),
             ),
             child: Text(
               '$sortedCount sorted',
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: green,
                 fontSize: 10,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -2045,37 +1908,28 @@ void bubbleSort(int[] arr) {
   Widget _buildStatusCard() {
     Color color = cyan;
 
-    IconData icon =
-        Icons.info_outline_rounded;
+    IconData icon = Icons.info_outline_rounded;
 
     if (isRunning) {
       color = orange;
-      icon =
-          Icons.play_circle_rounded;
+      icon = Icons.play_circle_rounded;
     } else if (isCompleted) {
       color = green;
-      icon =
-          Icons.check_circle_rounded;
+      icon = Icons.check_circle_rounded;
     }
 
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(13),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.06),
-        borderRadius:
-            BorderRadius.circular(10),
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              color.withOpacity(0.18),
+          color: color.withOpacity(0.18),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             icon,
@@ -2089,8 +1943,7 @@ void bubbleSort(int[] arr) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white
-                    .withOpacity(0.72),
+                color: Colors.white.withOpacity(0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -2112,12 +1965,10 @@ void bubbleSort(int[] arr) {
           Row(
             children: [
               _controlButton(
-                icon:
-                    Icons.skip_previous_rounded,
+                icon: Icons.skip_previous_rounded,
                 label: 'Previous',
                 onPressed:
-                    executionHistory
-                            .isEmpty
+                    executionHistory.isEmpty
                         ? null
                         : _previousStep,
               ),
@@ -2129,9 +1980,7 @@ void bubbleSort(int[] arr) {
                   icon: isRunning
                       ? Icons.pause_rounded
                       : Icons.play_arrow_rounded,
-                  label: isRunning
-                      ? 'Pause'
-                      : 'Play',
+                  label: isRunning ? 'Pause' : 'Play',
                   onPressed: isCompleted
                       ? null
                       : _togglePlayPause,
@@ -2142,12 +1991,10 @@ void bubbleSort(int[] arr) {
               const SizedBox(width: 8),
 
               _controlButton(
-                icon:
-                    Icons.skip_next_rounded,
+                icon: Icons.skip_next_rounded,
                 label: 'Next Step',
                 onPressed:
-                    currentStep >=
-                            events.length
+                    currentStep >= events.length
                         ? null
                         : _nextStep,
               ),
@@ -2155,8 +2002,7 @@ void bubbleSort(int[] arr) {
               const SizedBox(width: 8),
 
               _controlButton(
-                icon:
-                    Icons.restart_alt_rounded,
+                icon: Icons.restart_alt_rounded,
                 label: 'Reset',
                 onPressed: _reset,
               ),
@@ -2178,11 +2024,9 @@ void bubbleSort(int[] arr) {
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.55),
+                  color: Colors.white.withOpacity(0.55),
                   fontSize: 11,
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
 
@@ -2194,10 +2038,8 @@ void bubbleSort(int[] arr) {
                   divisions: 5,
                   activeColor: cyan,
                   inactiveColor:
-                      Colors.white
-                          .withOpacity(0.08),
-                  onChanged:
-                      _setSpeed,
+                      Colors.white.withOpacity(0.08),
+                  onChanged: _setSpeed,
                 ),
               ),
 
@@ -2205,14 +2047,11 @@ void bubbleSort(int[] arr) {
                 width: 48,
                 child: Text(
                   '${speed.toStringAsFixed(1)}x',
-                  textAlign:
-                      TextAlign.center,
-                  style:
-                      const TextStyle(
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
                     color: cyan,
                     fontSize: 11,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2222,21 +2061,16 @@ void bubbleSort(int[] arr) {
           const SizedBox(height: 3),
 
           ClipRRect(
-            borderRadius:
-                BorderRadius.circular(4),
-            child:
-                LinearProgressIndicator(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
               value: events.isEmpty
                   ? 0
-                  : currentStep /
-                      events.length,
+                  : currentStep / events.length,
               minHeight: 4,
               backgroundColor:
-                  Colors.white
-                      .withOpacity(0.06),
+                  Colors.white.withOpacity(0.06),
               valueColor:
-                  const AlwaysStoppedAnimation<
-                      Color>(
+                  const AlwaysStoppedAnimation<Color>(
                 cyan,
               ),
             ),
@@ -2246,35 +2080,33 @@ void bubbleSort(int[] arr) {
 
           Row(
             mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.45),
+                  color: Colors.white.withOpacity(0.45),
                   fontSize: 10,
                 ),
               ),
+
               Text(
                 isCompleted
                     ? 'Execution Finished'
                     : isRunning
                         ? 'Running...'
-                        : 'Paused',
+                        : currentStep == 0
+                            ? 'Ready'
+                            : 'Paused',
                 style: TextStyle(
                   color: isCompleted
                       ? green
                       : isRunning
                           ? orange
                           : Colors.white
-                              .withOpacity(
-                              0.4,
-                            ),
+                              .withOpacity(0.4),
                   fontSize: 10,
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -2304,43 +2136,30 @@ void bubbleSort(int[] arr) {
         ),
         label: Text(
           label,
-          style:
-              const TextStyle(
+          style: const TextStyle(
             fontSize: 10,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        style:
-            ElevatedButton.styleFrom(
-          backgroundColor: primary
-              ? cyan
-              : cardColor,
-          foregroundColor: primary
-              ? background
-              : Colors.white,
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              primary ? cyan : cardColor,
+          foregroundColor:
+              primary ? background : Colors.white,
           disabledBackgroundColor:
-              Colors.white
-                  .withOpacity(0.04),
+              Colors.white.withOpacity(0.04),
           disabledForegroundColor:
-              Colors.white
-                  .withOpacity(0.20),
+              Colors.white.withOpacity(0.20),
           elevation: 0,
-          padding:
-              const EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 10,
           ),
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(
-              9,
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(9),
             side: BorderSide(
               color: primary
                   ? cyan
-                  : Colors.white
-                      .withOpacity(0.08),
+                  : Colors.white.withOpacity(0.08),
             ),
           ),
         ),
@@ -2353,13 +2172,11 @@ void bubbleSort(int[] arr) {
   // ==========================================================================
 
   Widget _buildSourceCode() {
-    final lines =
-        sourceCode.trimRight().split('\n');
+    final lines = sourceCode.trimRight().split('\n');
 
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -2373,50 +2190,38 @@ void bubbleSort(int[] arr) {
 
               InkWell(
                 onTap: _copyCode,
-                borderRadius:
-                    BorderRadius.circular(
-                  8,
-                ),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding:
-                      const EdgeInsets
-                          .symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 9,
                     vertical: 7,
                   ),
-                  decoration:
-                      BoxDecoration(
-                    color: purple
-                        .withOpacity(0.08),
+                  decoration: BoxDecoration(
+                    color: purple.withOpacity(0.08),
                     borderRadius:
-                        BorderRadius.circular(
-                      8,
-                    ),
+                        BorderRadius.circular(8),
                     border: Border.all(
-                      color: purple
-                          .withOpacity(
-                        0.20,
-                      ),
+                      color:
+                          purple.withOpacity(0.20),
                     ),
                   ),
                   child: const Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.copy_rounded,
                         color: purple,
                         size: 14,
                       ),
+
                       SizedBox(width: 5),
+
                       Text(
                         'Copy',
-                        style:
-                            TextStyle(
+                        style: TextStyle(
                           color: purple,
                           fontSize: 10,
-                          fontWeight:
-                              FontWeight.w800,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],
@@ -2430,8 +2235,7 @@ void bubbleSort(int[] arr) {
 
           Container(
             width: double.infinity,
-            constraints:
-                const BoxConstraints(
+            constraints: const BoxConstraints(
               minHeight: 280,
               maxHeight: 500,
             ),
@@ -2439,100 +2243,74 @@ void bubbleSort(int[] arr) {
                 const EdgeInsets.symmetric(
               vertical: 10,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(0xFF050A14),
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF050A14),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
+            child: SingleChildScrollView(
               child: Column(
-                children:
-                    List.generate(
+                children: List.generate(
                   lines.length,
                   (index) {
-                    final lineNumber =
-                        index + 1;
+                    final lineNumber = index + 1;
 
                     final active =
-                        lineNumber ==
-                            activeCodeLine;
+                        lineNumber == activeCodeLine;
 
                     return Container(
-                      width:
-                          double.infinity,
+                      width: double.infinity,
                       padding:
-                          const EdgeInsets
-                              .symmetric(
+                          const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 2,
                       ),
                       color: active
-                          ? cyan.withOpacity(
-                              0.09,
-                            )
-                          : Colors
-                              .transparent,
+                          ? cyan.withOpacity(0.09)
+                          : Colors.transparent,
                       child: Row(
                         crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                            CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 25,
                             child: Text(
                               '$lineNumber',
                               textAlign:
-                                  TextAlign
-                                      .right,
+                                  TextAlign.right,
                               style: TextStyle(
                                 color: active
                                     ? cyan
-                                    : Colors
-                                        .white
+                                    : Colors.white
                                         .withOpacity(
                                         0.20,
                                       ),
                                 fontSize: 9,
-                                fontFamily:
-                                    'monospace',
+                                fontFamily: 'monospace',
                               ),
                             ),
                           ),
 
-                          const SizedBox(
-                              width: 10),
+                          const SizedBox(width: 10),
 
                           Expanded(
                             child: Text(
                               lines[index],
-                              style:
-                                  TextStyle(
+                              style: TextStyle(
                                 color: active
-                                    ? Colors
-                                        .white
-                                    : Colors
-                                        .white
+                                    ? Colors.white
+                                    : Colors.white
                                         .withOpacity(
                                         0.65,
                                       ),
                                 fontSize: 10,
                                 height: 1.45,
-                                fontFamily:
-                                    'monospace',
+                                fontFamily: 'monospace',
                                 fontWeight: active
-                                    ? FontWeight
-                                        .w700
-                                    : FontWeight
-                                        .w400,
+                                    ? FontWeight.w700
+                                    : FontWeight.w400,
                               ),
                             ),
                           ),
@@ -2556,8 +2334,7 @@ void bubbleSort(int[] arr) {
   Widget _buildExecutionSteps() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -2571,36 +2348,24 @@ void bubbleSort(int[] arr) {
 
               Container(
                 padding:
-                    const EdgeInsets
-                        .symmetric(
+                    const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
-                decoration:
-                    BoxDecoration(
-                  color:
-                      cyan.withOpacity(
-                    0.07,
-                  ),
+                decoration: BoxDecoration(
+                  color: cyan.withOpacity(0.07),
                   borderRadius:
-                      BorderRadius.circular(
-                    7,
-                  ),
+                      BorderRadius.circular(7),
                   border: Border.all(
-                    color:
-                        cyan.withOpacity(
-                      0.14,
-                    ),
+                    color: cyan.withOpacity(0.14),
                   ),
                 ),
                 child: Text(
                   '${executionHistory.length}',
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: cyan,
                     fontSize: 10,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2613,19 +2378,15 @@ void bubbleSort(int[] arr) {
             _emptyExecutionState()
           else
             ConstrainedBox(
-              constraints:
-                  const BoxConstraints(
+              constraints: const BoxConstraints(
                 maxHeight: 460,
               ),
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount:
-                    executionHistory.length,
-                itemBuilder:
-                    (context, index) {
+                itemCount: executionHistory.length,
+                itemBuilder: (context, index) {
                   final event =
-                      executionHistory[
-                          index];
+                      executionHistory[index];
 
                   return _executionStepItem(
                     index,
@@ -2646,30 +2407,22 @@ void bubbleSort(int[] arr) {
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         vertical: 35,
         horizontal: 15,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            visualizationColor,
-        borderRadius:
-            BorderRadius.circular(
-          10,
-        ),
+      decoration: BoxDecoration(
+        color: visualizationColor,
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.06),
+          color: Colors.white.withOpacity(0.06),
         ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white
-                .withOpacity(0.20),
+            color: Colors.white.withOpacity(0.20),
             size: 32,
           ),
 
@@ -2678,11 +2431,9 @@ void bubbleSort(int[] arr) {
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.55),
+              color: Colors.white.withOpacity(0.55),
               fontSize: 12,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2691,8 +2442,7 @@ void bubbleSort(int[] arr) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.30),
+              color: Colors.white.withOpacity(0.30),
               fontSize: 10,
             ),
           ),
@@ -2709,25 +2459,18 @@ void bubbleSort(int[] arr) {
     int index,
     BubbleSortEvent event,
   ) {
-    final color =
-        _eventColor(event.type);
+    final color = _eventColor(event.type);
 
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 7,
       ),
-      padding:
-          const EdgeInsets.all(10),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.045),
-        borderRadius:
-            BorderRadius.circular(9),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.045),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.14),
+          color: color.withOpacity(0.14),
         ),
       ),
       child: Row(
@@ -2737,16 +2480,10 @@ void bubbleSort(int[] arr) {
           Container(
             width: 27,
             height: 27,
-            decoration:
-                BoxDecoration(
-              color:
-                  color.withOpacity(
-                0.10,
-              ),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
               borderRadius:
-                  BorderRadius.circular(
-                7,
-              ),
+                  BorderRadius.circular(7),
             ),
             child: Icon(
               _eventIcon(event.type),
@@ -2767,8 +2504,7 @@ void bubbleSort(int[] arr) {
                     Expanded(
                       child: Text(
                         event.title,
-                        style:
-                            TextStyle(
+                        style: TextStyle(
                           color: color,
                           fontSize: 10.5,
                           fontWeight:
@@ -2779,12 +2515,9 @@ void bubbleSort(int[] arr) {
 
                     Text(
                       '#${index + 1}',
-                      style:
-                          TextStyle(
+                      style: TextStyle(
                         color: Colors.white
-                            .withOpacity(
-                          0.22,
-                        ),
+                            .withOpacity(0.22),
                         fontSize: 9,
                         fontWeight:
                             FontWeight.w700,
@@ -2793,34 +2526,27 @@ void bubbleSort(int[] arr) {
                   ],
                 ),
 
-                const SizedBox(
-                    height: 4),
+                const SizedBox(height: 4),
 
                 Text(
                   event.description,
                   style: TextStyle(
                     color: Colors.white
-                        .withOpacity(
-                      0.53,
-                    ),
+                        .withOpacity(0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
                 ),
 
-                const SizedBox(
-                    height: 5),
+                const SizedBox(height: 5),
 
                 Text(
                   event.operation,
                   style: TextStyle(
                     color: Colors.white
-                        .withOpacity(
-                      0.30,
-                    ),
+                        .withOpacity(0.30),
                     fontSize: 8.5,
-                    fontFamily:
-                        'monospace',
+                    fontFamily: 'monospace',
                   ),
                 ),
               ],
@@ -2840,24 +2566,18 @@ void bubbleSort(int[] arr) {
   }) {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(14),
-      decoration:
-          BoxDecoration(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
         color: cardColor,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.065),
+          color: Colors.white.withOpacity(0.065),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withOpacity(0.18),
+            color: Colors.black.withOpacity(0.18),
             blurRadius: 16,
-            offset:
-                const Offset(0, 7),
+            offset: const Offset(0, 7),
           ),
         ],
       ),
@@ -2875,20 +2595,14 @@ void bubbleSort(int[] arr) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 30,
           height: 30,
-          decoration:
-              BoxDecoration(
-            color:
-                color.withOpacity(0.09),
-            borderRadius:
-                BorderRadius.circular(
-              8,
-            ),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.09),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
@@ -2901,12 +2615,10 @@ void bubbleSort(int[] arr) {
 
         Text(
           title,
-          style:
-              const TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 13,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -2923,22 +2635,15 @@ void bubbleSort(int[] arr) {
     Color color,
   ) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 9,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.055),
-        borderRadius:
-            BorderRadius.circular(
-          9,
-        ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.055),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.16),
+          color: color.withOpacity(0.16),
         ),
       ),
       child: Column(
@@ -2948,13 +2653,9 @@ void bubbleSort(int[] arr) {
           Text(
             title,
             style: TextStyle(
-              color:
-                  color.withOpacity(
-                0.8,
-              ),
+              color: color.withOpacity(0.8),
               fontSize: 9,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2962,12 +2663,10 @@ void bubbleSort(int[] arr) {
 
           Text(
             value,
-            style:
-                const TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -2986,22 +2685,15 @@ void bubbleSort(int[] arr) {
   ) {
     return Expanded(
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 8,
           vertical: 8,
         ),
-        decoration:
-            BoxDecoration(
-          color:
-              color.withOpacity(0.07),
-          borderRadius:
-              BorderRadius.circular(
-            9,
-          ),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(9),
           border: Border.all(
-            color:
-                color.withOpacity(0.18),
+            color: color.withOpacity(0.18),
           ),
         ),
         child: Column(
@@ -3011,8 +2703,7 @@ void bubbleSort(int[] arr) {
               style: TextStyle(
                 color: color,
                 fontSize: 8,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
               ),
             ),
@@ -3021,14 +2712,11 @@ void bubbleSort(int[] arr) {
 
             Text(
               value,
-              overflow:
-                  TextOverflow.ellipsis,
-              style:
-                  const TextStyle(
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
