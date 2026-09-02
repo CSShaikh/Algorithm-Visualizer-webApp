@@ -4,22 +4,28 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class LinearSearchScreen extends StatefulWidget {
-  const LinearSearchScreen({super.key});
+class InterpolationSearchScreen extends StatefulWidget {
+  const InterpolationSearchScreen({super.key});
 
   @override
-  State<LinearSearchScreen> createState() => _LinearSearchScreenState();
+  State<InterpolationSearchScreen> createState() =>
+      _InterpolationSearchScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum LinearSearchEventType {
+enum InterpolationSearchEventType {
   initialize,
-  check,
-  notMatch,
+  calculatePosition,
+  compareLow,
+  compareHigh,
+  probe,
+  moveLow,
+  moveHigh,
   found,
+  notFound,
   complete,
 }
 
@@ -27,28 +33,31 @@ enum LinearSearchEventType {
 // EVENT MODEL
 // ============================================================================
 
-class LinearSearchEvent {
-  final LinearSearchEventType type;
-
+class InterpolationSearchEvent {
+  final InterpolationSearchEventType type;
   final List<int> array;
 
-  final int currentIndex;
-  final int previousIndex;
+  final int low;
+  final int high;
+  final int probeIndex;
+  final int previousProbeIndex;
 
   final int target;
-  final int currentValue;
+  final int probeValue;
 
   final String title;
   final String description;
   final String operation;
 
-  const LinearSearchEvent({
+  const InterpolationSearchEvent({
     required this.type,
     required this.array,
-    required this.currentIndex,
-    required this.previousIndex,
+    required this.low,
+    required this.high,
+    required this.probeIndex,
+    required this.previousProbeIndex,
     required this.target,
-    required this.currentValue,
+    required this.probeValue,
     required this.title,
     required this.description,
     required this.operation,
@@ -56,10 +65,11 @@ class LinearSearchEvent {
 }
 
 // ============================================================================
-// SCREEN STATE
+// STATE
 // ============================================================================
 
-class _LinearSearchScreenState extends State<LinearSearchScreen> {
+class _InterpolationSearchScreenState
+    extends State<InterpolationSearchScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
@@ -82,34 +92,40 @@ class _LinearSearchScreenState extends State<LinearSearchScreen> {
   // ==========================================================================
 
   List<int> array = [
-    64,
-    25,
-    12,
-    22,
-    11,
+    10,
+    18,
+    23,
+    31,
+    39,
+    45,
+    52,
+    61,
+    68,
+    74,
+    82,
+    91,
   ];
 
-  int target = 22;
+  int target = 61;
 
   // ==========================================================================
   // CONTROLLERS
   // ==========================================================================
 
   final TextEditingController arrayController = TextEditingController(
-    text: '64, 25, 12, 22, 11',
+    text: '10, 18, 23, 31, 39, 45, 52, 61, 68, 74, 82, 91',
   );
 
   final TextEditingController targetController = TextEditingController(
-    text: '22',
+    text: '61',
   );
 
   // ==========================================================================
   // EXECUTION
   // ==========================================================================
 
-  List<LinearSearchEvent> events = [];
-
-  List<LinearSearchEvent> executionHistory = [];
+  List<InterpolationSearchEvent> events = [];
+  List<InterpolationSearchEvent> executionHistory = [];
 
   int currentStep = 0;
 
@@ -124,27 +140,49 @@ class _LinearSearchScreenState extends State<LinearSearchScreen> {
   // VISUALIZATION STATE
   // ==========================================================================
 
-  int currentIndex = -1;
-  int previousIndex = -1;
+  int low = -1;
+  int high = -1;
+  int probeIndex = -1;
+  int previousProbeIndex = -1;
   int foundIndex = -1;
 
   int activeCodeLine = 0;
 
-  String executionMessage =
-      'Ready to start Linear Search';
+  String executionMessage = 'Ready to start Interpolation Search';
 
   // ==========================================================================
   // SOURCE CODE
   // ==========================================================================
 
   final String sourceCode = '''
-int linearSearch(int[] arr, int target) {
-  for (int i = 0; i < arr.length; i++) {
+int interpolationSearch(int[] arr, int target) {
+  int low = 0;
+  int high = arr.length - 1;
 
-    if (arr[i] == target) {
-      return i;
+  while (low <= high &&
+         target >= arr[low] &&
+         target <= arr[high]) {
+
+    if (low == high) {
+      if (arr[low] == target) {
+        return low;
+      }
+      return -1;
     }
 
+    int pos = low +
+        ((target - arr[low]) * (high - low)) ~/
+        (arr[high] - arr[low]);
+
+    if (arr[pos] == target) {
+      return pos;
+    }
+
+    if (arr[pos] < target) {
+      low = pos + 1;
+    } else {
+      high = pos - 1;
+    }
   }
 
   return -1;
@@ -152,27 +190,20 @@ int linearSearch(int[] arr, int target) {
 ''';
 
   // ==========================================================================
-  // INIT
+  // LIFECYCLE
   // ==========================================================================
 
   @override
   void initState() {
     super.initState();
-
     _generateEvents();
   }
-
-  // ==========================================================================
-  // DISPOSE
-  // ==========================================================================
 
   @override
   void dispose() {
     timer?.cancel();
-
     arrayController.dispose();
     targetController.dispose();
-
     super.dispose();
   }
 
@@ -181,131 +212,443 @@ int linearSearch(int[] arr, int target) {
   // ==========================================================================
 
   void _generateEvents() {
-    final working = [...array];
+    final working = [...array]..sort();
 
-    final generated = <LinearSearchEvent>[];
+    final parsedTarget = target;
+
+    final generated = <InterpolationSearchEvent>[];
 
     if (working.isEmpty) {
       events = generated;
       return;
     }
 
-    // ------------------------------------------------------------------------
-    // INITIALIZE
-    // ------------------------------------------------------------------------
-
     generated.add(
-      LinearSearchEvent(
-        type: LinearSearchEventType.initialize,
+      InterpolationSearchEvent(
+        type: InterpolationSearchEventType.initialize,
         array: [...working],
-        currentIndex: -1,
-        previousIndex: -1,
-        target: target,
-        currentValue: -1,
+        low: 0,
+        high: working.length - 1,
+        probeIndex: -1,
+        previousProbeIndex: -1,
+        target: parsedTarget,
+        probeValue: -1,
         title: 'Search Initialized',
         description:
-            'Linear Search will check every element from left to right.',
-        operation: 'Initialize Search',
+            'Array is sorted and ready. Target = $parsedTarget.',
+        operation: 'Initialize Interpolation Search',
       ),
     );
 
-    // ------------------------------------------------------------------------
-    // CHECK EACH ELEMENT
-    // ------------------------------------------------------------------------
+    int left = 0;
+    int right = working.length - 1;
+    int lastProbe = -1;
 
-    int previous = -1;
+    while (
+        left <= right &&
+        parsedTarget >= working[left] &&
+        parsedTarget <= working[right]) {
+      // ---------------------------------------------------------------
+      // COMPARE LOW
+      // ---------------------------------------------------------------
 
-    for (int i = 0; i < working.length; i++) {
-      final value = working[i];
-
-      // CHECK
       generated.add(
-        LinearSearchEvent(
-          type: LinearSearchEventType.check,
+        InterpolationSearchEvent(
+          type: InterpolationSearchEventType.compareLow,
           array: [...working],
-          currentIndex: i,
-          previousIndex: previous,
-          target: target,
-          currentValue: value,
-          title: 'Checking Element',
+          low: left,
+          high: right,
+          probeIndex: -1,
+          previousProbeIndex: lastProbe,
+          target: parsedTarget,
+          probeValue: working[left],
+          title: 'Check Lower Bound',
           description:
-              'Checking value $value at index $i against target $target.',
-          operation: 'Compare arr[$i] == target',
+              'Target $parsedTarget is compared with lower bound '
+              '${working[left]} at index $left.',
+          operation: 'Check arr[low]',
         ),
       );
 
-      // FOUND
-      if (value == target) {
+      // ---------------------------------------------------------------
+      // COMPARE HIGH
+      // ---------------------------------------------------------------
+
+      generated.add(
+        InterpolationSearchEvent(
+          type: InterpolationSearchEventType.compareHigh,
+          array: [...working],
+          low: left,
+          high: right,
+          probeIndex: -1,
+          previousProbeIndex: lastProbe,
+          target: parsedTarget,
+          probeValue: working[right],
+          title: 'Check Upper Bound',
+          description:
+              'Target $parsedTarget is compared with upper bound '
+              '${working[right]} at index $right.',
+          operation: 'Check arr[high]',
+        ),
+      );
+
+      // ---------------------------------------------------------------
+      // SAME POSITION
+      // ---------------------------------------------------------------
+
+      if (left == right) {
         generated.add(
-          LinearSearchEvent(
-            type: LinearSearchEventType.found,
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.probe,
             array: [...working],
-            currentIndex: i,
-            previousIndex: previous,
-            target: target,
-            currentValue: value,
+            low: left,
+            high: right,
+            probeIndex: left,
+            previousProbeIndex: lastProbe,
+            target: parsedTarget,
+            probeValue: working[left],
+            title: 'Probe Position',
+            description:
+                'Only one element remains. Probe index = $left.',
+            operation: 'Probe arr[$left]',
+          ),
+        );
+
+        if (working[left] == parsedTarget) {
+          generated.add(
+            InterpolationSearchEvent(
+              type: InterpolationSearchEventType.found,
+              array: [...working],
+              low: left,
+              high: right,
+              probeIndex: left,
+              previousProbeIndex: lastProbe,
+              target: parsedTarget,
+              probeValue: working[left],
+              title: 'Target Found',
+              description:
+                  'Target $parsedTarget found at index $left.',
+              operation: 'Match Found',
+            ),
+          );
+
+          generated.add(
+            InterpolationSearchEvent(
+              type: InterpolationSearchEventType.complete,
+              array: [...working],
+              low: left,
+              high: right,
+              probeIndex: left,
+              previousProbeIndex: lastProbe,
+              target: parsedTarget,
+              probeValue: working[left],
+              title: 'Search Complete',
+              description:
+                  'Interpolation Search completed successfully.',
+              operation: 'Complete',
+            ),
+          );
+
+          events = generated;
+          return;
+        }
+
+        generated.add(
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.notFound,
+            array: [...working],
+            low: left,
+            high: right,
+            probeIndex: left,
+            previousProbeIndex: lastProbe,
+            target: parsedTarget,
+            probeValue: working[left],
+            title: 'Target Not Found',
+            description:
+                'Remaining element does not match target $parsedTarget.',
+            operation: 'No Match',
+          ),
+        );
+
+        generated.add(
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.complete,
+            array: [...working],
+            low: left,
+            high: right,
+            probeIndex: left,
+            previousProbeIndex: lastProbe,
+            target: parsedTarget,
+            probeValue: working[left],
+            title: 'Search Complete',
+            description: 'Interpolation Search finished.',
+            operation: 'Complete',
+          ),
+        );
+
+        events = generated;
+        return;
+      }
+
+      // ---------------------------------------------------------------
+      // DIVISION BY ZERO SAFETY
+      // ---------------------------------------------------------------
+
+      if (working[right] == working[left]) {
+        generated.add(
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.probe,
+            array: [...working],
+            low: left,
+            high: right,
+            probeIndex: left,
+            previousProbeIndex: lastProbe,
+            target: parsedTarget,
+            probeValue: working[left],
+            title: 'Equal Boundary Values',
+            description:
+                'Lower and upper values are equal. '
+                'Interpolation position cannot be calculated normally.',
+            operation: 'Handle Equal Values',
+          ),
+        );
+
+        if (working[left] == parsedTarget) {
+          generated.add(
+            InterpolationSearchEvent(
+              type: InterpolationSearchEventType.found,
+              array: [...working],
+              low: left,
+              high: right,
+              probeIndex: left,
+              previousProbeIndex: lastProbe,
+              target: parsedTarget,
+              probeValue: working[left],
+              title: 'Target Found',
+              description:
+                  'Target $parsedTarget matches the boundary value.',
+              operation: 'Match Found',
+            ),
+          );
+
+          generated.add(
+            InterpolationSearchEvent(
+              type: InterpolationSearchEventType.complete,
+              array: [...working],
+              low: left,
+              high: right,
+              probeIndex: left,
+              previousProbeIndex: lastProbe,
+              target: parsedTarget,
+              probeValue: working[left],
+              title: 'Search Complete',
+              description: 'Interpolation Search completed.',
+              operation: 'Complete',
+            ),
+          );
+
+          events = generated;
+          return;
+        }
+
+        break;
+      }
+
+      // ---------------------------------------------------------------
+      // CALCULATE INTERPOLATION POSITION
+      // ---------------------------------------------------------------
+
+      final numerator =
+          (parsedTarget - working[left]) * (right - left);
+
+      final denominator = working[right] - working[left];
+
+      int position = left + (numerator ~/ denominator);
+
+      if (position < left) {
+        position = left;
+      }
+
+      if (position > right) {
+        position = right;
+      }
+
+      generated.add(
+        InterpolationSearchEvent(
+          type: InterpolationSearchEventType.calculatePosition,
+          array: [...working],
+          low: left,
+          high: right,
+          probeIndex: position,
+          previousProbeIndex: lastProbe,
+          target: parsedTarget,
+          probeValue: working[position],
+          title: 'Calculate Probe Position',
+          description:
+              'Interpolation estimates index $position '
+              'using the target value distribution.',
+          operation: 'Calculate pos',
+        ),
+      );
+
+      // ---------------------------------------------------------------
+      // PROBE
+      // ---------------------------------------------------------------
+
+      lastProbe = position;
+
+      generated.add(
+        InterpolationSearchEvent(
+          type: InterpolationSearchEventType.probe,
+          array: [...working],
+          low: left,
+          high: right,
+          probeIndex: position,
+          previousProbeIndex: -1,
+          target: parsedTarget,
+          probeValue: working[position],
+          title: 'Probe Element',
+          description:
+              'Checking value ${working[position]} at index $position '
+              'against target $parsedTarget.',
+          operation: 'Check arr[$position]',
+        ),
+      );
+
+      // ---------------------------------------------------------------
+      // FOUND
+      // ---------------------------------------------------------------
+
+      if (working[position] == parsedTarget) {
+        generated.add(
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.found,
+            array: [...working],
+            low: left,
+            high: right,
+            probeIndex: position,
+            previousProbeIndex: -1,
+            target: parsedTarget,
+            probeValue: working[position],
             title: 'Target Found',
             description:
-                'Target $target found at index $i.',
+                'Target $parsedTarget found at index $position.',
             operation: 'Match Found',
           ),
         );
 
         generated.add(
-          LinearSearchEvent(
-            type: LinearSearchEventType.complete,
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.complete,
             array: [...working],
-            currentIndex: i,
-            previousIndex: previous,
-            target: target,
-            currentValue: value,
+            low: left,
+            high: right,
+            probeIndex: position,
+            previousProbeIndex: -1,
+            target: parsedTarget,
+            probeValue: working[position],
             title: 'Search Complete',
             description:
-                'Linear Search completed successfully.',
-            operation: 'Return index $i',
+                'Interpolation Search completed successfully.',
+            operation: 'Complete',
           ),
         );
 
         events = generated;
-
         return;
       }
 
-      // NOT MATCH
-      generated.add(
-        LinearSearchEvent(
-          type: LinearSearchEventType.notMatch,
-          array: [...working],
-          currentIndex: i,
-          previousIndex: previous,
-          target: target,
-          currentValue: value,
-          title: 'Not a Match',
-          description:
-              'Value $value does not match target $target. Move to next element.',
-          operation: 'arr[$i] != target',
-        ),
-      );
+      // ---------------------------------------------------------------
+      // MOVE LOW
+      // ---------------------------------------------------------------
 
-      previous = i;
+      if (working[position] < parsedTarget) {
+        generated.add(
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.moveLow,
+            array: [...working],
+            low: left,
+            high: right,
+            probeIndex: position,
+            previousProbeIndex: -1,
+            target: parsedTarget,
+            probeValue: working[position],
+            title: 'Move Lower Bound',
+            description:
+                'Value ${working[position]} is smaller than target '
+                '$parsedTarget. Move low to ${position + 1}.',
+            operation: 'low = pos + 1',
+          ),
+        );
+
+        left = position + 1;
+      } else {
+        // -------------------------------------------------------------
+        // MOVE HIGH
+        // -------------------------------------------------------------
+
+        generated.add(
+          InterpolationSearchEvent(
+            type: InterpolationSearchEventType.moveHigh,
+            array: [...working],
+            low: left,
+            high: right,
+            probeIndex: position,
+            previousProbeIndex: -1,
+            target: parsedTarget,
+            probeValue: working[position],
+            title: 'Move Upper Bound',
+            description:
+                'Value ${working[position]} is greater than target '
+                '$parsedTarget. Move high to ${position - 1}.',
+            operation: 'high = pos - 1',
+          ),
+        );
+
+        right = position - 1;
+      }
     }
 
-    // ------------------------------------------------------------------------
+    // -----------------------------------------------------------------------
     // NOT FOUND
-    // ------------------------------------------------------------------------
+    // -----------------------------------------------------------------------
 
     generated.add(
-      LinearSearchEvent(
-        type: LinearSearchEventType.complete,
+      InterpolationSearchEvent(
+        type: InterpolationSearchEventType.notFound,
         array: [...working],
-        currentIndex: -1,
-        previousIndex: previous,
-        target: target,
-        currentValue: -1,
+        low: left,
+        high: right,
+        probeIndex: lastProbe,
+        previousProbeIndex: -1,
+        target: parsedTarget,
+        probeValue:
+            lastProbe >= 0 && lastProbe < working.length
+                ? working[lastProbe]
+                : -1,
         title: 'Target Not Found',
         description:
-            'All ${working.length} elements were checked, but target $target was not found.',
-        operation: 'Return -1',
+            'Target $parsedTarget is outside the valid search range.',
+        operation: 'No Match',
+      ),
+    );
+
+    generated.add(
+      InterpolationSearchEvent(
+        type: InterpolationSearchEventType.complete,
+        array: [...working],
+        low: left,
+        high: right,
+        probeIndex: lastProbe,
+        previousProbeIndex: -1,
+        target: parsedTarget,
+        probeValue:
+            lastProbe >= 0 && lastProbe < working.length
+                ? working[lastProbe]
+                : -1,
+        title: 'Search Complete',
+        description: 'Interpolation Search finished without a match.',
+        operation: 'Complete',
       ),
     );
 
@@ -359,83 +702,83 @@ int linearSearch(int[] arr, int target) {
       return;
     }
 
+    values.sort();
+
     timer?.cancel();
 
-    final generatedArray = [...values];
-
     setState(() {
-      array = generatedArray;
+      array = values;
       target = parsedTarget;
 
       executionHistory.clear();
-
       currentStep = 0;
 
       isRunning = false;
       isCompleted = false;
 
-      currentIndex = -1;
-      previousIndex = -1;
+      low = -1;
+      high = -1;
+      probeIndex = -1;
+      previousProbeIndex = -1;
       foundIndex = -1;
 
       activeCodeLine = 0;
 
       executionMessage =
-          'Array loaded. Ready to start Linear Search.';
+          'Array loaded. Ready to start Interpolation Search.';
+
+      _generateEvents();
     });
 
-    _generateEvents();
-
     _showSnackBar(
-      'Array loaded successfully.',
+      'Array loaded and sorted successfully.',
       green,
     );
   }
 
   // ==========================================================================
-  // GENERATE NUMBERS
+  // GENERATE RANDOM NUMBERS
   // ==========================================================================
 
   void _generateNumbers() {
     final random = Random();
 
     final generated = List.generate(
-      8,
+      12,
       (_) => random.nextInt(90) + 10,
     );
 
-    final generatedTarget =
+    generated.sort();
+
+    final randomTarget =
         generated[random.nextInt(generated.length)];
 
     arrayController.text = generated.join(', ');
-
-    targetController.text =
-        generatedTarget.toString();
-
-    timer?.cancel();
+    targetController.text = randomTarget.toString();
 
     setState(() {
       array = generated;
-      target = generatedTarget;
+      target = randomTarget;
 
       executionHistory.clear();
-
       currentStep = 0;
 
       isRunning = false;
       isCompleted = false;
 
-      currentIndex = -1;
-      previousIndex = -1;
+      low = -1;
+      high = -1;
+      probeIndex = -1;
+      previousProbeIndex = -1;
       foundIndex = -1;
 
       activeCodeLine = 0;
 
       executionMessage =
           'New numbers generated. Ready to search.';
-    });
 
-    _generateEvents();
+      _generateEvents();
+    });
   }
 
   // ==========================================================================
@@ -451,11 +794,11 @@ int linearSearch(int[] arr, int target) {
       return;
     }
 
-    timer?.cancel();
-
     setState(() {
       isRunning = true;
     });
+
+    timer?.cancel();
 
     final milliseconds =
         (900 / speed).round().clamp(100, 2000);
@@ -509,7 +852,7 @@ int linearSearch(int[] arr, int target) {
   }
 
   // ==========================================================================
-  // NEXT
+  // NEXT STEP
   // ==========================================================================
 
   void _nextStep() {
@@ -528,7 +871,6 @@ int linearSearch(int[] arr, int target) {
     final event = events[currentStep];
 
     executionHistory.add(event);
-
     currentStep++;
 
     _applyEvent(event);
@@ -540,11 +882,13 @@ int linearSearch(int[] arr, int target) {
         isRunning = false;
         isCompleted = true;
       });
+    } else {
+      setState(() {});
     }
   }
 
   // ==========================================================================
-  // PREVIOUS
+  // PREVIOUS STEP
   // ==========================================================================
 
   void _previousStep() {
@@ -556,9 +900,18 @@ int linearSearch(int[] arr, int target) {
 
     executionHistory.removeLast();
 
-    currentStep = executionHistory.length;
+    final historyLength = executionHistory.length;
 
-    _rebuildVisualState();
+    currentStep = historyLength;
+
+    if (historyLength == 0) {
+      _resetVisualState();
+      return;
+    }
+
+    final lastEvent = executionHistory.last;
+
+    _rebuildVisualState(historyLength);
 
     setState(() {
       isRunning = false;
@@ -570,31 +923,14 @@ int linearSearch(int[] arr, int target) {
   // REBUILD VISUAL STATE
   // ==========================================================================
 
-  void _rebuildVisualState() {
-    currentIndex = -1;
-    previousIndex = -1;
-    foundIndex = -1;
+  void _rebuildVisualState(int count) {
+    _resetVisualState();
 
-    activeCodeLine = 0;
-
-    executionMessage =
-        'Ready to start Linear Search.';
-
-    for (final event in executionHistory) {
+    for (int i = 0; i < count && i < executionHistory.length; i++) {
       _applyEvent(
-        event,
+        executionHistory[i],
         updateState: false,
       );
-    }
-
-    if (executionHistory.isEmpty) {
-      currentIndex = -1;
-      previousIndex = -1;
-      foundIndex = -1;
-      activeCodeLine = 0;
-
-      executionMessage =
-          'Ready to start Linear Search.';
     }
 
     setState(() {});
@@ -605,35 +941,62 @@ int linearSearch(int[] arr, int target) {
   // ==========================================================================
 
   void _applyEvent(
-    LinearSearchEvent event, {
+    InterpolationSearchEvent event, {
     bool updateState = true,
   }) {
-    currentIndex = event.currentIndex;
-
-    previousIndex = event.previousIndex;
+    low = event.low;
+    high = event.high;
+    probeIndex = event.probeIndex;
+    previousProbeIndex = event.previousProbeIndex;
 
     executionMessage =
         '${event.title}: ${event.description}';
 
-    activeCodeLine =
-        _codeLineForEvent(event.type);
+    activeCodeLine = _codeLineForEvent(event.type);
 
-    if (event.type ==
-        LinearSearchEventType.found) {
-      foundIndex = event.currentIndex;
+    if (event.type == InterpolationSearchEventType.found) {
+      foundIndex = event.probeIndex;
     }
 
-    if (event.type ==
-        LinearSearchEventType.complete) {
-      if (event.currentIndex >= 0 &&
-          event.currentValue == event.target) {
-        foundIndex = event.currentIndex;
+    if (event.type == InterpolationSearchEventType.notFound) {
+      foundIndex = -1;
+    }
+
+    if (event.type == InterpolationSearchEventType.complete) {
+      if (foundIndex >= 0) {
+        isCompleted = true;
       }
     }
 
     if (updateState) {
       setState(() {});
     }
+  }
+
+  // ==========================================================================
+  // RESET VISUAL STATE
+  // ==========================================================================
+
+  void _resetVisualState() {
+    setState(() {
+      currentStep = 0;
+
+      executionHistory.clear();
+
+      isRunning = false;
+      isCompleted = false;
+
+      low = -1;
+      high = -1;
+      probeIndex = -1;
+      previousProbeIndex = -1;
+      foundIndex = -1;
+
+      activeCodeLine = 0;
+
+      executionMessage =
+          'Ready to start Interpolation Search.';
+    });
   }
 
   // ==========================================================================
@@ -645,20 +1008,21 @@ int linearSearch(int[] arr, int target) {
 
     setState(() {
       executionHistory.clear();
-
       currentStep = 0;
 
       isRunning = false;
       isCompleted = false;
 
-      currentIndex = -1;
-      previousIndex = -1;
+      low = -1;
+      high = -1;
+      probeIndex = -1;
+      previousProbeIndex = -1;
       foundIndex = -1;
 
       activeCodeLine = 0;
 
       executionMessage =
-          'Ready to start Linear Search.';
+          'Ready to start Interpolation Search.';
     });
   }
 
@@ -681,23 +1045,38 @@ int linearSearch(int[] arr, int target) {
   // ==========================================================================
 
   int _codeLineForEvent(
-    LinearSearchEventType type,
+    InterpolationSearchEventType type,
   ) {
     switch (type) {
-      case LinearSearchEventType.initialize:
+      case InterpolationSearchEventType.initialize:
         return 1;
 
-      case LinearSearchEventType.check:
+      case InterpolationSearchEventType.compareLow:
         return 4;
 
-      case LinearSearchEventType.notMatch:
-        return 4;
-
-      case LinearSearchEventType.found:
+      case InterpolationSearchEventType.compareHigh:
         return 5;
 
-      case LinearSearchEventType.complete:
-        return 9;
+      case InterpolationSearchEventType.calculatePosition:
+        return 14;
+
+      case InterpolationSearchEventType.probe:
+        return 16;
+
+      case InterpolationSearchEventType.moveLow:
+        return 21;
+
+      case InterpolationSearchEventType.moveHigh:
+        return 23;
+
+      case InterpolationSearchEventType.found:
+        return 17;
+
+      case InterpolationSearchEventType.notFound:
+        return 28;
+
+      case InterpolationSearchEventType.complete:
+        return 28;
     }
   }
 
@@ -706,22 +1085,33 @@ int linearSearch(int[] arr, int target) {
   // ==========================================================================
 
   Color _eventColor(
-    LinearSearchEventType type,
+    InterpolationSearchEventType type,
   ) {
     switch (type) {
-      case LinearSearchEventType.initialize:
+      case InterpolationSearchEventType.initialize:
         return blue;
 
-      case LinearSearchEventType.check:
-        return cyan;
+      case InterpolationSearchEventType.calculatePosition:
+        return purple;
 
-      case LinearSearchEventType.notMatch:
+      case InterpolationSearchEventType.compareLow:
+      case InterpolationSearchEventType.compareHigh:
         return orange;
 
-      case LinearSearchEventType.found:
+      case InterpolationSearchEventType.probe:
+        return cyan;
+
+      case InterpolationSearchEventType.moveLow:
+      case InterpolationSearchEventType.moveHigh:
+        return pink;
+
+      case InterpolationSearchEventType.found:
         return green;
 
-      case LinearSearchEventType.complete:
+      case InterpolationSearchEventType.notFound:
+        return red;
+
+      case InterpolationSearchEventType.complete:
         return green;
     }
   }
@@ -731,22 +1121,37 @@ int linearSearch(int[] arr, int target) {
   // ==========================================================================
 
   IconData _eventIcon(
-    LinearSearchEventType type,
+    InterpolationSearchEventType type,
   ) {
     switch (type) {
-      case LinearSearchEventType.initialize:
+      case InterpolationSearchEventType.initialize:
         return Icons.play_arrow_rounded;
 
-      case LinearSearchEventType.check:
-        return Icons.search_rounded;
+      case InterpolationSearchEventType.calculatePosition:
+        return Icons.calculate_rounded;
 
-      case LinearSearchEventType.notMatch:
-        return Icons.close_rounded;
+      case InterpolationSearchEventType.compareLow:
+        return Icons.keyboard_arrow_down_rounded;
 
-      case LinearSearchEventType.found:
+      case InterpolationSearchEventType.compareHigh:
+        return Icons.keyboard_arrow_up_rounded;
+
+      case InterpolationSearchEventType.probe:
+        return Icons.gps_fixed_rounded;
+
+      case InterpolationSearchEventType.moveLow:
+        return Icons.arrow_forward_rounded;
+
+      case InterpolationSearchEventType.moveHigh:
+        return Icons.arrow_back_rounded;
+
+      case InterpolationSearchEventType.found:
         return Icons.check_circle_rounded;
 
-      case LinearSearchEventType.complete:
+      case InterpolationSearchEventType.notFound:
+        return Icons.cancel_rounded;
+
+      case InterpolationSearchEventType.complete:
         return Icons.flag_rounded;
     }
   }
@@ -759,8 +1164,7 @@ int linearSearch(int[] arr, int target) {
     String message,
     Color color,
   ) {
-    ScaffoldMessenger.of(context)
-        .hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -771,8 +1175,7 @@ int linearSearch(int[] arr, int target) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor:
-            color.withOpacity(0.85),
+        backgroundColor: color.withOpacity(0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -807,8 +1210,7 @@ int linearSearch(int[] arr, int target) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(18),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
 
@@ -857,18 +1259,15 @@ int linearSearch(int[] arr, int target) {
             onTap: () {
               Navigator.pop(context);
             },
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
                 color: cardColor,
-                borderRadius:
-                    BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: Colors.white
-                      .withOpacity(0.08),
+                  color: Colors.white.withOpacity(0.08),
                 ),
               ),
               child: const Icon(
@@ -891,11 +1290,10 @@ int linearSearch(int[] arr, int target) {
                   blue,
                 ],
               ),
-              borderRadius:
-                  BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
-              Icons.manage_search_rounded,
+              Icons.insights_rounded,
               color: Colors.white,
               size: 23,
             ),
@@ -905,25 +1303,21 @@ int linearSearch(int[] arr, int target) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Linear Search',
+                  'Interpolation Search',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
-                  'Sequentially search each element',
+                  'Position-based searching for sorted data',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.55),
+                    color: Colors.white.withOpacity(0.55),
                     fontSize: 12,
                   ),
                 ),
@@ -963,8 +1357,7 @@ int linearSearch(int[] arr, int target) {
       ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
-        borderRadius:
-            BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: color.withOpacity(0.35),
         ),
@@ -980,9 +1373,7 @@ int linearSearch(int[] arr, int target) {
               shape: BoxShape.circle,
             ),
           ),
-
           const SizedBox(width: 7),
-
           Text(
             text,
             style: TextStyle(
@@ -998,14 +1389,13 @@ int linearSearch(int[] arr, int target) {
   }
 
   // ==========================================================================
-  // ALGORITHM INFO
+  // ALGORITHM INFORMATION
   // ==========================================================================
 
   Widget _buildAlgorithmInfo() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.info_outline_rounded,
@@ -1016,13 +1406,12 @@ int linearSearch(int[] arr, int target) {
           const SizedBox(height: 14),
 
           Text(
-            'Linear Search checks elements one by one from '
-            'the beginning of the array until the target is '
-            'found or all elements have been checked. '
-            'It works on both sorted and unsorted arrays.',
+            'Interpolation Search improves searching by estimating '
+            'the probable position of the target based on the values '
+            'at the current low and high boundaries. It works best '
+            'when sorted values are approximately uniformly distributed.',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.64),
+              color: Colors.white.withOpacity(0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
@@ -1036,7 +1425,7 @@ int linearSearch(int[] arr, int target) {
             children: [
               _infoBox(
                 'Time',
-                'O(n)',
+                'O(log log n)',
                 cyan,
               ),
               _infoBox(
@@ -1060,8 +1449,8 @@ int linearSearch(int[] arr, int target) {
                 orange,
               ),
               _infoBox(
-                'Sorted',
-                'Not Required',
+                'Requirement',
+                'Sorted Array',
                 pink,
               ),
             ],
@@ -1078,8 +1467,7 @@ int linearSearch(int[] arr, int target) {
   Widget _buildInputSection() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.input_rounded,
@@ -1097,21 +1485,17 @@ int linearSearch(int[] arr, int target) {
                     _inputField(
                       controller: arrayController,
                       label: 'Enter Numbers',
-                      hint:
-                          '64, 25, 12, 22, 11...',
-                      icon:
-                          Icons.data_array_rounded,
+                      hint: '10, 20, 30, 40...',
+                      icon: Icons.data_array_rounded,
                     ),
 
                     const SizedBox(height: 10),
 
                     _inputField(
                       controller: targetController,
-                      label:
-                          'Enter a target number',
+                      label: 'Enter a target number',
                       hint: 'Target',
-                      icon:
-                          Icons.gps_fixed_rounded,
+                      icon: Icons.gps_fixed_rounded,
                     ),
 
                     const SizedBox(height: 10),
@@ -1119,8 +1503,7 @@ int linearSearch(int[] arr, int target) {
                     Row(
                       children: [
                         Expanded(
-                          child:
-                              _generateButton(),
+                          child: _generateButton(),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -1133,19 +1516,15 @@ int linearSearch(int[] arr, int target) {
               }
 
               return Row(
-                crossAxisAlignment:
-                    CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     flex: 3,
                     child: _inputField(
-                      controller:
-                          arrayController,
+                      controller: arrayController,
                       label: 'Enter Numbers',
-                      hint:
-                          '64, 25, 12, 22, 11...',
-                      icon:
-                          Icons.data_array_rounded,
+                      hint: '10, 20, 30, 40...',
+                      icon: Icons.data_array_rounded,
                     ),
                   ),
 
@@ -1154,13 +1533,10 @@ int linearSearch(int[] arr, int target) {
                   Expanded(
                     flex: 2,
                     child: _inputField(
-                      controller:
-                          targetController,
-                      label:
-                          'Enter a target number',
+                      controller: targetController,
+                      label: 'Enter a target number',
                       hint: 'Target',
-                      icon:
-                          Icons.gps_fixed_rounded,
+                      icon: Icons.gps_fixed_rounded,
                     ),
                   ),
 
@@ -1168,8 +1544,7 @@ int linearSearch(int[] arr, int target) {
 
                   SizedBox(
                     height: 46,
-                    child:
-                        _generateButton(),
+                    child: _generateButton(),
                   ),
 
                   const SizedBox(width: 10),
@@ -1188,19 +1563,17 @@ int linearSearch(int[] arr, int target) {
           Row(
             children: [
               Icon(
-                Icons.lightbulb_outline_rounded,
+                Icons.sort_rounded,
                 color: orange.withOpacity(0.85),
                 size: 15,
               ),
-
               const SizedBox(width: 7),
-
               Expanded(
                 child: Text(
-                  'Linear Search does not require the array to be sorted.',
+                  'Interpolation Search requires a sorted array. '
+                  'The array will be sorted automatically when loaded.',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.45),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -1233,13 +1606,11 @@ int linearSearch(int[] arr, int target) {
         labelText: label,
         hintText: hint,
         labelStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.58),
+          color: Colors.white.withOpacity(0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white
-              .withOpacity(0.25),
+          color: Colors.white.withOpacity(0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
@@ -1249,24 +1620,18 @@ int linearSearch(int[] arr, int target) {
         ),
         filled: true,
         fillColor: visualizationColor,
-        contentPadding:
-            const EdgeInsets.symmetric(
+        contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 13,
         ),
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: Colors.white
-                .withOpacity(0.08),
+            color: Colors.white.withOpacity(0.08),
           ),
         ),
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
             color: cyan.withOpacity(0.55),
           ),
@@ -1297,14 +1662,12 @@ int linearSearch(int[] arr, int target) {
         backgroundColor: purple,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 14,
           vertical: 12,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1332,14 +1695,12 @@ int linearSearch(int[] arr, int target) {
         backgroundColor: cyan,
         foregroundColor: background,
         elevation: 0,
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 12,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
@@ -1349,9 +1710,7 @@ int linearSearch(int[] arr, int target) {
   // MAIN WORKSPACE
   // ==========================================================================
 
-  Widget _buildMainWorkspace(
-    double width,
-  ) {
+  Widget _buildMainWorkspace(double width) {
     if (width < 900) {
       return Column(
         children: [
@@ -1373,8 +1732,7 @@ int linearSearch(int[] arr, int target) {
     }
 
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 3,
@@ -1414,8 +1772,7 @@ int linearSearch(int[] arr, int target) {
   Widget _buildVisualization() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(
             Icons.bar_chart_rounded,
@@ -1428,22 +1785,25 @@ int linearSearch(int[] arr, int target) {
           Row(
             children: [
               _miniBadge(
-                'INDEX',
-                currentIndex >= 0
-                    ? currentIndex.toString()
-                    : '-',
-                cyan,
+                'LOW',
+                low >= 0 ? low.toString() : '-',
+                blue,
               ),
 
               const SizedBox(width: 8),
 
               _miniBadge(
-                'ELEMENT',
-                currentIndex >= 0
-                    ? array[currentIndex]
-                        .toString()
-                    : '-',
-                blue,
+                'HIGH',
+                high >= 0 ? high.toString() : '-',
+                orange,
+              ),
+
+              const SizedBox(width: 8),
+
+              _miniBadge(
+                'PROBE',
+                probeIndex >= 0 ? probeIndex.toString() : '-',
+                cyan,
               ),
 
               const SizedBox(width: 8),
@@ -1453,22 +1813,6 @@ int linearSearch(int[] arr, int target) {
                 target.toString(),
                 pink,
               ),
-
-              const SizedBox(width: 8),
-
-              _miniBadge(
-                'CHECKED',
-                executionHistory
-                    .where(
-                      (event) =>
-                          event.type ==
-                          LinearSearchEventType
-                              .check,
-                    )
-                    .length
-                    .toString(),
-                purple,
-              ),
             ],
           ),
 
@@ -1476,29 +1820,23 @@ int linearSearch(int[] arr, int target) {
 
           Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 18,
               horizontal: 10,
             ),
             decoration: BoxDecoration(
               color: visualizationColor,
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
             child: SingleChildScrollView(
-              scrollDirection:
-                  Axis.horizontal,
+              scrollDirection: Axis.horizontal,
               child: Row(
-                children:
-                    List.generate(
+                children: List.generate(
                   array.length,
-                  (index) =>
-                      _buildArrayItem(index),
+                  (index) => _buildArrayItem(index),
                 ),
               ),
             ),
@@ -1510,7 +1848,7 @@ int linearSearch(int[] arr, int target) {
 
           const SizedBox(height: 12),
 
-          _buildCurrentInfo(),
+          _buildSearchRange(),
 
           const SizedBox(height: 12),
 
@@ -1531,18 +1869,15 @@ int linearSearch(int[] arr, int target) {
   ) {
     return Expanded(
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: 8,
           vertical: 8,
         ),
         decoration: BoxDecoration(
           color: color.withOpacity(0.07),
-          borderRadius:
-              BorderRadius.circular(9),
+          borderRadius: BorderRadius.circular(9),
           border: Border.all(
-            color:
-                color.withOpacity(0.18),
+            color: color.withOpacity(0.18),
           ),
         ),
         child: Column(
@@ -1552,23 +1887,17 @@ int linearSearch(int[] arr, int target) {
               style: TextStyle(
                 color: color,
                 fontSize: 8,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
               ),
             ),
-
             const SizedBox(height: 3),
-
             Text(
               value,
-              overflow:
-                  TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 13,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
@@ -1584,46 +1913,40 @@ int linearSearch(int[] arr, int target) {
   Widget _buildArrayItem(int index) {
     final value = array[index];
 
-    Color itemColor =
-        Colors.white.withOpacity(0.12);
+    Color itemColor = Colors.white.withOpacity(0.12);
+    Color borderColor = Colors.white.withOpacity(0.08);
 
-    Color borderColor =
-        Colors.white.withOpacity(0.08);
+    bool isLow = index == low;
+    bool isHigh = index == high;
+    bool isProbe = index == probeIndex;
+    bool isFound = index == foundIndex;
 
-    final bool isCurrent =
-        index == currentIndex;
-
-    final bool isFound =
-        index == foundIndex;
-
-    final bool wasChecked =
-        previousIndex == index &&
-        !isCurrent;
+    final bool insideRange =
+        low >= 0 &&
+        high >= 0 &&
+        index >= low &&
+        index <= high;
 
     if (isFound) {
-      itemColor =
-          green.withOpacity(0.20);
-
+      itemColor = green.withOpacity(0.20);
       borderColor = green;
-    } else if (isCurrent) {
-      itemColor =
-          cyan.withOpacity(0.20);
-
+    } else if (isProbe) {
+      itemColor = cyan.withOpacity(0.20);
       borderColor = cyan;
-    } else if (wasChecked) {
-      itemColor =
-          orange.withOpacity(0.12);
-
-      borderColor =
-          orange.withOpacity(0.50);
+    } else if (isLow) {
+      itemColor = blue.withOpacity(0.17);
+      borderColor = blue;
+    } else if (isHigh) {
+      itemColor = orange.withOpacity(0.17);
+      borderColor = orange;
+    } else if (insideRange) {
+      itemColor = purple.withOpacity(0.07);
+      borderColor = purple.withOpacity(0.16);
     }
 
     return Container(
-      width: 70,
-      margin:
-          const EdgeInsets.symmetric(
-        horizontal: 5,
-      ),
+      width: 64,
+      margin: const EdgeInsets.symmetric(horizontal: 5),
       child: Column(
         children: [
           SizedBox(
@@ -1632,20 +1955,23 @@ int linearSearch(int[] arr, int target) {
               child: Text(
                 isFound
                     ? 'FOUND'
-                    : isCurrent
-                        ? 'CHECKING'
-                        : wasChecked
-                            ? 'CHECKED'
-                            : '',
+                    : isProbe
+                        ? 'PROBE'
+                        : isLow
+                            ? 'LOW'
+                            : isHigh
+                                ? 'HIGH'
+                                : '',
                 style: TextStyle(
                   color: isFound
                       ? green
-                      : isCurrent
+                      : isProbe
                           ? cyan
-                          : orange,
-                  fontSize: 7.5,
-                  fontWeight:
-                      FontWeight.w900,
+                          : isLow
+                              ? blue
+                              : orange,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w900,
                 ),
               ),
             ),
@@ -1656,27 +1982,21 @@ int linearSearch(int[] arr, int target) {
             width: 58,
             decoration: BoxDecoration(
               color: itemColor,
-              borderRadius:
-                  BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
                 color: borderColor,
                 width:
-                    isCurrent || isFound
-                        ? 1.6
-                        : 1,
+                    isProbe || isFound ? 1.6 : 1,
               ),
-              boxShadow:
-                  isCurrent || isFound
-                      ? [
-                          BoxShadow(
-                            color: borderColor
-                                .withOpacity(
-                                    0.18),
-                            blurRadius: 12,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
+              boxShadow: isProbe || isFound
+                  ? [
+                      BoxShadow(
+                        color: borderColor.withOpacity(0.18),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
             ),
             child: Center(
               child: Text(
@@ -1684,12 +2004,11 @@ int linearSearch(int[] arr, int target) {
                 style: TextStyle(
                   color: isFound
                       ? green
-                      : isCurrent
+                      : isProbe
                           ? cyan
                           : Colors.white,
                   fontSize: 16,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ),
@@ -1700,11 +2019,9 @@ int linearSearch(int[] arr, int target) {
           Text(
             '[$index]',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.4),
+              color: Colors.white.withOpacity(0.4),
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -1722,16 +2039,20 @@ int linearSearch(int[] arr, int target) {
       runSpacing: 8,
       children: [
         _legendItem(
-          'Ready',
-          Colors.white,
+          'Search Range',
+          purple,
         ),
         _legendItem(
-          'Checking',
-          cyan,
+          'Low',
+          blue,
         ),
         _legendItem(
-          'Checked',
+          'High',
           orange,
+        ),
+        _legendItem(
+          'Probe',
+          cyan,
         ),
         _legendItem(
           'Found',
@@ -1753,21 +2074,16 @@ int linearSearch(int[] arr, int target) {
           height: 9,
           decoration: BoxDecoration(
             color: color,
-            borderRadius:
-                BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(3),
           ),
         ),
-
         const SizedBox(width: 6),
-
         Text(
           title,
           style: TextStyle(
-            color: Colors.white
-                .withOpacity(0.58),
+            color: Colors.white.withOpacity(0.58),
             fontSize: 10,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -1775,26 +2091,27 @@ int linearSearch(int[] arr, int target) {
   }
 
   // ==========================================================================
-  // CURRENT INFO
+  // SEARCH RANGE
   // ==========================================================================
 
-  Widget _buildCurrentInfo() {
-    String currentElement = '-';
+  Widget _buildSearchRange() {
+    String rangeText = 'Not started';
 
-    if (currentIndex >= 0 &&
-        currentIndex < array.length) {
-      currentElement =
-          array[currentIndex].toString();
+    if (low >= 0 && high >= 0) {
+      rangeText = 'Index $low → $high';
+
+      if (low > high) {
+        rangeText = 'Search range exhausted';
+      }
     }
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: background2,
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: cyan.withOpacity(0.14),
+          color: purple.withOpacity(0.15),
         ),
       ),
       child: Row(
@@ -1803,14 +2120,12 @@ int linearSearch(int[] arr, int target) {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color:
-                  cyan.withOpacity(0.09),
-              borderRadius:
-                  BorderRadius.circular(8),
+              color: purple.withOpacity(0.10),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
-              Icons.search_rounded,
-              color: cyan,
+              Icons.compare_arrows_rounded,
+              color: purple,
               size: 18,
             ),
           ),
@@ -1819,59 +2134,38 @@ int linearSearch(int[] arr, int target) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Current Search',
+                  'Current Search Range',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.42),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 9,
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
-                  currentIndex >= 0
-                      ? 'Index $currentIndex → Value $currentElement'
-                      : 'Waiting for execution',
+                  rangeText,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ],
             ),
           ),
 
-          Container(
-            padding:
-                const EdgeInsets.symmetric(
-              horizontal: 9,
-              vertical: 6,
-            ),
-            decoration: BoxDecoration(
-              color:
-                  pink.withOpacity(0.08),
-              borderRadius:
-                  BorderRadius.circular(7),
-            ),
-            child: Text(
-              'Target: $target',
+          if (probeIndex >= 0)
+            Text(
+              'Probe: $probeIndex',
               style: const TextStyle(
-                color: pink,
-                fontSize: 10,
-                fontWeight:
-                    FontWeight.w800,
+                color: cyan,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
               ),
             ),
-          ),
         ],
       ),
     );
@@ -1884,18 +2178,12 @@ int linearSearch(int[] arr, int target) {
   Widget _buildStatusCard() {
     Color color = cyan;
 
-    IconData icon =
-        Icons.info_outline_rounded;
-
     if (foundIndex >= 0) {
       color = green;
-      icon = Icons.check_circle_rounded;
     } else if (isCompleted) {
       color = red;
-      icon = Icons.cancel_rounded;
     } else if (isRunning) {
       color = orange;
-      icon = Icons.play_circle_rounded;
     }
 
     return Container(
@@ -1903,19 +2191,20 @@ int linearSearch(int[] arr, int target) {
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: color.withOpacity(0.06),
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color:
-              color.withOpacity(0.18),
+          color: color.withOpacity(0.18),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            icon,
+            foundIndex >= 0
+                ? Icons.check_circle_rounded
+                : isCompleted
+                    ? Icons.cancel_rounded
+                    : Icons.info_outline_rounded,
             color: color,
             size: 18,
           ),
@@ -1926,8 +2215,7 @@ int linearSearch(int[] arr, int target) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white
-                    .withOpacity(0.72),
+                color: Colors.white.withOpacity(0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -1949,13 +2237,11 @@ int linearSearch(int[] arr, int target) {
           Row(
             children: [
               _controlButton(
-                icon:
-                    Icons.skip_previous_rounded,
+                icon: Icons.skip_previous_rounded,
                 label: 'Previous',
-                onPressed:
-                    executionHistory.isEmpty
-                        ? null
-                        : _previousStep,
+                onPressed: executionHistory.isEmpty
+                    ? null
+                    : _previousStep,
               ),
 
               const SizedBox(width: 8),
@@ -1965,9 +2251,7 @@ int linearSearch(int[] arr, int target) {
                   icon: isRunning
                       ? Icons.pause_rounded
                       : Icons.play_arrow_rounded,
-                  label: isRunning
-                      ? 'Pause'
-                      : 'Play',
+                  label: isRunning ? 'Pause' : 'Play',
                   onPressed: isCompleted
                       ? null
                       : _togglePlayPause,
@@ -1978,12 +2262,10 @@ int linearSearch(int[] arr, int target) {
               const SizedBox(width: 8),
 
               _controlButton(
-                icon:
-                    Icons.skip_next_rounded,
+                icon: Icons.skip_next_rounded,
                 label: 'Next Step',
                 onPressed:
-                    currentStep >=
-                            events.length
+                    currentStep >= events.length
                         ? null
                         : _nextStep,
               ),
@@ -1991,8 +2273,7 @@ int linearSearch(int[] arr, int target) {
               const SizedBox(width: 8),
 
               _controlButton(
-                icon:
-                    Icons.restart_alt_rounded,
+                icon: Icons.restart_alt_rounded,
                 label: 'Reset',
                 onPressed: _reset,
               ),
@@ -2014,11 +2295,9 @@ int linearSearch(int[] arr, int target) {
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.55),
+                  color: Colors.white.withOpacity(0.55),
                   fontSize: 11,
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
 
@@ -2029,25 +2308,20 @@ int linearSearch(int[] arr, int target) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor:
-                      Colors.white
-                          .withOpacity(0.08),
+                  inactiveColor: Colors.white.withOpacity(0.08),
                   onChanged: _setSpeed,
                 ),
               ),
 
               Container(
                 width: 48,
-                alignment:
-                    Alignment.center,
+                alignment: Alignment.center,
                 child: Text(
                   '${speed.toStringAsFixed(1)}x',
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: cyan,
                     fontSize: 11,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2057,21 +2331,16 @@ int linearSearch(int[] arr, int target) {
           const SizedBox(height: 3),
 
           ClipRRect(
-            borderRadius:
-                BorderRadius.circular(4),
-            child:
-                LinearProgressIndicator(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
               value: events.isEmpty
                   ? 0
-                  : currentStep /
-                      events.length,
+                  : currentStep / events.length,
               minHeight: 4,
               backgroundColor:
-                  Colors.white
-                      .withOpacity(0.06),
+                  Colors.white.withOpacity(0.06),
               valueColor:
-                  const AlwaysStoppedAnimation<
-                      Color>(
+                  const AlwaysStoppedAnimation<Color>(
                 cyan,
               ),
             ),
@@ -2081,14 +2350,12 @@ int linearSearch(int[] arr, int target) {
 
           Row(
             mainAxisAlignment:
-                MainAxisAlignment
-                    .spaceBetween,
+                MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white
-                      .withOpacity(0.45),
+                  color: Colors.white.withOpacity(0.45),
                   fontSize: 10,
                 ),
               ),
@@ -2103,12 +2370,9 @@ int linearSearch(int[] arr, int target) {
                       ? green
                       : isRunning
                           ? orange
-                          : Colors.white
-                              .withOpacity(
-                                  0.4),
+                          : Colors.white.withOpacity(0.4),
                   fontSize: 10,
-                  fontWeight:
-                      FontWeight.w700,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -2128,6 +2392,8 @@ int linearSearch(int[] arr, int target) {
     required VoidCallback? onPressed,
     bool primary = false,
   }) {
+    final bool enabled = onPressed != null;
+
     return SizedBox(
       height: 42,
       child: ElevatedButton.icon(
@@ -2151,25 +2417,19 @@ int linearSearch(int[] arr, int target) {
               ? background
               : Colors.white,
           disabledBackgroundColor:
-              Colors.white
-                  .withOpacity(0.04),
+              Colors.white.withOpacity(0.04),
           disabledForegroundColor:
-              Colors.white
-                  .withOpacity(0.20),
+              Colors.white.withOpacity(0.20),
           elevation: 0,
-          padding:
-              const EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 10,
           ),
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(9),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(9),
             side: BorderSide(
               color: primary
                   ? cyan
-                  : Colors.white
-                      .withOpacity(0.08),
+                  : Colors.white.withOpacity(0.08),
             ),
           ),
         ),
@@ -2182,13 +2442,11 @@ int linearSearch(int[] arr, int target) {
   // ==========================================================================
 
   Widget _buildSourceCode() {
-    final lines =
-        sourceCode.trimRight().split('\n');
+    final lines = sourceCode.trimRight().split('\n');
 
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -2202,28 +2460,21 @@ int linearSearch(int[] arr, int target) {
 
               InkWell(
                 onTap: _copyCode,
-                borderRadius:
-                    BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     horizontal: 9,
                     vertical: 7,
                   ),
-                  decoration:
-                      BoxDecoration(
-                    color: purple
-                        .withOpacity(0.08),
-                    borderRadius:
-                        BorderRadius.circular(8),
+                  decoration: BoxDecoration(
+                    color: purple.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: purple
-                          .withOpacity(0.20),
+                      color: purple.withOpacity(0.20),
                     ),
                   ),
                   child: const Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.copy_rounded,
@@ -2236,8 +2487,7 @@ int linearSearch(int[] arr, int target) {
                         style: TextStyle(
                           color: purple,
                           fontSize: 10,
-                          fontWeight:
-                              FontWeight.w800,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],
@@ -2251,107 +2501,75 @@ int linearSearch(int[] arr, int target) {
 
           Container(
             width: double.infinity,
-            constraints:
-                const BoxConstraints(
-              minHeight: 280,
-              maxHeight: 500,
+            constraints: const BoxConstraints(
+              minHeight: 350,
+              maxHeight: 520,
             ),
-            padding:
-                const EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               vertical: 10,
             ),
-            decoration:
-                BoxDecoration(
-              color:
-                  const Color(0xFF050A14),
-              borderRadius:
-                  BorderRadius.circular(11),
+            decoration: BoxDecoration(
+              color: const Color(0xFF050A14),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.06),
+                color: Colors.white.withOpacity(0.06),
               ),
             ),
-            child:
-                SingleChildScrollView(
+            child: SingleChildScrollView(
               child: Column(
-                children:
-                    List.generate(
+                children: List.generate(
                   lines.length,
                   (index) {
-                    final lineNumber =
-                        index + 1;
+                    final lineNumber = index + 1;
 
                     final bool active =
-                        lineNumber ==
-                            activeCodeLine;
+                        lineNumber == activeCodeLine;
 
                     return Container(
-                      width:
-                          double.infinity,
-                      padding:
-                          const EdgeInsets
-                              .symmetric(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 2,
                       ),
                       color: active
-                          ? cyan.withOpacity(
-                              0.09,
-                            )
-                          : Colors
-                              .transparent,
+                          ? cyan.withOpacity(0.09)
+                          : Colors.transparent,
                       child: Row(
                         crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                            CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 25,
                             child: Text(
                               '$lineNumber',
-                              textAlign:
-                                  TextAlign
-                                      .right,
+                              textAlign: TextAlign.right,
                               style: TextStyle(
                                 color: active
                                     ? cyan
-                                    : Colors
-                                        .white
-                                        .withOpacity(
-                                            0.20,
-                                          ),
+                                    : Colors.white
+                                        .withOpacity(0.20),
                                 fontSize: 9,
-                                fontFamily:
-                                    'monospace',
+                                fontFamily: 'monospace',
                               ),
                             ),
                           ),
 
-                          const SizedBox(
-                              width: 10),
+                          const SizedBox(width: 10),
 
                           Expanded(
                             child: Text(
                               lines[index],
-                              style:
-                                  TextStyle(
+                              style: TextStyle(
                                 color: active
-                                    ? Colors
-                                        .white
-                                    : Colors
-                                        .white
-                                        .withOpacity(
-                                            0.65,
-                                          ),
+                                    ? Colors.white
+                                    : Colors.white
+                                        .withOpacity(0.65),
                                 fontSize: 10,
                                 height: 1.45,
-                                fontFamily:
-                                    'monospace',
+                                fontFamily: 'monospace',
                                 fontWeight: active
-                                    ? FontWeight
-                                        .w700
-                                    : FontWeight
-                                        .w400,
+                                    ? FontWeight.w700
+                                    : FontWeight.w400,
                               ),
                             ),
                           ),
@@ -2375,8 +2593,7 @@ int linearSearch(int[] arr, int target) {
   Widget _buildExecutionSteps() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -2389,20 +2606,15 @@ int linearSearch(int[] arr, int target) {
               const Spacer(),
 
               Container(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
-                decoration:
-                    BoxDecoration(
-                  color:
-                      cyan.withOpacity(0.07),
-                  borderRadius:
-                      BorderRadius.circular(7),
+                decoration: BoxDecoration(
+                  color: cyan.withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(7),
                   border: Border.all(
-                    color:
-                        cyan.withOpacity(0.14),
+                    color: cyan.withOpacity(0.14),
                   ),
                 ),
                 child: Text(
@@ -2410,8 +2622,7 @@ int linearSearch(int[] arr, int target) {
                   style: const TextStyle(
                     color: cyan,
                     fontSize: 10,
-                    fontWeight:
-                        FontWeight.w800,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -2424,16 +2635,13 @@ int linearSearch(int[] arr, int target) {
             _emptyExecutionState()
           else
             ConstrainedBox(
-              constraints:
-                  const BoxConstraints(
+              constraints: const BoxConstraints(
                 maxHeight: 460,
               ),
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount:
-                    executionHistory.length,
-                itemBuilder:
-                    (context, index) {
+                itemCount: executionHistory.length,
+                itemBuilder: (context, index) {
                   final event =
                       executionHistory[index];
 
@@ -2456,26 +2664,22 @@ int linearSearch(int[] arr, int target) {
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         vertical: 35,
         horizontal: 15,
       ),
       decoration: BoxDecoration(
         color: visualizationColor,
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.06),
+          color: Colors.white.withOpacity(0.06),
         ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white
-                .withOpacity(0.20),
+            color: Colors.white.withOpacity(0.20),
             size: 32,
           ),
 
@@ -2484,11 +2688,9 @@ int linearSearch(int[] arr, int target) {
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.55),
+              color: Colors.white.withOpacity(0.55),
               fontSize: 12,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2497,8 +2699,7 @@ int linearSearch(int[] arr, int target) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white
-                  .withOpacity(0.30),
+              color: Colors.white.withOpacity(0.30),
               fontSize: 10,
             ),
           ),
@@ -2513,40 +2714,31 @@ int linearSearch(int[] arr, int target) {
 
   Widget _executionStepItem(
     int index,
-    LinearSearchEvent event,
+    InterpolationSearchEvent event,
   ) {
-    final color =
-        _eventColor(event.type);
+    final color = _eventColor(event.type);
 
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 7,
       ),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color:
-            color.withOpacity(0.045),
-        borderRadius:
-            BorderRadius.circular(9),
+        color: color.withOpacity(0.045),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.14),
+          color: color.withOpacity(0.14),
         ),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 27,
             height: 27,
-            decoration:
-                BoxDecoration(
-              color:
-                  color.withOpacity(0.10),
-              borderRadius:
-                  BorderRadius.circular(7),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.10),
+              borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(
               _eventIcon(event.type),
@@ -2559,8 +2751,7 @@ int linearSearch(int[] arr, int target) {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -2570,8 +2761,7 @@ int linearSearch(int[] arr, int target) {
                         style: TextStyle(
                           color: color,
                           fontSize: 10.5,
-                          fontWeight:
-                              FontWeight.w800,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
@@ -2580,11 +2770,9 @@ int linearSearch(int[] arr, int target) {
                       '#${index + 1}',
                       style: TextStyle(
                         color: Colors.white
-                            .withOpacity(
-                                0.22),
+                            .withOpacity(0.22),
                         fontSize: 9,
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -2610,8 +2798,7 @@ int linearSearch(int[] arr, int target) {
                     color: Colors.white
                         .withOpacity(0.30),
                     fontSize: 8.5,
-                    fontFamily:
-                        'monospace',
+                    fontFamily: 'monospace',
                   ),
                 ),
               ],
@@ -2634,19 +2821,15 @@ int linearSearch(int[] arr, int target) {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white
-              .withOpacity(0.065),
+          color: Colors.white.withOpacity(0.065),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black
-                .withOpacity(0.18),
+            color: Colors.black.withOpacity(0.18),
             blurRadius: 16,
-            offset:
-                const Offset(0, 7),
+            offset: const Offset(0, 7),
           ),
         ],
       ),
@@ -2664,18 +2847,14 @@ int linearSearch(int[] arr, int target) {
     Color color,
   ) {
     return Row(
-      mainAxisSize:
-          MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 30,
           height: 30,
-          decoration:
-              BoxDecoration(
-            color:
-                color.withOpacity(0.09),
-            borderRadius:
-                BorderRadius.circular(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.09),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
@@ -2691,8 +2870,7 @@ int linearSearch(int[] arr, int target) {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 13,
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -2709,34 +2887,26 @@ int linearSearch(int[] arr, int target) {
     Color color,
   ) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 9,
       ),
-      decoration:
-          BoxDecoration(
-        color:
-            color.withOpacity(0.055),
-        borderRadius:
-            BorderRadius.circular(9),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.055),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(
-          color:
-              color.withOpacity(0.16),
+          color: color.withOpacity(0.16),
         ),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              color:
-                  color.withOpacity(0.8),
+              color: color.withOpacity(0.8),
               fontSize: 9,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
@@ -2747,8 +2917,7 @@ int linearSearch(int[] arr, int target) {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 11,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],

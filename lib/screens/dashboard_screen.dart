@@ -1,5 +1,15 @@
-import 'package:a_algorithm_visualizer/algorithms/searching_algorithms/linear_search_screen.dart';
 import 'package:flutter/material.dart';
+
+import '../algorithms/searching_algorithms/linear_search_screen.dart';
+import '../algorithms/searching_algorithms/binary_search_screen.dart';
+import '../algorithms/searching_algorithms/jump_search_screen.dart';
+import '../algorithms/searching_algorithms/interpolation_search_screen.dart';
+import '../algorithms/sorting_algorithms/bubble_sort_screen.dart';
+import '../algorithms/sorting_algorithms/selection_sort_screen.dart';
+import '../algorithms/sorting_algorithms/insertion_sort_screen.dart';
+import '../algorithms/sorting_algorithms/merge_sort_screen.dart';
+import '../algorithms/sorting_algorithms/quick_sort_screen.dart';
+import '../algorithms/sorting_algorithms/heap_sort_screen.dart';
 
 // ================================================================
 // APP COLORS
@@ -56,38 +66,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // THEME COLORS
   // ==============================================================
 
-  Color get _background =>
-      isDarkMode ? const Color(0xFF060B16) : const Color(0xFFF3F7FC);
+  Color get _background {
+    return isDarkMode ? const Color(0xFF060B16) : const Color(0xFFF3F7FC);
+  }
 
-  Color get _background2 => isDarkMode ? const Color(0xFF0B1220) : Colors.white;
+  Color get _background2 {
+    return isDarkMode ? const Color(0xFF0B1220) : Colors.white;
+  }
 
-  Color get _cardColor => isDarkMode ? const Color(0xFF0B1428) : Colors.white;
+  Color get _cardColor {
+    return isDarkMode ? const Color(0xFF0B1428) : Colors.white;
+  }
 
-  Color get _primaryText =>
-      isDarkMode ? const Color(0xFFF8FAFC) : const Color(0xFF172033);
+  Color get _primaryText {
+    return isDarkMode ? const Color(0xFFF8FAFC) : const Color(0xFF172033);
+  }
 
-  Color get _secondaryText =>
-      isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+  Color get _secondaryText {
+    return isDarkMode ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+  }
 
-  Color get _mutedText =>
-      isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+  Color get _mutedText {
+    return isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+  }
 
-  Color get _borderColor =>
-      isDarkMode ? Colors.white.withOpacity(.07) : const Color(0xFFD9E2EC);
+  Color get _borderColor {
+    return isDarkMode ? Colors.white.withOpacity(.07) : const Color(0xFFD9E2EC);
+  }
 
-  Color get _sidebarSearchBackground =>
-      isDarkMode ? const Color(0xFF030712) : const Color(0xFFF1F5F9);
+  Color get _sidebarSearchBackground {
+    return isDarkMode ? const Color(0xFF030712) : const Color(0xFFF1F5F9);
+  }
 
-  Color get _heroText => isDarkMode ? Colors.white : const Color(0xFFF8FAFC);
+  Color get _heroText {
+    return isDarkMode ? Colors.white : const Color(0xFFF8FAFC);
+  }
 
-  Color get _heroSecondaryText =>
-      isDarkMode ? Colors.white60 : const Color(0xFFCBD5E1);
+  Color get _heroSecondaryText {
+    return isDarkMode ? Colors.white60 : const Color(0xFFCBD5E1);
+  }
 
   // ==============================================================
-  // ALGORITHM DATA
+  // ALGORITHMS
   // ==============================================================
 
   final List<AlgorithmItem> algorithms = [
+    // ============================================================
+    // SEARCHING
+    // ============================================================
+
     AlgorithmItem(
       title: 'Linear Search',
       description:
@@ -98,6 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.search_rounded,
       difficulty: 'Easy',
     ),
+
     AlgorithmItem(
       title: 'Binary Search',
       description:
@@ -108,6 +136,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.manage_search_rounded,
       difficulty: 'Easy',
     ),
+
     AlgorithmItem(
       title: 'Jump Search',
       description:
@@ -118,6 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.double_arrow_rounded,
       difficulty: 'Medium',
     ),
+
     AlgorithmItem(
       title: 'Interpolation Search',
       description:
@@ -128,6 +158,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.my_location_rounded,
       difficulty: 'Medium',
     ),
+
+    // ============================================================
+    // SORTING
+    // ============================================================
     AlgorithmItem(
       title: 'Bubble Sort',
       description: 'Repeatedly compares adjacent elements and swaps them.',
@@ -137,6 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.swap_vert_rounded,
       difficulty: 'Easy',
     ),
+
     AlgorithmItem(
       title: 'Selection Sort',
       description:
@@ -147,6 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.select_all_rounded,
       difficulty: 'Easy',
     ),
+
     AlgorithmItem(
       title: 'Insertion Sort',
       description: 'Builds the final sorted array one item at a time.',
@@ -156,26 +192,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.input_rounded,
       difficulty: 'Easy',
     ),
+
     AlgorithmItem(
       title: 'Merge Sort',
       description:
           'Divides the array into smaller parts and merges sorted parts.',
       complexity: 'O(n log n)',
       category: 'Sorting',
+      color: AppColors.green,
+      icon: Icons.merge_type_rounded,
+      difficulty: 'Medium',
+    ),
+
+    AlgorithmItem(
+      title: 'Quick Sort',
+      description: 'Uses a pivot to partition elements into smaller subarrays.',
+      complexity: 'O(n log n)',
+      category: 'Sorting',
       color: AppColors.purple,
       icon: Icons.call_split_rounded,
       difficulty: 'Medium',
     ),
-    AlgorithmItem(
-      title: 'Quick Sort',
-      description:
-          'Partitions data around a pivot and recursively sorts the parts.',
-      complexity: 'O(n log n)',
-      category: 'Sorting',
-      color: AppColors.green,
-      icon: Icons.compare_arrows_rounded,
-      difficulty: 'Medium',
-    ),
+
     AlgorithmItem(
       title: 'Heap Sort',
       description: 'Uses a heap data structure to efficiently sort elements.',
@@ -185,6 +223,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.account_tree_rounded,
       difficulty: 'Hard',
     ),
+
+    // ============================================================
+    // GRAPH
+    // ============================================================
     AlgorithmItem(
       title: 'Dijkstra',
       description:
@@ -195,6 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.route_rounded,
       difficulty: 'Hard',
     ),
+
     AlgorithmItem(
       title: 'BFS',
       description: 'Traverses a graph level by level using a queue.',
@@ -204,6 +247,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.hub_rounded,
       difficulty: 'Medium',
     ),
+
     AlgorithmItem(
       title: 'DFS',
       description: 'Explores a graph deeply before backtracking.',
@@ -213,6 +257,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.account_tree_rounded,
       difficulty: 'Medium',
     ),
+
+    // ============================================================
+    // TREES
+    // ============================================================
     AlgorithmItem(
       title: 'Binary Tree',
       description:
@@ -223,6 +271,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.device_hub_rounded,
       difficulty: 'Medium',
     ),
+
     AlgorithmItem(
       title: 'Binary Search Tree',
       description:
@@ -236,7 +285,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   // ==============================================================
-  // LIFECYCLE
+  // DISPOSE
   // ==============================================================
 
   @override
@@ -246,7 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ==============================================================
-  // ACTIONS
+  // THEME
   // ==============================================================
 
   void _toggleTheme() {
@@ -255,11 +304,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  // ==============================================================
+  // SIDEBAR TOGGLE
+  // ==============================================================
+
   void _toggleSidebar() {
     setState(() {
       isSidebarOpen = !isSidebarOpen;
     });
   }
+
+  // ==============================================================
+  // CLEAR SEARCH
+  // ==============================================================
 
   void _clearSearch() {
     setState(() {
@@ -267,6 +324,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       searchController.clear();
     });
   }
+
+  // ==============================================================
+  // CATEGORY
+  // ==============================================================
 
   void _selectCategory(String category) {
     setState(() {
@@ -283,6 +344,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // ==============================================================
+  // DASHBOARD
+  // ==============================================================
+
   void _goToDashboard() {
     setState(() {
       selectedIndex = 0;
@@ -298,49 +363,174 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // ==============================================================
+  // OPEN ALGORITHM BY NAME
+  // ==============================================================
+
   void _openAlgorithmByName(String name) {
     final item = algorithms.firstWhere((element) => element.title == name);
 
     _openAlgorithm(item);
   }
 
-  ///Searching Algorithms///
+  // ==============================================================
+  // OPEN ALGORITHM
+  // ==============================================================
 
   void _openAlgorithm(AlgorithmItem item) {
+    // ------------------------------------------------------------
+    // LINEAR SEARCH
+    // ------------------------------------------------------------
+
     if (item.title == 'Linear Search') {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const LinearSearchScreen()),
       );
+
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: _cardColor,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        content: Row(
-          children: [
-            Icon(item.icon, color: item.color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                '${item.title} selected',
-                style: TextStyle(
-                  color: _primaryText,
-                  fontWeight: FontWeight.w600,
+    // ------------------------------------------------------------
+    // BINARY SEARCH
+    // ------------------------------------------------------------
+
+    if (item.title == 'Binary Search') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BinarySearchScreen()),
+      );
+
+      return;
+    }
+
+    //Bubble Sort
+    if (item.title == 'Bubble Sort') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BubbleSortScreen()),
+      );
+
+      return;
+    }
+
+    // Jump Search //
+    if (item.title == 'Jump Search') {
+      // Navigate to Jump Search screen
+      // Replace with your actual Jump Search screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const JumpSearchScreen()),
+      );
+
+      return;
+    }
+
+    // Interpolation Search //
+    if (item.title == 'Interpolation Search') {
+      // Navigate to Interpolation Search screen
+      // Replace with your actual Interpolation Search screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const InterpolationSearchScreen()),
+      );
+
+      return;
+    }
+
+    // Selection Sort
+    if (item.title == 'Selection Sort') {
+      // Navigate to Selection Sort screen
+      // Replace with your actual Selection Sort screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SelectionSortScreen()),
+      );
+
+      return;
+    }
+
+    // Insertion Sort//
+    if (item.title == 'Insertion Sort') {
+      // Navigate to Insertion Sort screen
+      // Replace with your actual Insertion Sort screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const InsertionSortScreen()),
+      );
+
+      return;
+    }
+
+    // Merge Sort
+    if (item.title == 'Merge Sort') {
+      // Navigate to Merge Sort screen
+      // Replace with your actual Merge Sort screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const MergeSortScreen()),
+      );
+
+      return;
+    }
+
+    // Quick Sort //
+    if (item.title == 'Quick Sort') {
+      // Navigate to Quick Sort screen
+      // Replace with your actual Quick Sort screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const QuickSortScreen()),
+      );
+
+      return;
+    }
+
+    // Heap Sort //
+    if (item.title == 'Heap Sort') {
+      // Navigate to Heap Sort screen
+      // Replace with your actual Heap Sort screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const HeapSortScreen()),
+      );
+
+      return;
+    }
+    // ------------------------------------------------------------
+    // FUTURE ALGORITHMS
+    // ------------------------------------------------------------
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          backgroundColor: _cardColor,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          content: Row(
+            children: [
+              Icon(item.icon, color: item.color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  '${item.title} selected',
+                  style: TextStyle(
+                    color: _primaryText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 
   // ==============================================================
-  // RESPONSIVE HELPERS
+  // RESPONSIVE
   // ==============================================================
 
   bool _isMobile(BuildContext context) {
@@ -351,10 +541,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final width = MediaQuery.of(context).size.width;
 
     return width >= mobileBreakpoint && width < tabletBreakpoint;
-  }
-
-  bool _isLargeDesktop(BuildContext context) {
-    return MediaQuery.of(context).size.width >= largeDesktopBreakpoint;
   }
 
   double _contentHorizontalPadding(double width) {
@@ -381,9 +567,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    final mobile = width < mobileBreakpoint;
-
-    if (mobile) {
+    if (width < mobileBreakpoint) {
       return _buildMobileLayout();
     }
 
@@ -433,7 +617,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ==============================================================
-  // DESKTOP / TABLET LAYOUT
+  // DESKTOP / TABLET
   // ==============================================================
 
   Widget _buildDesktopTabletLayout() {
@@ -470,552 +654,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ==============================================================
-  // COLLAPSED SIDEBAR
-  // ==============================================================
-
-  Widget _buildCollapsedSidebar() {
-    return Container(
-      color: _background2,
-      child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-            _buildLogo(size: 50),
-
-            const SizedBox(height: 28),
-
-            _collapsedSidebarItem(
-              icon: Icons.dashboard_rounded,
-              active: selectedIndex == 0,
-              onTap: _goToDashboard,
-            ),
-
-            const SizedBox(height: 14),
-
-            _collapsedSidebarItem(
-              icon: Icons.search_rounded,
-              active: selectedCategory == 'Searching' && searchQuery.isEmpty,
-              color: AppColors.green,
-              onTap: () => _selectCategory('Searching'),
-            ),
-
-            const SizedBox(height: 12),
-
-            _collapsedSidebarItem(
-              icon: Icons.bar_chart_rounded,
-              active: selectedCategory == 'Sorting' && searchQuery.isEmpty,
-              color: AppColors.purple,
-              onTap: () => _selectCategory('Sorting'),
-            ),
-
-            const SizedBox(height: 12),
-
-            _collapsedSidebarItem(
-              icon: Icons.hub_rounded,
-              active: selectedCategory == 'Graph' && searchQuery.isEmpty,
-              color: AppColors.blue,
-              onTap: () => _selectCategory('Graph'),
-            ),
-
-            const SizedBox(height: 12),
-
-            _collapsedSidebarItem(
-              icon: Icons.account_tree_outlined,
-              active: selectedCategory == 'Trees' && searchQuery.isEmpty,
-              color: AppColors.orange,
-              onTap: () => _selectCategory('Trees'),
-            ),
-
-            const Spacer(),
-
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: _collapsedSidebarItem(
-                icon: Icons.keyboard_double_arrow_right_rounded,
-                active: false,
-                color: AppColors.cyan,
-                onTap: _toggleSidebar,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _collapsedSidebarItem({
-    required IconData icon,
-    required bool active,
-    required VoidCallback onTap,
-    Color? color,
-  }) {
-    final itemColor = color ?? AppColors.cyan;
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(15),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        width: 54,
-        height: 54,
-        decoration: BoxDecoration(
-          color: active ? itemColor.withOpacity(.10) : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: active ? itemColor.withOpacity(.30) : Colors.transparent,
-          ),
-        ),
-        child: Icon(icon, color: active ? itemColor : _secondaryText, size: 24),
-      ),
-    );
-  }
-
-  // ==============================================================
-  // LOGO
-  // ==============================================================
-
-  Widget _buildLogo({double size = 54}) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [AppColors.cyan, AppColors.blue],
-        ),
-        boxShadow: [
-          BoxShadow(color: AppColors.cyan.withOpacity(.22), blurRadius: 25),
-        ],
-      ),
-      child: Icon(
-        Icons.account_tree_rounded,
-        color: Colors.white,
-        size: size * .52,
-      ),
-    );
-  }
-
-  // ==============================================================
-  // SIDEBAR
-  // ==============================================================
-
-  Widget _buildSidebar() {
-    return Container(
-      width: double.infinity,
-      color: _background2,
-      child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Row(
-                children: [
-                  _buildLogo(),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'ALGORITHMS',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: _primaryText,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Interactive library',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: _secondaryText, fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: _sidebarItem(
-                icon: Icons.dashboard_rounded,
-                title: 'DASHBOARD',
-                subtitle: 'Overview & algorithms',
-                active: selectedIndex == 0,
-                onTap: _goToDashboard,
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: _buildSidebarSearch(),
-            ),
-
-            const SizedBox(height: 16),
-
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Column(
-                  children: [
-                    _categoryGroup(
-                      title: 'Searching',
-                      icon: Icons.search_rounded,
-                      color: AppColors.green,
-                      count: 4,
-                      algorithms: [
-                        'Linear Search',
-                        'Binary Search',
-                        'Jump Search',
-                        'Interpolation Search',
-                      ],
-                    ),
-
-                    _categoryGroup(
-                      title: 'Sorting',
-                      icon: Icons.bar_chart_rounded,
-                      color: AppColors.purple,
-                      count: 6,
-                      algorithms: [
-                        'Bubble Sort',
-                        'Selection Sort',
-                        'Insertion Sort',
-                        'Merge Sort',
-                        'Quick Sort',
-                        'Heap Sort',
-                      ],
-                    ),
-
-                    _categoryGroup(
-                      title: 'Graph',
-                      icon: Icons.hub_rounded,
-                      color: AppColors.blue,
-                      count: 3,
-                      algorithms: ['Dijkstra', 'BFS', 'DFS'],
-                    ),
-
-                    _categoryGroup(
-                      title: 'Trees',
-                      icon: Icons.account_tree_rounded,
-                      color: AppColors.orange,
-                      count: 2,
-                      algorithms: ['Binary Tree', 'Binary Search Tree'],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 11,
-                ),
-                decoration: BoxDecoration(
-                  color: _sidebarSearchBackground,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.cyan.withOpacity(.14)),
-                ),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '15 ALGORITHMS  •  4 CATEGORIES',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: _secondaryText,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: .7,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ==============================================================
-  // SIDEBAR SEARCH
-  // ==============================================================
-
-  Widget _buildSidebarSearch() {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: _sidebarSearchBackground,
-        borderRadius: BorderRadius.circular(13),
-        border: Border.all(
-          color: AppColors.cyan.withOpacity(isDarkMode ? .12 : .20),
-        ),
-      ),
-      child: TextField(
-        controller: searchController,
-        onChanged: (value) {
-          setState(() {
-            searchQuery = value;
-          });
-        },
-        style: TextStyle(color: _primaryText, fontSize: 12),
-        decoration: InputDecoration(
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: AppColors.cyan,
-            size: 20,
-          ),
-          suffixIcon: searchQuery.isNotEmpty
-              ? IconButton(
-                  onPressed: _clearSearch,
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                  color: _secondaryText,
-                )
-              : null,
-          hintText: 'Search algorithms...',
-          hintStyle: TextStyle(color: _mutedText, fontSize: 12),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
-        ),
-      ),
-    );
-  }
-
-  // ==============================================================
-  // SIDEBAR ITEM
-  // ==============================================================
-
-  Widget _sidebarItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool active,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(15),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: active ? AppColors.cyan.withOpacity(.10) : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: active
-                ? AppColors.cyan.withOpacity(.30)
-                : Colors.transparent,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: active
-                    ? AppColors.cyan.withOpacity(.12)
-                    : _primaryText.withOpacity(.04),
-                border: Border.all(
-                  color: active
-                      ? AppColors.cyan.withOpacity(.22)
-                      : _borderColor,
-                ),
-              ),
-              child: Icon(
-                icon,
-                color: active ? AppColors.cyan : _secondaryText,
-                size: 20,
-              ),
-            ),
-
-            const SizedBox(width: 10),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: active ? AppColors.cyan : _primaryText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: .4,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: _secondaryText, fontSize: 9),
-                  ),
-                ],
-              ),
-            ),
-
-            if (active)
-              const Icon(Icons.check_rounded, color: AppColors.cyan, size: 18),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ==============================================================
-  // CATEGORY GROUP
-  // ==============================================================
-
-  Widget _categoryGroup({
-    required String title,
-    required IconData icon,
-    required Color color,
-    required int count,
-    required List<String> algorithms,
-  }) {
-    final categoryActive = selectedCategory == title && searchQuery.isEmpty;
-
-    return Column(
-      children: [
-        InkWell(
-          onTap: () => _selectCategory(title),
-          borderRadius: BorderRadius.circular(13),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 3),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-            decoration: BoxDecoration(
-              color: categoryActive
-                  ? color.withOpacity(.08)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(.10),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: color.withOpacity(.18)),
-                  ),
-                  child: Icon(icon, color: color, size: 17),
-                ),
-
-                const SizedBox(width: 9),
-
-                Expanded(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: categoryActive ? color : _primaryText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(.10),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        ...algorithms.map((algorithm) {
-          final active = categoryActive && algorithm == algorithms.first;
-
-          return InkWell(
-            onTap: () => _openAlgorithmByName(algorithm),
-            borderRadius: BorderRadius.circular(9),
-            child: Container(
-              margin: const EdgeInsets.only(left: 34, bottom: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              decoration: BoxDecoration(
-                color: active ? color.withOpacity(.10) : Colors.transparent,
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: active ? color : _mutedText.withOpacity(.55),
-                    ),
-                  ),
-
-                  const SizedBox(width: 9),
-
-                  Expanded(
-                    child: Text(
-                      algorithm,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: active ? color : _secondaryText,
-                        fontSize: 10,
-                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      ),
-                    ),
-                  ),
-
-                  if (active)
-                    Icon(Icons.chevron_right_rounded, color: color, size: 17),
-                ],
-              ),
-            ),
-          );
-        }),
-
-        const SizedBox(height: 8),
-      ],
-    );
-  }
-
-  // ==============================================================
   // TOP BAR
   // ==============================================================
 
@@ -1025,6 +663,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final width = constraints.maxWidth;
 
         final mobile = width < mobileBreakpoint;
+
         final tablet = width >= mobileBreakpoint && width < tabletBreakpoint;
 
         final topBarHeight = mobile ? 68.0 : 86.0;
@@ -1090,7 +729,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ==============================================================
-  // TOP MENU BUTTON
+  // TOP MENU
   // ==============================================================
 
   Widget _topMenuButton({required bool mobile}) {
@@ -1128,7 +767,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          mobile ? 'ALGORITHM VISUALIZER' : 'ALGORITHM VISUALIZER',
+          'ALGORITHM VISUALIZER',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -1198,7 +837,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ==============================================================
-  // TOP ICON BUTTON
+  // TOP ICON
   // ==============================================================
 
   Widget _topIconButton(IconData icon, VoidCallback onTap) {
@@ -1214,6 +853,566 @@ class _DashboardScreenState extends State<DashboardScreen> {
           border: Border.all(color: AppColors.cyan.withOpacity(.14)),
         ),
         child: Icon(icon, color: _primaryText.withOpacity(.75), size: 21),
+      ),
+    );
+  }
+
+  // ==============================================================
+  // SIDEBAR
+  // ==============================================================
+
+  Widget _buildSidebar() {
+    return Container(
+      width: double.infinity,
+      color: _background2,
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Row(
+                children: [
+                  _buildLogo(),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ALGORITHMS',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: _primaryText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          'Interactive library',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: _secondaryText, fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: _sidebarItem(
+                icon: Icons.dashboard_rounded,
+                title: 'DASHBOARD',
+                subtitle: 'Overview & algorithms',
+                active: selectedIndex == 0,
+                onTap: _goToDashboard,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: _buildSidebarSearch(),
+            ),
+
+            const SizedBox(height: 16),
+
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Column(
+                  children: [
+                    _categoryGroup(
+                      title: 'Searching',
+                      icon: Icons.search_rounded,
+                      color: AppColors.green,
+                      count: 4,
+                      algorithms: const [
+                        'Linear Search',
+                        'Binary Search',
+                        'Jump Search',
+                        'Interpolation Search',
+                      ],
+                    ),
+
+                    _categoryGroup(
+                      title: 'Sorting',
+                      icon: Icons.bar_chart_rounded,
+                      color: AppColors.purple,
+                      count: 6,
+                      algorithms: const [
+                        'Bubble Sort',
+                        'Selection Sort',
+                        'Insertion Sort',
+                        'Merge Sort',
+                        'Quick Sort',
+                        'Heap Sort',
+                      ],
+                    ),
+
+                    _categoryGroup(
+                      title: 'Graph',
+                      icon: Icons.hub_rounded,
+                      color: AppColors.blue,
+                      count: 3,
+                      algorithms: const ['Dijkstra', 'BFS', 'DFS'],
+                    ),
+
+                    _categoryGroup(
+                      title: 'Trees',
+                      icon: Icons.account_tree_rounded,
+                      color: AppColors.orange,
+                      count: 2,
+                      algorithms: const ['Binary Tree', 'Binary Search Tree'],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 11,
+                ),
+                decoration: BoxDecoration(
+                  color: _sidebarSearchBackground,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.cyan.withOpacity(.14)),
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '15 ALGORITHMS  •  4 CATEGORIES',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: _secondaryText,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: .7,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==============================================================
+  // SIDEBAR ITEM
+  // ==============================================================
+
+  Widget _sidebarItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool active,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        decoration: BoxDecoration(
+          color: active ? AppColors.cyan.withOpacity(.08) : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: active
+                ? AppColors.cyan.withOpacity(.22)
+                : Colors.transparent,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: active
+                    ? AppColors.cyan.withOpacity(.10)
+                    : _sidebarSearchBackground,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(
+                icon,
+                color: active ? AppColors.cyan : _secondaryText,
+                size: 19,
+              ),
+            ),
+
+            const SizedBox(width: 11),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: active ? _primaryText : _secondaryText,
+                      fontSize: 10,
+                      fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                      letterSpacing: .4,
+                    ),
+                  ),
+
+                  const SizedBox(height: 3),
+
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: _mutedText, fontSize: 8.5),
+                  ),
+                ],
+              ),
+            ),
+
+            if (active)
+              Container(
+                width: 5,
+                height: 25,
+                decoration: BoxDecoration(
+                  color: AppColors.cyan,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.cyan.withOpacity(.35),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==============================================================
+  // SIDEBAR SEARCH
+  // ==============================================================
+
+  Widget _buildSidebarSearch() {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: _sidebarSearchBackground,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(
+          color: AppColors.cyan.withOpacity(isDarkMode ? .12 : .20),
+        ),
+      ),
+      child: TextField(
+        controller: searchController,
+        onChanged: (value) {
+          setState(() {
+            searchQuery = value;
+          });
+        },
+        style: TextStyle(color: _primaryText, fontSize: 12),
+        decoration: InputDecoration(
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.cyan,
+            size: 20,
+          ),
+          suffixIcon: searchQuery.isNotEmpty
+              ? IconButton(
+                  onPressed: _clearSearch,
+                  icon: const Icon(Icons.close_rounded, size: 18),
+                  color: _secondaryText,
+                )
+              : null,
+          hintText: 'Search algorithms...',
+          hintStyle: TextStyle(color: _mutedText, fontSize: 12),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+      ),
+    );
+  }
+
+  // ==============================================================
+  // CATEGORY GROUP
+  // ==============================================================
+
+  Widget _categoryGroup({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required int count,
+    required List<String> algorithms,
+  }) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(.055),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withOpacity(.15)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 35,
+                height: 35,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+
+              const SizedBox(width: 9),
+
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: _primaryText,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(.08),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 6),
+
+        ...algorithms.map((algorithm) {
+          final item = this.algorithms.firstWhere(
+            (element) => element.title == algorithm,
+          );
+
+          final active =
+              searchQuery.isEmpty &&
+              selectedCategory == title &&
+              selectedIndex == 1;
+
+          return InkWell(
+            onTap: () {
+              _openAlgorithmByName(algorithm);
+            },
+            borderRadius: BorderRadius.circular(9),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: item.color.withOpacity(.75),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+
+                  const SizedBox(width: 9),
+
+                  Expanded(
+                    child: Text(
+                      algorithm,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: active ? color : _secondaryText,
+                        fontSize: 10,
+                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: _mutedText.withOpacity(.55),
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
+  // ==============================================================
+  // COLLAPSED SIDEBAR
+  // ==============================================================
+
+  Widget _buildCollapsedSidebar() {
+    return Container(
+      color: _background2,
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+
+            _buildLogo(size: 50),
+
+            const SizedBox(height: 28),
+
+            _collapsedSidebarItem(
+              icon: Icons.dashboard_rounded,
+              active: selectedIndex == 0,
+              onTap: _goToDashboard,
+            ),
+
+            const SizedBox(height: 14),
+
+            _collapsedSidebarItem(
+              icon: Icons.search_rounded,
+              active: selectedCategory == 'Searching',
+              color: AppColors.green,
+              onTap: () => _selectCategory('Searching'),
+            ),
+
+            const SizedBox(height: 12),
+
+            _collapsedSidebarItem(
+              icon: Icons.bar_chart_rounded,
+              active: selectedCategory == 'Sorting',
+              color: AppColors.purple,
+              onTap: () => _selectCategory('Sorting'),
+            ),
+
+            const SizedBox(height: 12),
+
+            _collapsedSidebarItem(
+              icon: Icons.hub_rounded,
+              active: selectedCategory == 'Graph',
+              color: AppColors.blue,
+              onTap: () => _selectCategory('Graph'),
+            ),
+
+            const SizedBox(height: 12),
+
+            _collapsedSidebarItem(
+              icon: Icons.account_tree_rounded,
+              active: selectedCategory == 'Trees',
+              color: AppColors.orange,
+              onTap: () => _selectCategory('Trees'),
+            ),
+
+            const Spacer(),
+
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: _collapsedSidebarItem(
+                icon: Icons.keyboard_double_arrow_right_rounded,
+                active: false,
+                color: AppColors.cyan,
+                onTap: _toggleSidebar,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==============================================================
+  // COLLAPSED SIDEBAR ITEM
+  // ==============================================================
+
+  Widget _collapsedSidebarItem({
+    required IconData icon,
+    required bool active,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    final itemColor = color ?? AppColors.cyan;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: 54,
+        height: 54,
+        decoration: BoxDecoration(
+          color: active ? itemColor.withOpacity(.10) : Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: active ? itemColor.withOpacity(.30) : Colors.transparent,
+          ),
+        ),
+        child: Icon(icon, color: active ? itemColor : _secondaryText, size: 24),
+      ),
+    );
+  }
+
+  // ==============================================================
+  // LOGO
+  // ==============================================================
+
+  Widget _buildLogo({double size = 54}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [AppColors.cyan, AppColors.blue],
+        ),
+        boxShadow: [
+          BoxShadow(color: AppColors.cyan.withOpacity(.22), blurRadius: 25),
+        ],
+      ),
+      child: Icon(
+        Icons.account_tree_rounded,
+        color: Colors.white,
+        size: size * .52,
       ),
     );
   }
@@ -1235,7 +1434,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       }
 
       return algorithm.title.toLowerCase().contains(query) ||
-          algorithm.category.toLowerCase().contains(query);
+          algorithm.category.toLowerCase().contains(query) ||
+          algorithm.description.toLowerCase().contains(query);
     }).toList();
 
     final horizontalPadding = _contentHorizontalPadding(width);
@@ -1318,59 +1518,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ==============================================================
-  // ALGORITHM GRID
-  // ==============================================================
-
-  Widget _buildAlgorithmGrid(List<AlgorithmItem> filtered) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-
-        int columns;
-
-        if (width < 650) {
-          columns = 1;
-        } else if (width < 1050) {
-          columns = 2;
-        } else if (width < 1450) {
-          columns = 2;
-        } else {
-          columns = 3;
-        }
-
-        final spacing = width < 650 ? 14.0 : 18.0;
-
-        final cardHeight = width < 650
-            ? 225.0
-            : width < 900
-            ? 235.0
-            : 245.0;
-
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: filtered.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: columns,
-            crossAxisSpacing: spacing,
-            mainAxisSpacing: spacing,
-            mainAxisExtent: cardHeight,
-          ),
-          itemBuilder: (context, index) {
-            return AlgorithmCardWidget(
-              item: filtered[index],
-              onTap: () {
-                _openAlgorithm(filtered[index]);
-              },
-              isDarkMode: isDarkMode,
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // ==============================================================
   // BREADCRUMB
   // ==============================================================
 
@@ -1424,6 +1571,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final width = constraints.maxWidth;
 
         final mobile = width < 650;
+
         final tablet = width >= 650 && width < 950;
 
         final heroHeight = mobile
@@ -1602,25 +1750,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 125,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.cyan.withOpacity(.025),
-        border: Border.all(color: AppColors.cyan.withOpacity(.22)),
+        color: AppColors.cyan.withOpacity(.06),
+        border: Border.all(color: AppColors.cyan.withOpacity(.20)),
+        boxShadow: [
+          BoxShadow(color: AppColors.cyan.withOpacity(.10), blurRadius: 35),
+        ],
       ),
-      child: Center(
-        child: Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: const LinearGradient(
-              colors: [AppColors.cyan, AppColors.blue],
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 85,
+            height: 85,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.blue.withOpacity(.30)),
             ),
           ),
-          child: const Icon(
-            Icons.dashboard_customize_rounded,
-            color: Colors.white,
-            size: 34,
+
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.purple.withOpacity(.12),
+              border: Border.all(color: AppColors.purple.withOpacity(.35)),
+            ),
+            child: const Icon(
+              Icons.account_tree_rounded,
+              color: AppColors.cyan,
+              size: 25,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1638,22 +1800,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final narrow = constraints.maxWidth < 560;
+        final narrow = constraints.maxWidth < 650;
 
         final titleBlock = Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 43,
+              height: 43,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(13),
-                color: color.withOpacity(.10),
-                border: Border.all(color: color.withOpacity(.30)),
+                color: color.withOpacity(.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withOpacity(.20)),
               ),
               child: Icon(icon, color: color, size: 21),
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(width: 11),
 
             Expanded(
               child: Column(
@@ -1665,7 +1827,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: _primaryText,
-                      fontSize: constraints.maxWidth < 400 ? 18 : 21,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
@@ -1715,6 +1877,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 14),
             countChip,
           ],
+        );
+      },
+    );
+  }
+
+  // ==============================================================
+  // GRID
+  // ==============================================================
+
+  Widget _buildAlgorithmGrid(List<AlgorithmItem> filtered) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+
+        int columns;
+
+        if (width < 650) {
+          columns = 1;
+        } else if (width < 1450) {
+          columns = 2;
+        } else {
+          columns = 3;
+        }
+
+        final spacing = width < 650 ? 14.0 : 18.0;
+
+        final cardHeight = width < 650
+            ? 225.0
+            : width < 900
+            ? 235.0
+            : 245.0;
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: filtered.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: spacing,
+            mainAxisSpacing: spacing,
+            mainAxisExtent: cardHeight,
+          ),
+          itemBuilder: (context, index) {
+            return AlgorithmCardWidget(
+              item: filtered[index],
+              onTap: () {
+                _openAlgorithm(filtered[index]);
+              },
+              isDarkMode: isDarkMode,
+            );
+          },
         );
       },
     );
@@ -1792,10 +2005,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               columns = 4;
             }
 
+            final stats = [
+              (Icons.category_rounded, '15', 'Algorithms', AppColors.cyan),
+              (Icons.animation_rounded, 'STEP', 'Animations', AppColors.purple),
+              (Icons.speed_rounded, 'BIG-O', 'Analysis', AppColors.green),
+              (Icons.school_rounded, 'DSA', 'Learning', AppColors.orange),
+            ];
+
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: 4,
+              itemCount: stats.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: columns,
                 crossAxisSpacing: 14,
@@ -1803,18 +2023,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 mainAxisExtent: 88,
               ),
               itemBuilder: (context, index) {
-                final stats = [
-                  (Icons.category_rounded, '15', 'Algorithms', AppColors.cyan),
-                  (
-                    Icons.animation_rounded,
-                    'STEP',
-                    'Animations',
-                    AppColors.purple,
-                  ),
-                  (Icons.speed_rounded, 'BIG-O', 'Analysis', AppColors.green),
-                  (Icons.school_rounded, 'DSA', 'Learning', AppColors.orange),
-                ];
-
                 final stat = stats[index];
 
                 return StatCard(
@@ -1909,28 +2117,31 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
           hovered = false;
         });
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        transform: Matrix4.translationValues(0, hovered && !mobile ? -5 : 0, 0),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(mobile ? 18 : 20),
-          border: Border.all(
-            color: hovered ? color.withOpacity(.45) : color.withOpacity(.20),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          transform: Matrix4.translationValues(
+            0,
+            hovered && !mobile ? -5 : 0,
+            0,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: widget.isDarkMode
-                  ? color.withOpacity(hovered ? .12 : .02)
-                  : Colors.black.withOpacity(hovered ? .10 : .05),
-              blurRadius: hovered ? 28 : 15,
-              offset: const Offset(0, 5),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(mobile ? 18 : 20),
+            border: Border.all(
+              color: hovered ? color.withOpacity(.45) : color.withOpacity(.20),
             ),
-          ],
-        ),
-        child: InkWell(
-          onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(mobile ? 18 : 20),
+            boxShadow: [
+              BoxShadow(
+                color: widget.isDarkMode
+                    ? color.withOpacity(hovered ? .12 : .02)
+                    : Colors.black.withOpacity(hovered ? .10 : .05),
+                blurRadius: hovered ? 24 : 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
           child: Padding(
             padding: EdgeInsets.all(mobile ? 16 : 18),
             child: Column(
