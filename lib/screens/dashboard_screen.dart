@@ -10,7 +10,10 @@ import '../algorithms/sorting_algorithms/insertion_sort_screen.dart';
 import '../algorithms/sorting_algorithms/merge_sort_screen.dart';
 import '../algorithms/sorting_algorithms/quick_sort_screen.dart';
 import '../algorithms/sorting_algorithms/heap_sort_screen.dart';
-
+import '../algorithms/tree_algorithms/preorder_traversal_screen.dart';
+import '../algorithms/tree_algorithms/inorder_traversal_screen.dart';
+import '../algorithms/tree_algorithms/postorder_traversal_screen.dart';
+import '../algorithms/graph_algorithms/dijkstra_screen.dart';
 // ================================================================
 // APP COLORS
 // ================================================================
@@ -261,6 +264,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // ============================================================
     // TREES
     // ============================================================
+    
+
+AlgorithmItem(
+  title: 'Preorder Traversal',
+  description:
+      'Visits each node of a binary tree in Root, Left, Right order.',
+  complexity: 'O(n)',
+  category: 'Trees',
+  color: AppColors.purple,
+  icon: Icons.account_tree_rounded,
+  difficulty: 'Easy',
+),
+
+AlgorithmItem(
+  title: 'Inorder Traversal',
+  description:
+      'Visits each node of a binary tree in Left, Root, Right order.',
+  complexity: 'O(n)',
+  category: 'Trees',
+  color: AppColors.cyan,
+  icon: Icons.account_tree_rounded,
+  difficulty: 'Easy',
+),
+
+AlgorithmItem(
+  title: 'Postorder Traversal',
+  description:
+      'Visits each node of a binary tree in Left, Right, Root order.',
+  complexity: 'O(n)',
+  category: 'Trees',
+  color: AppColors.orange,
+  icon: Icons.account_tree_rounded,
+  difficulty: 'Easy',
+),
+
+AlgorithmItem(
+  title: 'Level Order Traversal',
+  description:
+      'Visits each node of a binary tree level by level from top to bottom.',
+  complexity: 'O(n)',
+  category: 'Trees',
+  color: AppColors.green,
+  icon: Icons.account_tree_rounded,
+  difficulty: 'Medium',
+),
     AlgorithmItem(
       title: 'Binary Tree',
       description:
@@ -493,6 +541,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const HeapSortScreen()),
+      );
+
+      return;
+    }
+
+
+// Tree Algorithms //
+// Preorder Traversal //
+    if (item.title == 'Preorder Traversal') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const PreorderTraversalScreen(),
+        ),
+      );
+
+      return;
+    }
+
+    //Inorder Traversal //
+    if (item.title == 'Inorder Traversal') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const InorderTraversalScreen(),
+        ),
+      );
+      return;
+    }
+
+    // Postorder Traversal //
+    if (item.title == 'Postorder Traversal') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const PostorderTraversalScreen(),
+        ),
+      );
+      return;
+    }
+
+    // Graph Algorithms //
+
+    // Dijkstra algorithm //
+
+    if (item.title == 'Dijkstra') {
+      // Navigate to Dijkstra algorithm screen
+      // Replace with your actual Dijkstra algorithm screen widget
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DijkstraScreen()),
       );
 
       return;
@@ -977,8 +1076,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       title: 'Trees',
                       icon: Icons.account_tree_rounded,
                       color: AppColors.orange,
-                      count: 2,
-                      algorithms: const ['Binary Tree', 'Binary Search Tree'],
+                      count: 5,
+                      algorithms: const [
+                        'Preorder Traversal',
+                        'Inorder Traversal',
+                        'Postorder Traversal',
+                        'Binary Tree',
+                        'Binary Search Tree',
+                      ],
                     ),
                   ],
                 ),
@@ -1001,7 +1106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    '15 ALGORITHMS  •  4 CATEGORIES',
+                    '19 ALGORITHMS  •  4 CATEGORIES',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: _secondaryText,
@@ -2006,7 +2111,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }
 
             final stats = [
-              (Icons.category_rounded, '15', 'Algorithms', AppColors.cyan),
+              (Icons.category_rounded, '18', 'Algorithms', AppColors.cyan),
               (Icons.animation_rounded, 'STEP', 'Animations', AppColors.purple),
               (Icons.speed_rounded, 'BIG-O', 'Analysis', AppColors.green),
               (Icons.school_rounded, 'DSA', 'Learning', AppColors.orange),

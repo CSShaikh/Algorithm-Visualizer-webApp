@@ -395,6 +395,14 @@ class InfoScreen extends StatelessWidget {
                     _ResponsiveGrid(
                       children: [
                         _AlgorithmCard(
+                          icon: Icons.account_tree_rounded,
+                          title: 'Preorder Traversal',
+                          description:
+                              'Visits each node in Root, Left, Right order.',
+                          complexity: 'O(n)',
+                          color: purple,
+                        ),
+                        _AlgorithmCard(
                           icon: Icons.device_hub_rounded,
                           title: 'Binary Tree',
                           description:
