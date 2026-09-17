@@ -2,24 +2,21 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/widgets/algorithm_screen_shell.dart';
 
 class InorderTraversalScreen extends StatefulWidget {
   const InorderTraversalScreen({super.key});
 
   @override
-  State<InorderTraversalScreen> createState() =>
-      _InorderTraversalScreenState();
+  State<InorderTraversalScreen> createState() => _InorderTraversalScreenState();
 }
 
 // ============================================================================
 // METHOD
 // ============================================================================
 
-enum InorderMethod {
-  recursive,
-  iterative,
-}
+enum InorderMethod { recursive, iterative }
 
 // ============================================================================
 // EVENT TYPE
@@ -74,29 +71,29 @@ class InorderEvent {
 // SCREEN
 // ============================================================================
 
-class _InorderTraversalScreenState
-    extends State<  InorderTraversalScreen> {
+class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
 
-  static const background = Color(0xFF030712);
-  static const cardColor = Color(0xFF0B1428);
-  static const visualizationColor = Color(0xFF081120);
+  static const background = AppColors.background;
+  static const cardColor = AppColors.card;
+  static const visualizationColor = AppColors.visualizationBackground;
 
-  static const cyan = Color(0xFF00E5FF);
-  static const blue = Color(0xFF2979FF);
-  static const purple = Color(0xFF9C27FF);
-  static const green = Color(0xFF00E676);
-  static const orange = Color(0xFFFFB300);
-  static const pink = Color(0xFFFF4081);
+  static const cyan = AppColors.cyan;
+  static const blue = AppColors.blue;
+  static const purple = AppColors.purple;
+  static const green = AppColors.green;
+  static const orange = AppColors.orange;
+  static const pink = AppColors.pink;
 
   // ==========================================================================
   // INPUT
   // ==========================================================================
 
-  final TextEditingController arrayController =
-      TextEditingController(text: '1, 2, 3, 4, 5, 6, 7');
+  final TextEditingController arrayController = TextEditingController(
+    text: '1, 2, 3, 4, 5, 6, 7',
+  );
 
   List<int> tree = [1, 2, 3, 4, 5, 6, 7];
 
@@ -117,6 +114,7 @@ class _InorderTraversalScreenState
   // ==========================================================================
 
   int currentStep = 0;
+  int activeCodeLine = 0;
 
   int currentIndex = -1;
 
@@ -147,6 +145,44 @@ class _InorderTraversalScreenState
   String executionMessage = 'Ready to start recursive Inorder Traversal.';
 
   bool get _isRecursive => method == InorderMethod.recursive;
+
+  static const String _recursiveSourceCode = '''void inorder(Node? node) {
+  if (node == null) return;
+  
+  inorder(node.left);
+  visit(node);
+  inorder(node.right);
+  
+  // Continue after the recursive calls.
+  // Left subtree -> Root -> Right subtree.
+  // This is the core inorder traversal order.
+  
+  // Each visited node is added to the result.
+  // The recursion naturally handles backtracking.
+}''';
+
+  static const String _iterativeSourceCode =
+      '''void inorderIterative(Node? root) {
+  if (root == null) return;
+
+  final stack = <Node>[];
+  Node? current = root;
+
+  while (current != null || stack.isNotEmpty) {
+    while (current != null) {
+      stack.add(current);
+      current = current.left;
+    }
+
+    current = stack.removeLast();
+
+    visit(current);
+    current = current.right;
+  }
+}''';
+
+  String get sourceCode =>
+      _isRecursive ? _recursiveSourceCode : _iterativeSourceCode;
 
   // ==========================================================================
   // LIFECYCLE
@@ -230,12 +266,7 @@ class _InorderTraversalScreenState
     );
 
     if (tree.isNotEmpty) {
-      _walkInorder(
-        0,
-        generated,
-        result,
-        visited,
-      );
+      _walkInorder(0, generated, result, visited);
     }
 
     generated.add(
@@ -283,12 +314,7 @@ class _InorderTraversalScreenState
         ),
       );
 
-      _walkInorder(
-        left,
-        generated,
-        result,
-        visited,
-      );
+      _walkInorder(left, generated, result, visited);
 
       // Return from immediate child to parent.
       generated.add(
@@ -313,8 +339,7 @@ class _InorderTraversalScreenState
           result: List<int>.from(result),
           visited: Set<int>.from(visited),
           title: 'Left Child is Null',
-          description:
-              'Node $value has no left child. Now it can be visited.',
+          description: 'Node $value has no left child. Now it can be visited.',
           operation: 'node.left == null',
         ),
       );
@@ -361,12 +386,7 @@ class _InorderTraversalScreenState
         ),
       );
 
-      _walkInorder(
-        right,
-        generated,
-        result,
-        visited,
-      );
+      _walkInorder(right, generated, result, visited);
 
       generated.add(
         InorderEvent(
@@ -390,8 +410,7 @@ class _InorderTraversalScreenState
           result: List<int>.from(result),
           visited: Set<int>.from(visited),
           title: 'Right Child is Null',
-          description:
-              'Node $value has no right child.',
+          description: 'Node $value has no right child.',
           operation: 'node.right == null',
         ),
       );
@@ -436,8 +455,7 @@ class _InorderTraversalScreenState
         visited: {},
         stack: [],
         title: 'Initialize',
-        description:
-            'Start non-recursive inorder using an explicit stack.',
+        description: 'Start non-recursive inorder using an explicit stack.',
         operation: 'Stack stack = []',
       ),
     );
@@ -652,8 +670,8 @@ class _InorderTraversalScreenState
 
       stackSnapshot = List<int>.from(event.stack);
 
-      executionMessage =
-          '${event.title}: ${event.description}';
+      executionMessage = '${event.title}: ${event.description}';
+      activeCodeLine = _codeLineForEvent(event.type);
 
       if (event.type == InorderEventType.initialize) {
         currentIndex = tree.isEmpty ? -1 : 0;
@@ -676,8 +694,7 @@ class _InorderTraversalScreenState
         isRunning = false;
         isCompleted = true;
 
-        executionMessage =
-            'Inorder Complete: ${event.result.join(' → ')}';
+        executionMessage = 'Inorder Complete: ${event.result.join(' → ')}';
       }
     });
   }
@@ -685,6 +702,51 @@ class _InorderTraversalScreenState
   // ==========================================================================
   // NEXT
   // ==========================================================================
+
+  int _codeLineForEvent(InorderEventType type) {
+    if (_isRecursive) {
+      switch (type) {
+        case InorderEventType.initialize:
+          return 1;
+        case InorderEventType.nullChild:
+          return 2;
+        case InorderEventType.goLeft:
+          return 6;
+        case InorderEventType.visit:
+          return 9;
+        case InorderEventType.goRight:
+          return 12;
+        case InorderEventType.backtrack:
+          return 6;
+        case InorderEventType.push:
+        case InorderEventType.pop:
+          return 9;
+        case InorderEventType.complete:
+          return 14;
+      }
+    }
+
+    switch (type) {
+      case InorderEventType.initialize:
+        return 1;
+      case InorderEventType.nullChild:
+        return 2;
+      case InorderEventType.push:
+        return 9;
+      case InorderEventType.goLeft:
+        return 10;
+      case InorderEventType.pop:
+        return 13;
+      case InorderEventType.visit:
+        return 14;
+      case InorderEventType.goRight:
+        return 16;
+      case InorderEventType.backtrack:
+        return 10;
+      case InorderEventType.complete:
+        return 18;
+    }
+  }
 
   void _nextStep() {
     if (currentStep >= events.length) return;
@@ -768,12 +830,7 @@ class _InorderTraversalScreenState
     timer?.cancel();
 
     timer = Timer.periodic(
-      Duration(
-        milliseconds: max(
-          180,
-          (850 / speed).round(),
-        ),
-      ),
+      Duration(milliseconds: max(180, (850 / speed).round())),
       (_) {
         if (!mounted || !isRunning) return;
 
@@ -866,11 +923,7 @@ class _InorderTraversalScreenState
 
     if (values.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please enter valid tree nodes.',
-          ),
-        ),
+        const SnackBar(content: Text('Please enter valid tree nodes.')),
       );
 
       return;
@@ -895,10 +948,7 @@ class _InorderTraversalScreenState
   void _generateTree() {
     final random = Random();
 
-    final values = List.generate(
-      7,
-      (_) => random.nextInt(90) + 10,
-    );
+    final values = List.generate(7, (_) => random.nextInt(90) + 10);
 
     arrayController.text = values.join(', ');
 
@@ -988,87 +1038,14 @@ class _InorderTraversalScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 1500,
-                  ),
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-                    children: [
-                      _header(),
-
-                      const SizedBox(height: 14),
-
-                      _algorithmInfo(),
-
-                      const SizedBox(height: 14),
-
-                      _inputSection(),
-
-                      const SizedBox(height: 14),
-
-                      if (constraints.maxWidth < 950) ...[
-                        _visualization(),
-
-                        const SizedBox(height: 14),
-
-                        _controls(),
-
-                        const SizedBox(height: 14),
-
-                        _sourceCode(),
-
-                        const SizedBox(height: 14),
-
-                        _executionSteps(),
-                      ] else
-                        Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Column(
-                                children: [
-                                  _visualization(),
-
-                                  const SizedBox(height: 14),
-
-                                  _controls(),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(width: 14),
-
-                            Expanded(
-                              flex: 2,
-                              child: Column(
-                                children: [
-                                  _sourceCode(),
-
-                                  const SizedBox(height: 14),
-
-                                  _executionSteps(),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+      body: AlgorithmScreenShell(
+        header: _header(),
+        algorithmInfo: _algorithmInfo(),
+        inputSection: _inputSection(),
+        visualization: _visualization(),
+        controls: _controls(),
+        sourceCode: _sourceCode(),
+        executionSteps: _executionSteps(),
       ),
     );
   }
@@ -1082,34 +1059,25 @@ class _InorderTraversalScreenState
       children: [
         IconButton(
           onPressed: () => Navigator.maybePop(context),
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: Colors.white,
-          ),
+          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
         ),
 
         Container(
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: cyan.withOpacity(.10),
+            color: cyan.withValues(alpha: .10),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: cyan.withOpacity(.25),
-            ),
+            border: Border.all(color: cyan.withValues(alpha: .25)),
           ),
-          child: const Icon(
-            Icons.account_tree_rounded,
-            color: cyan,
-          ),
+          child: const Icon(Icons.account_tree_rounded, color: cyan),
         ),
 
         const SizedBox(width: 12),
 
         const Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Tree Inorder Traversal',
@@ -1124,10 +1092,7 @@ class _InorderTraversalScreenState
 
               Text(
                 'Recursive / Non-Recursive DFS • Left → Root → Right',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: Colors.white54, fontSize: 11),
               ),
             ],
           ),
@@ -1152,21 +1117,13 @@ class _InorderTraversalScreenState
   // SMALL BADGE
   // ==========================================================================
 
-  Widget _smallBadge(
-    String text,
-    Color color,
-  ) {
+  Widget _smallBadge(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(.08),
+        color: color.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: color.withOpacity(.22),
-        ),
+        border: Border.all(color: color.withValues(alpha: .22)),
       ),
       child: Text(
         text,
@@ -1189,11 +1146,7 @@ class _InorderTraversalScreenState
         spacing: 10,
         runSpacing: 10,
         children: [
-          _infoBox(
-            'ORDER',
-            'Left → Root → Right',
-            cyan,
-          ),
+          _infoBox('ORDER', 'Left → Root → Right', cyan),
 
           _infoBox(
             'METHOD',
@@ -1201,23 +1154,11 @@ class _InorderTraversalScreenState
             _isRecursive ? purple : orange,
           ),
 
-          _infoBox(
-            'TYPE',
-            'DFS',
-            orange,
-          ),
+          _infoBox('TYPE', 'DFS', orange),
 
-          _infoBox(
-            'TIME',
-            'O(n)',
-            green,
-          ),
+          _infoBox('TIME', 'O(n)', green),
 
-          _infoBox(
-            'SPACE',
-            _isRecursive ? 'O(h)' : 'O(h)',
-            blue,
-          ),
+          _infoBox('SPACE', _isRecursive ? 'O(h)' : 'O(h)', blue),
         ],
       ),
     );
@@ -1230,14 +1171,9 @@ class _InorderTraversalScreenState
   Widget _inputSection() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.input_rounded,
-            'Tree Input',
-            cyan,
-          ),
+          _sectionTitle(Icons.input_rounded, 'Tree Input', cyan),
 
           const SizedBox(height: 11),
 
@@ -1247,20 +1183,13 @@ class _InorderTraversalScreenState
 
               final field = TextField(
                 controller: arrayController,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 13),
                 cursorColor: cyan,
                 decoration: InputDecoration(
                   labelText: 'Enter Tree Nodes',
                   hintText: '1, 2, 3, 4, 5, 6, 7',
-                  labelStyle: const TextStyle(
-                    color: Colors.white54,
-                  ),
-                  hintStyle: const TextStyle(
-                    color: Colors.white24,
-                  ),
+                  labelStyle: const TextStyle(color: Colors.white54),
+                  hintStyle: const TextStyle(color: Colors.white24),
                   prefixIcon: const Icon(
                     Icons.account_tree_rounded,
                     color: cyan,
@@ -1268,10 +1197,9 @@ class _InorderTraversalScreenState
                   filled: true,
                   fillColor: visualizationColor,
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: Colors.white.withOpacity(.08),
+                      color: Colors.white.withValues(alpha: .08),
                     ),
                   ),
                 ),
@@ -1282,18 +1210,12 @@ class _InorderTraversalScreenState
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _generateTree,
-                      icon: const Icon(
-                        Icons.auto_awesome_rounded,
-                        size: 17,
-                      ),
+                      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
                       label: const Text('GENERATE'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: purple,
                         foregroundColor: Colors.white,
-                        padding:
-                            const EdgeInsets.symmetric(
-                          vertical: 14,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),
@@ -1303,18 +1225,12 @@ class _InorderTraversalScreenState
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _loadTree,
-                      icon: const Icon(
-                        Icons.download_rounded,
-                        size: 17,
-                      ),
+                      icon: const Icon(Icons.download_rounded, size: 17),
                       label: const Text('LOAD TREE'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: cyan,
                         foregroundColor: background,
-                        padding:
-                            const EdgeInsets.symmetric(
-                          vertical: 14,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),
@@ -1323,13 +1239,7 @@ class _InorderTraversalScreenState
 
               if (stacked) {
                 return Column(
-                  children: [
-                    field,
-
-                    const SizedBox(height: 9),
-
-                    buttons,
-                  ],
+                  children: [field, const SizedBox(height: 9), buttons],
                 );
               }
 
@@ -1339,10 +1249,7 @@ class _InorderTraversalScreenState
 
                   const SizedBox(width: 9),
 
-                  SizedBox(
-                    width: 270,
-                    child: buttons,
-                  ),
+                  SizedBox(width: 270, child: buttons),
                 ],
               );
             },
@@ -1353,7 +1260,7 @@ class _InorderTraversalScreenState
           Text(
             'Array representation: left = 2i + 1, right = 2i + 2',
             style: TextStyle(
-              color: Colors.white.withOpacity(.35),
+              color: Colors.white.withValues(alpha: .35),
               fontSize: 10,
             ),
           ),
@@ -1367,25 +1274,15 @@ class _InorderTraversalScreenState
   // ==========================================================================
 
   Widget _visualization() {
-    final levels = tree.isEmpty
-        ? 1
-        : (log(tree.length) / log(2)).floor() + 1;
+    final levels = tree.isEmpty ? 1 : (log(tree.length) / log(2)).floor() + 1;
 
-    final height = max(
-      300.0,
-      levels * 105.0,
-    );
+    final height = max(300.0, levels * 105.0);
 
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.account_tree_rounded,
-            'Visualization',
-            cyan,
-          ),
+          _sectionTitle(Icons.account_tree_rounded, 'Visualization', cyan),
 
           const SizedBox(height: 11),
 
@@ -1393,8 +1290,7 @@ class _InorderTraversalScreenState
             children: [
               _miniBadge(
                 'CURRENT',
-                currentIndex >= 0 &&
-                        currentIndex < tree.length
+                currentIndex >= 0 && currentIndex < tree.length
                     ? '${tree[currentIndex]}'
                     : '-',
                 cyan,
@@ -1402,27 +1298,15 @@ class _InorderTraversalScreenState
 
               const SizedBox(width: 7),
 
-              _miniBadge(
-                'VISITED',
-                '${visitedIndexes.length}',
-                green,
-              ),
+              _miniBadge('VISITED', '${visitedIndexes.length}', green),
 
               const SizedBox(width: 7),
 
-              _miniBadge(
-                'RESULT',
-                '${traversalResult.length}',
-                purple,
-              ),
+              _miniBadge('RESULT', '${traversalResult.length}', purple),
 
               const SizedBox(width: 7),
 
-              _miniBadge(
-                'STEP',
-                '$currentStep/${events.length}',
-                orange,
-              ),
+              _miniBadge('STEP', '$currentStep/${events.length}', orange),
             ],
           ),
 
@@ -1435,17 +1319,13 @@ class _InorderTraversalScreenState
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: .06)),
             ),
             child: tree.isEmpty
                 ? const Center(
                     child: Text(
                       'Load a tree to visualize.',
-                      style: TextStyle(
-                        color: Colors.white38,
-                      ),
+                      style: TextStyle(color: Colors.white38),
                     ),
                   )
                 : CustomPaint(
@@ -1472,11 +1352,9 @@ class _InorderTraversalScreenState
             width: double.infinity,
             padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.025),
+              color: Colors.white.withValues(alpha: .025),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.white.withOpacity(.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: .06)),
             ),
             child: Text(
               executionMessage,
@@ -1518,13 +1396,11 @@ class _InorderTraversalScreenState
             ),
           ],
 
-          if (!_isRecursive &&
-              stackSnapshot.isNotEmpty) ...[
+          if (!_isRecursive && stackSnapshot.isNotEmpty) ...[
             const SizedBox(height: 9),
 
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'STACK:',
@@ -1539,9 +1415,7 @@ class _InorderTraversalScreenState
 
                 Expanded(
                   child: Text(
-                    stackSnapshot
-                        .map((i) => tree[i].toString())
-                        .join(' → '),
+                    stackSnapshot.map((i) => tree[i].toString()).join(' → '),
                     style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 11,
@@ -1564,21 +1438,15 @@ class _InorderTraversalScreenState
   Widget _controls() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.tune_rounded,
-            'Traversal Controls',
-            orange,
-          ),
+          _sectionTitle(Icons.tune_rounded, 'Traversal Controls', orange),
 
           const SizedBox(height: 10),
 
           // ------------------------------------------------------------------
           // METHOD
           // ------------------------------------------------------------------
-
           Row(
             children: [
               Expanded(
@@ -1587,12 +1455,9 @@ class _InorderTraversalScreenState
                   subtitle: 'Call Stack',
                   icon: Icons.account_tree_rounded,
                   color: cyan,
-                  selected:
-                      method == InorderMethod.recursive,
+                  selected: method == InorderMethod.recursive,
                   onTap: () {
-                    _setMethod(
-                      InorderMethod.recursive,
-                    );
+                    _setMethod(InorderMethod.recursive);
                   },
                 ),
               ),
@@ -1605,12 +1470,9 @@ class _InorderTraversalScreenState
                   subtitle: 'Explicit Stack',
                   icon: Icons.layers_rounded,
                   color: purple,
-                  selected:
-                      method == InorderMethod.iterative,
+                  selected: method == InorderMethod.iterative,
                   onTap: () {
-                    _setMethod(
-                      InorderMethod.iterative,
-                    );
+                    _setMethod(InorderMethod.iterative);
                   },
                 ),
               ),
@@ -1622,19 +1484,12 @@ class _InorderTraversalScreenState
           // ------------------------------------------------------------------
           // MAIN BUTTONS
           // ------------------------------------------------------------------
-
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed:
-                      currentStep > 0
-                          ? _previousStep
-                          : null,
-                  icon: const Icon(
-                    Icons.skip_previous_rounded,
-                    size: 17,
-                  ),
+                  onPressed: currentStep > 0 ? _previousStep : null,
+                  icon: const Icon(Icons.skip_previous_rounded, size: 17),
                   label: const Text('PREVIOUS'),
                 ),
               ),
@@ -1645,13 +1500,9 @@ class _InorderTraversalScreenState
                 child: ElevatedButton.icon(
                   onPressed: _play,
                   icon: Icon(
-                    isRunning
-                        ? Icons.pause_rounded
-                        : Icons.play_arrow_rounded,
+                    isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
                   ),
-                  label: Text(
-                    isRunning ? 'PAUSE' : 'PLAY',
-                  ),
+                  label: Text(isRunning ? 'PAUSE' : 'PLAY'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cyan,
                     foregroundColor: background,
@@ -1663,14 +1514,8 @@ class _InorderTraversalScreenState
 
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed:
-                      currentStep < events.length
-                          ? _nextStep
-                          : null,
-                  icon: const Icon(
-                    Icons.skip_next_rounded,
-                    size: 17,
-                  ),
+                  onPressed: currentStep < events.length ? _nextStep : null,
+                  icon: const Icon(Icons.skip_next_rounded, size: 17),
                   label: const Text('NEXT'),
                 ),
               ),
@@ -1680,9 +1525,7 @@ class _InorderTraversalScreenState
               IconButton(
                 onPressed: _reset,
                 tooltip: 'Reset',
-                icon: const Icon(
-                  Icons.refresh_rounded,
-                ),
+                icon: const Icon(Icons.refresh_rounded),
               ),
             ],
           ),
@@ -1692,15 +1535,11 @@ class _InorderTraversalScreenState
           // ------------------------------------------------------------------
           // SPEED
           // ------------------------------------------------------------------
-
           Row(
             children: [
               const Text(
                 'Speed',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: Colors.white54, fontSize: 10),
               ),
 
               Expanded(
@@ -1720,10 +1559,7 @@ class _InorderTraversalScreenState
 
               Text(
                 '${speed.toStringAsFixed(1)}x',
-                style: const TextStyle(
-                  color: cyan,
-                  fontSize: 10,
-                ),
+                style: const TextStyle(color: cyan, fontSize: 10),
               ),
             ],
           ),
@@ -1751,38 +1587,29 @@ class _InorderTraversalScreenState
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: selected
-              ? color.withOpacity(.10)
-              : Colors.white.withOpacity(.025),
+              ? color.withValues(alpha: .10)
+              : Colors.white.withValues(alpha: .025),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: selected
-                ? color.withOpacity(.45)
-                : Colors.white.withOpacity(.07),
+                ? color.withValues(alpha: .45)
+                : Colors.white.withValues(alpha: .07),
           ),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: selected
-                  ? color
-                  : Colors.white38,
-              size: 19,
-            ),
+            Icon(icon, color: selected ? color : Colors.white38, size: 19),
 
             const SizedBox(width: 8),
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
                     style: TextStyle(
-                      color: selected
-                          ? color
-                          : Colors.white70,
+                      color: selected ? color : Colors.white70,
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1802,11 +1629,7 @@ class _InorderTraversalScreenState
             ),
 
             if (selected)
-              Icon(
-                Icons.check_circle_rounded,
-                color: color,
-                size: 16,
-              ),
+              Icon(Icons.check_circle_rounded, color: color, size: 16),
           ],
         ),
       ),
@@ -1818,110 +1641,75 @@ class _InorderTraversalScreenState
   // ==========================================================================
 
   Widget _sourceCode() {
-    const recursiveCode = '''void inorder(Node node) {
-  if (node == null) {
-    return;
-  }
-
-  // visit left subtree
-  inorder(node.left);
-
-  // visit current node
-  visit(node);
-
-  // visit right subtree
-  inorder(node.right);
-}''';
-
-    const iterativeCode = '''List<int> inorder(Node root) {
-  final stack = <Node>[];
-  final result = <int>[];
-  Node? current = root;
-
-  while (current != null ||
-      stack.isNotEmpty) {
-
-    while (current != null) {
-      stack.add(current);
-      current = current.left;
-    }
-
-    current = stack.removeLast();
-    result.add(current.value);
-
-    current = current.right;
-  }
-
-  return result;
-}''';
-
-    final code = _isRecursive
-        ? recursiveCode
-        : iterativeCode;
-
+    final lines = sourceCode.split('\n');
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _sectionTitle(
-                  Icons.code_rounded,
-                  _isRecursive
-                      ? 'Recursive Source Code'
-                      : 'Iterative Source Code',
-                  purple,
-                ),
-              ),
-
-              IconButton(
-                tooltip: 'Copy code',
-                onPressed: () {
-                  Clipboard.setData(
-                    const ClipboardData(
-                      text: recursiveCode,
-                    ),
-                  );
-
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Source code copied.',
-                      ),
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.copy_rounded,
-                  color: Colors.white54,
-                  size: 17,
-                ),
-              ),
-            ],
+          const Text(
+            'Source Code',
+            style: TextStyle(
+              color: AppColors.purple,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
           ),
-
           const SizedBox(height: 8),
-
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            constraints: const BoxConstraints(maxHeight: 430),
             decoration: BoxDecoration(
-              color: const Color(0xFF050A14),
+              color: AppColors.codeBackground,
               borderRadius: BorderRadius.circular(10),
             ),
             child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Text(
-                code,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontFamily: 'monospace',
-                  fontSize: 10.5,
-                  height: 1.55,
-                ),
+              child: Column(
+                children: List.generate(lines.length, (index) {
+                  final lineNumber = index + 1;
+                  final active = lineNumber == activeCodeLine;
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    color: active
+                        ? AppColors.cyan.withValues(alpha: .10)
+                        : Colors.transparent,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 26,
+                          child: Text(
+                            '$lineNumber',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: active ? AppColors.cyan : Colors.white24,
+                              fontSize: 9,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            lines[index],
+                            style: TextStyle(
+                              color: active ? Colors.white : Colors.white70,
+                              fontSize: 10,
+                              height: 1.45,
+                              fontFamily: 'monospace',
+                              fontWeight: active
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ),
           ),
@@ -1937,14 +1725,9 @@ class _InorderTraversalScreenState
   Widget _executionSteps() {
     return _card(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.timeline_rounded,
-            'Execution Steps',
-            green,
-          ),
+          _sectionTitle(Icons.timeline_rounded, 'Execution Steps', green),
 
           const SizedBox(height: 9),
 
@@ -1954,123 +1737,83 @@ class _InorderTraversalScreenState
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 color: visualizationColor,
-                borderRadius:
-                    BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: const Center(
                 child: Text(
                   'Press PLAY or NEXT to start',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: Colors.white38, fontSize: 11),
                 ),
               ),
             )
           else
             ConstrainedBox(
-              constraints:
-                  const BoxConstraints(
-                maxHeight: 560,
-              ),
+              constraints: const BoxConstraints(maxHeight: 560),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: history.length,
                 itemBuilder: (context, index) {
                   final event = history[index];
 
-                  final color =
-                      _eventColor(event.type);
+                  final color = _eventColor(event.type);
 
                   return Container(
-                    margin:
-                        const EdgeInsets.only(
-                      bottom: 7,
-                    ),
-                    padding:
-                        const EdgeInsets.all(9),
+                    margin: const EdgeInsets.only(bottom: 7),
+                    padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color:
-                          color.withOpacity(.045),
-                      borderRadius:
-                          BorderRadius.circular(9),
-                      border: Border.all(
-                        color:
-                            color.withOpacity(.14),
-                      ),
+                      color: color.withValues(alpha: .045),
+                      borderRadius: BorderRadius.circular(9),
+                      border: Border.all(color: color.withValues(alpha: .14)),
                     ),
                     child: Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          _eventIcon(event.type),
-                          color: color,
-                          size: 16,
-                        ),
+                        Icon(_eventIcon(event.type), color: color, size: 16),
 
                         const SizedBox(width: 8),
 
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '#${index + 1}  ${event.title}',
                                 style: TextStyle(
                                   color: color,
                                   fontSize: 10,
-                                  fontWeight:
-                                      FontWeight.w900,
+                                  fontWeight: FontWeight.w900,
                                 ),
                               ),
 
-                              const SizedBox(
-                                height: 3,
-                              ),
+                              const SizedBox(height: 3),
 
                               Text(
                                 event.description,
-                                style:
-                                    const TextStyle(
-                                  color:
-                                      Colors.white54,
+                                style: const TextStyle(
+                                  color: Colors.white54,
                                   fontSize: 9.5,
                                   height: 1.35,
                                 ),
                               ),
 
-                              const SizedBox(
-                                height: 3,
-                              ),
+                              const SizedBox(height: 3),
 
                               Text(
                                 event.operation,
-                                style:
-                                    const TextStyle(
-                                  color:
-                                      Colors.white30,
-                                  fontFamily:
-                                      'monospace',
+                                style: const TextStyle(
+                                  color: Colors.white30,
+                                  fontFamily: 'monospace',
                                   fontSize: 8.5,
                                 ),
                               ),
 
-                              if (event.stack
-                                  .isNotEmpty) ...[
-                                const SizedBox(
-                                  height: 4,
-                                ),
+                              if (event.stack.isNotEmpty) ...[
+                                const SizedBox(height: 4),
                                 Text(
                                   'Stack: ${event.stack.map((i) => tree[i]).join(' → ')}',
-                                  style:
-                                      const TextStyle(
-                                    color:
-                                        Colors.white38,
-                                    fontFamily:
-                                        'monospace',
+                                  style: const TextStyle(
+                                    color: Colors.white38,
+                                    fontFamily: 'monospace',
                                     fontSize: 8.5,
                                   ),
                                 ),
@@ -2093,18 +1836,14 @@ class _InorderTraversalScreenState
   // CARD
   // ==========================================================================
 
-  Widget _card({
-    required Widget child,
-  }) {
+  Widget _card({required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity(.065),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: .065)),
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,
@@ -2121,11 +1860,7 @@ class _InorderTraversalScreenState
   // SECTION TITLE
   // ==========================================================================
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -2133,14 +1868,10 @@ class _InorderTraversalScreenState
           width: 29,
           height: 29,
           decoration: BoxDecoration(
-            color: color.withOpacity(.09),
+            color: color.withValues(alpha: .09),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 16,
-          ),
+          child: Icon(icon, color: color, size: 16),
         ),
 
         const SizedBox(width: 8),
@@ -2161,31 +1892,21 @@ class _InorderTraversalScreenState
   // INFO BOX
   // ==========================================================================
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(.05),
+        color: color.withValues(alpha: .05),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity(.15),
-        ),
+        border: Border.all(color: color.withValues(alpha: .15)),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity(.8),
+              color: color.withValues(alpha: .8),
               fontSize: 8,
               fontWeight: FontWeight.w800,
             ),
@@ -2210,23 +1931,14 @@ class _InorderTraversalScreenState
   // MINI BADGE
   // ==========================================================================
 
-  Widget _miniBadge(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 7,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
         decoration: BoxDecoration(
-          color: color.withOpacity(.06),
+          color: color.withValues(alpha: .06),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: color.withOpacity(.16),
-          ),
+          border: Border.all(color: color.withValues(alpha: .16)),
         ),
         child: Column(
           children: [
@@ -2294,16 +2006,12 @@ class _InorderTreePainter extends CustomPainter {
   });
 
   @override
-  void paint(
-    Canvas canvas,
-    Size size,
-  ) {
+  void paint(Canvas canvas, Size size) {
     if (values.isEmpty) return;
 
     final n = values.length;
 
-    final levels =
-        (log(n) / log(2)).floor() + 1;
+    final levels = (log(n) / log(2)).floor() + 1;
 
     final radius = n > 15 ? 15.0 : 20.0;
 
@@ -2314,32 +2022,21 @@ class _InorderTreePainter extends CustomPainter {
     // ------------------------------------------------------------------------
 
     for (int i = 0; i < n; i++) {
-      final level =
-          (log(i + 1) / log(2)).floor();
+      final level = (log(i + 1) / log(2)).floor();
 
-      final first =
-          (1 << level) - 1;
+      final first = (1 << level) - 1;
 
-      final positionInLevel =
-          i - first;
+      final positionInLevel = i - first;
 
-      final countInLevel =
-          1 << level;
+      final countInLevel = 1 << level;
 
-      final x = size.width *
-          (positionInLevel + 1) /
-          (countInLevel + 1);
+      final x = size.width * (positionInLevel + 1) / (countInLevel + 1);
 
       final y = levels == 1
           ? size.height / 2
-          : 28 +
-              level *
-                  ((size.height - 56) /
-                      (levels - 1));
+          : 28 + level * ((size.height - 56) / (levels - 1));
 
-      positions.add(
-        Offset(x, y),
-      );
+      positions.add(Offset(x, y));
     }
 
     // ------------------------------------------------------------------------
@@ -2347,20 +2044,17 @@ class _InorderTreePainter extends CustomPainter {
     // ------------------------------------------------------------------------
 
     final normalEdge = Paint()
-      ..color =
-          Colors.white.withOpacity(.15)
+      ..color = Colors.white.withValues(alpha: .15)
       ..strokeWidth = 1.6
       ..style = PaintingStyle.stroke;
 
     final activeEdge = Paint()
-      ..color =
-          orange.withOpacity(.95)
+      ..color = orange.withValues(alpha: .95)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
     final returnEdge = Paint()
-      ..color =
-          blue.withOpacity(.98)
+      ..color = blue.withValues(alpha: .98)
       ..strokeWidth = 3.5
       ..style = PaintingStyle.stroke;
 
@@ -2369,40 +2063,26 @@ class _InorderTreePainter extends CustomPainter {
       final right = i * 2 + 2;
 
       if (left < n) {
-        final isReturn =
-            backtrackFrom == left &&
-                backtrackTo == i;
+        final isReturn = backtrackFrom == left && backtrackTo == i;
 
-        final isActive =
-            exploringIndex == left;
+        final isActive = exploringIndex == left;
 
         canvas.drawLine(
           positions[i],
           positions[left],
-          isReturn
-              ? returnEdge
-              : (isActive
-                  ? activeEdge
-                  : normalEdge),
+          isReturn ? returnEdge : (isActive ? activeEdge : normalEdge),
         );
       }
 
       if (right < n) {
-        final isReturn =
-            backtrackFrom == right &&
-                backtrackTo == i;
+        final isReturn = backtrackFrom == right && backtrackTo == i;
 
-        final isActive =
-            exploringIndex == right;
+        final isActive = exploringIndex == right;
 
         canvas.drawLine(
           positions[i],
           positions[right],
-          isReturn
-              ? returnEdge
-              : (isActive
-                  ? activeEdge
-                  : normalEdge),
+          isReturn ? returnEdge : (isActive ? activeEdge : normalEdge),
         );
       }
     }
@@ -2429,70 +2109,54 @@ class _InorderTreePainter extends CustomPainter {
     // ------------------------------------------------------------------------
 
     for (int i = 0; i < n; i++) {
-      Color fill =
-          const Color(0xFF111827);
+      Color fill = const Color(0xFF111827);
 
-      Color border =
-          Colors.white.withOpacity(.18);
+      Color border = Colors.white.withValues(alpha: .18);
 
-      Color textColor =
-          Colors.white;
+      Color textColor = Colors.white;
 
       // Visited
       if (visitedIndexes.contains(i)) {
-        fill = green.withOpacity(.16);
+        fill = green.withValues(alpha: .16);
         border = green;
         textColor = green;
       }
 
       // Exploring
       if (i == exploringIndex) {
-        fill = orange.withOpacity(.18);
+        fill = orange.withValues(alpha: .18);
         border = orange;
         textColor = orange;
       }
 
       // Current
       if (i == currentIndex) {
-        fill = cyan.withOpacity(.22);
+        fill = cyan.withValues(alpha: .22);
         border = cyan;
         textColor = cyan;
       }
 
       // Backtracking
       if (i == backtrackFrom) {
-        fill = blue.withOpacity(.18);
+        fill = blue.withValues(alpha: .18);
         border = blue;
         textColor = blue;
       }
 
       // Glow
       final glow = Paint()
-        ..color =
-            border.withOpacity(.24)
-        ..maskFilter =
-            const MaskFilter.blur(
-          BlurStyle.normal,
-          11,
-        );
+        ..color = border.withValues(alpha: .24)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 11);
 
       if (i == currentIndex ||
           i == exploringIndex ||
           i == backtrackFrom ||
           visitedIndexes.contains(i)) {
-        canvas.drawCircle(
-          positions[i],
-          radius + 6,
-          glow,
-        );
+        canvas.drawCircle(positions[i], radius + 6, glow);
       }
 
       // Fill
-      canvas.drawCircle(
-        positions[i],
-        radius,
-        Paint()..color = fill,
-      );
+      canvas.drawCircle(positions[i], radius, Paint()..color = fill);
 
       // Border
       canvas.drawCircle(
@@ -2510,23 +2174,16 @@ class _InorderTreePainter extends CustomPainter {
           text: '${values[i]}',
           style: TextStyle(
             color: textColor,
-            fontSize:
-                n > 15 ? 10 : 13,
-            fontWeight:
-                FontWeight.w900,
+            fontSize: n > 15 ? 10 : 13,
+            fontWeight: FontWeight.w900,
           ),
         ),
-        textDirection:
-            TextDirection.ltr,
+        textDirection: TextDirection.ltr,
       )..layout();
 
       text.paint(
         canvas,
-        positions[i] -
-            Offset(
-              text.width / 2,
-              text.height / 2,
-            ),
+        positions[i] - Offset(text.width / 2, text.height / 2),
       );
     }
   }
@@ -2548,40 +2205,30 @@ class _InorderTreePainter extends CustomPainter {
       return;
     }
 
-    final unit =
-        direction / direction.distance;
+    final unit = direction / direction.distance;
 
-    final start =
-        from + unit * (radius + 2);
+    final start = from + unit * (radius + 2);
 
-    final end =
-        to - unit * (radius + 4);
+    final end = to - unit * (radius + 4);
 
-    canvas.drawLine(
-      start,
-      end,
-      paint,
-    );
+    canvas.drawLine(start, end, paint);
 
-    final angle =
-        atan2(unit.dy, unit.dx);
+    final angle = atan2(unit.dy, unit.dx);
 
     const arrowSize = 8.0;
 
-    final p1 = end -
+    final p1 =
+        end -
         Offset(
-          cos(angle - pi / 6) *
-              arrowSize,
-          sin(angle - pi / 6) *
-              arrowSize,
+          cos(angle - pi / 6) * arrowSize,
+          sin(angle - pi / 6) * arrowSize,
         );
 
-    final p2 = end -
+    final p2 =
+        end -
         Offset(
-          cos(angle + pi / 6) *
-              arrowSize,
-          sin(angle + pi / 6) *
-              arrowSize,
+          cos(angle + pi / 6) * arrowSize,
+          sin(angle + pi / 6) * arrowSize,
         );
 
     final path = Path()
@@ -2590,25 +2237,16 @@ class _InorderTreePainter extends CustomPainter {
       ..lineTo(p2.dx, p2.dy)
       ..close();
 
-    canvas.drawPath(
-      path,
-      Paint()..color = paint.color,
-    );
+    canvas.drawPath(path, Paint()..color = paint.color);
   }
 
   @override
-  bool shouldRepaint(
-    covariant _InorderTreePainter oldDelegate,
-  ) {
+  bool shouldRepaint(covariant _InorderTreePainter oldDelegate) {
     return oldDelegate.values != values ||
         oldDelegate.currentIndex != currentIndex ||
-        oldDelegate.exploringIndex !=
-            exploringIndex ||
-        oldDelegate.backtrackFrom !=
-            backtrackFrom ||
-        oldDelegate.backtrackTo !=
-            backtrackTo ||
-        oldDelegate.visitedIndexes !=
-            visitedIndexes;
+        oldDelegate.exploringIndex != exploringIndex ||
+        oldDelegate.backtrackFrom != backtrackFrom ||
+        oldDelegate.backtrackTo != backtrackTo ||
+        oldDelegate.visitedIndexes != visitedIndexes;
   }
 }

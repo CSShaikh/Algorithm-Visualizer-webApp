@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
@@ -13,14 +16,27 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
+  late final ThemeController _themeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _themeController = ThemeController.instance;
+    _themeController.addListener(_onThemeChanged);
+  }
+
+  void _onThemeChanged() {
+    setState(() {});
+  }
 
   void toggleTheme() {
-    setState(() {
-      _themeMode = _themeMode == ThemeMode.dark
-          ? ThemeMode.light
-          : ThemeMode.dark;
-    });
+    _themeController.toggle();
+  }
+
+  @override
+  void dispose() {
+    _themeController.removeListener(_onThemeChanged);
+    super.dispose();
   }
 
   @override
@@ -28,23 +44,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Algorithm Visualizer',
-
-      themeMode: _themeMode,
-
-      // LIGHT THEME
-      theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
-        useMaterial3: true,
-      ),
-
-      // DARK THEME
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF030712),
-        useMaterial3: true,
-      ),
-
+      themeMode: _themeController.themeMode,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       home: SplashScreen(
         onThemeToggle: toggleTheme,
       ),

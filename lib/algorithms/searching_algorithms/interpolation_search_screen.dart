@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/widgets/algorithm_screen_shell.dart';
 import 'package:flutter/services.dart';
 
 class InterpolationSearchScreen extends StatefulWidget {
@@ -68,43 +70,29 @@ class InterpolationSearchEvent {
 // STATE
 // ============================================================================
 
-class _InterpolationSearchScreenState
-    extends State<InterpolationSearchScreen> {
+class _InterpolationSearchScreenState extends State<InterpolationSearchScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
 
-  static const Color background = Color(0xFF030712);
-  static const Color background2 = Color(0xFF07101F);
-  static const Color cardColor = Color(0xFF0B1428);
-  static const Color visualizationColor = Color(0xFF0A1020);
+  static const Color background = AppColors.background;
+  static const Color background2 = AppColors.background2;
+  static const Color cardColor = AppColors.card;
+  static const Color visualizationColor = AppColors.visualizationBackground;
 
-  static const Color cyan = Color(0xFF00E5FF);
-  static const Color blue = Color(0xFF2979FF);
-  static const Color purple = Color(0xFF9C27FF);
-  static const Color green = Color(0xFF00E676);
-  static const Color orange = Color(0xFFFFB300);
-  static const Color pink = Color(0xFFFF4081);
-  static const Color red = Color(0xFFFF5252);
+  static const Color cyan = AppColors.cyan;
+  static const Color blue = AppColors.blue;
+  static const Color purple = AppColors.purple;
+  static const Color green = AppColors.green;
+  static const Color orange = AppColors.orange;
+  static const Color pink = AppColors.pink;
+  static const Color red = AppColors.error;
 
   // ==========================================================================
   // DEFAULT DATA
   // ==========================================================================
 
-  List<int> array = [
-    10,
-    18,
-    23,
-    31,
-    39,
-    45,
-    52,
-    61,
-    68,
-    74,
-    82,
-    91,
-  ];
+  List<int> array = [10, 18, 23, 31, 39, 45, 52, 61, 68, 74, 82, 91];
 
   int target = 61;
 
@@ -234,8 +222,7 @@ int interpolationSearch(int[] arr, int target) {
         target: parsedTarget,
         probeValue: -1,
         title: 'Search Initialized',
-        description:
-            'Array is sorted and ready. Target = $parsedTarget.',
+        description: 'Array is sorted and ready. Target = $parsedTarget.',
         operation: 'Initialize Interpolation Search',
       ),
     );
@@ -244,8 +231,7 @@ int interpolationSearch(int[] arr, int target) {
     int right = working.length - 1;
     int lastProbe = -1;
 
-    while (
-        left <= right &&
+    while (left <= right &&
         parsedTarget >= working[left] &&
         parsedTarget <= working[right]) {
       // ---------------------------------------------------------------
@@ -308,8 +294,7 @@ int interpolationSearch(int[] arr, int target) {
             target: parsedTarget,
             probeValue: working[left],
             title: 'Probe Position',
-            description:
-                'Only one element remains. Probe index = $left.',
+            description: 'Only one element remains. Probe index = $left.',
             operation: 'Probe arr[$left]',
           ),
         );
@@ -326,8 +311,7 @@ int interpolationSearch(int[] arr, int target) {
               target: parsedTarget,
               probeValue: working[left],
               title: 'Target Found',
-              description:
-                  'Target $parsedTarget found at index $left.',
+              description: 'Target $parsedTarget found at index $left.',
               operation: 'Match Found',
             ),
           );
@@ -343,8 +327,7 @@ int interpolationSearch(int[] arr, int target) {
               target: parsedTarget,
               probeValue: working[left],
               title: 'Search Complete',
-              description:
-                  'Interpolation Search completed successfully.',
+              description: 'Interpolation Search completed successfully.',
               operation: 'Complete',
             ),
           );
@@ -425,8 +408,7 @@ int interpolationSearch(int[] arr, int target) {
               target: parsedTarget,
               probeValue: working[left],
               title: 'Target Found',
-              description:
-                  'Target $parsedTarget matches the boundary value.',
+              description: 'Target $parsedTarget matches the boundary value.',
               operation: 'Match Found',
             ),
           );
@@ -458,8 +440,7 @@ int interpolationSearch(int[] arr, int target) {
       // CALCULATE INTERPOLATION POSITION
       // ---------------------------------------------------------------
 
-      final numerator =
-          (parsedTarget - working[left]) * (right - left);
+      final numerator = (parsedTarget - working[left]) * (right - left);
 
       final denominator = working[right] - working[left];
 
@@ -531,8 +512,7 @@ int interpolationSearch(int[] arr, int target) {
             target: parsedTarget,
             probeValue: working[position],
             title: 'Target Found',
-            description:
-                'Target $parsedTarget found at index $position.',
+            description: 'Target $parsedTarget found at index $position.',
             operation: 'Match Found',
           ),
         );
@@ -548,8 +528,7 @@ int interpolationSearch(int[] arr, int target) {
             target: parsedTarget,
             probeValue: working[position],
             title: 'Search Complete',
-            description:
-                'Interpolation Search completed successfully.',
+            description: 'Interpolation Search completed successfully.',
             operation: 'Complete',
           ),
         );
@@ -622,13 +601,11 @@ int interpolationSearch(int[] arr, int target) {
         probeIndex: lastProbe,
         previousProbeIndex: -1,
         target: parsedTarget,
-        probeValue:
-            lastProbe >= 0 && lastProbe < working.length
-                ? working[lastProbe]
-                : -1,
+        probeValue: lastProbe >= 0 && lastProbe < working.length
+            ? working[lastProbe]
+            : -1,
         title: 'Target Not Found',
-        description:
-            'Target $parsedTarget is outside the valid search range.',
+        description: 'Target $parsedTarget is outside the valid search range.',
         operation: 'No Match',
       ),
     );
@@ -642,10 +619,9 @@ int interpolationSearch(int[] arr, int target) {
         probeIndex: lastProbe,
         previousProbeIndex: -1,
         target: parsedTarget,
-        probeValue:
-            lastProbe >= 0 && lastProbe < working.length
-                ? working[lastProbe]
-                : -1,
+        probeValue: lastProbe >= 0 && lastProbe < working.length
+            ? working[lastProbe]
+            : -1,
         title: 'Search Complete',
         description: 'Interpolation Search finished without a match.',
         operation: 'Complete',
@@ -663,10 +639,7 @@ int interpolationSearch(int[] arr, int target) {
     final text = arrayController.text.trim();
 
     if (text.isEmpty) {
-      _showSnackBar(
-        'Please enter numbers.',
-        red,
-      );
+      _showSnackBar('Please enter numbers.', red);
       return;
     }
 
@@ -683,22 +656,14 @@ int interpolationSearch(int[] arr, int target) {
     }
 
     if (values.isEmpty) {
-      _showSnackBar(
-        'No valid numbers found.',
-        red,
-      );
+      _showSnackBar('No valid numbers found.', red);
       return;
     }
 
-    final parsedTarget = int.tryParse(
-      targetController.text.trim(),
-    );
+    final parsedTarget = int.tryParse(targetController.text.trim());
 
     if (parsedTarget == null) {
-      _showSnackBar(
-        'Please enter a valid target number.',
-        red,
-      );
+      _showSnackBar('Please enter a valid target number.', red);
       return;
     }
 
@@ -724,16 +689,12 @@ int interpolationSearch(int[] arr, int target) {
 
       activeCodeLine = 0;
 
-      executionMessage =
-          'Array loaded. Ready to start Interpolation Search.';
+      executionMessage = 'Array loaded. Ready to start Interpolation Search.';
 
       _generateEvents();
     });
 
-    _showSnackBar(
-      'Array loaded and sorted successfully.',
-      green,
-    );
+    _showSnackBar('Array loaded and sorted successfully.', green);
   }
 
   // ==========================================================================
@@ -743,15 +704,11 @@ int interpolationSearch(int[] arr, int target) {
   void _generateNumbers() {
     final random = Random();
 
-    final generated = List.generate(
-      12,
-      (_) => random.nextInt(90) + 10,
-    );
+    final generated = List.generate(12, (_) => random.nextInt(90) + 10);
 
     generated.sort();
 
-    final randomTarget =
-        generated[random.nextInt(generated.length)];
+    final randomTarget = generated[random.nextInt(generated.length)];
 
     arrayController.text = generated.join(', ');
     targetController.text = randomTarget.toString();
@@ -774,8 +731,7 @@ int interpolationSearch(int[] arr, int target) {
 
       activeCodeLine = 0;
 
-      executionMessage =
-          'New numbers generated. Ready to search.';
+      executionMessage = 'New numbers generated. Ready to search.';
 
       _generateEvents();
     });
@@ -800,31 +756,27 @@ int interpolationSearch(int[] arr, int target) {
 
     timer?.cancel();
 
-    final milliseconds =
-        (900 / speed).round().clamp(100, 2000);
+    final milliseconds = (900 / speed).round().clamp(100, 2000);
 
-    timer = Timer.periodic(
-      Duration(milliseconds: milliseconds),
-      (_) {
-        if (!mounted) {
-          timer?.cancel();
-          return;
-        }
+    timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
+      if (!mounted) {
+        timer?.cancel();
+        return;
+      }
 
-        if (currentStep >= events.length) {
-          timer?.cancel();
+      if (currentStep >= events.length) {
+        timer?.cancel();
 
-          setState(() {
-            isRunning = false;
-            isCompleted = true;
-          });
+        setState(() {
+          isRunning = false;
+          isCompleted = true;
+        });
 
-          return;
-        }
+        return;
+      }
 
-        _nextStepInternal();
-      },
-    );
+      _nextStepInternal();
+    });
   }
 
   // ==========================================================================
@@ -909,8 +861,6 @@ int interpolationSearch(int[] arr, int target) {
       return;
     }
 
-    final lastEvent = executionHistory.last;
-
     _rebuildVisualState(historyLength);
 
     setState(() {
@@ -927,10 +877,7 @@ int interpolationSearch(int[] arr, int target) {
     _resetVisualState();
 
     for (int i = 0; i < count && i < executionHistory.length; i++) {
-      _applyEvent(
-        executionHistory[i],
-        updateState: false,
-      );
+      _applyEvent(executionHistory[i], updateState: false);
     }
 
     setState(() {});
@@ -940,17 +887,13 @@ int interpolationSearch(int[] arr, int target) {
   // APPLY EVENT
   // ==========================================================================
 
-  void _applyEvent(
-    InterpolationSearchEvent event, {
-    bool updateState = true,
-  }) {
+  void _applyEvent(InterpolationSearchEvent event, {bool updateState = true}) {
     low = event.low;
     high = event.high;
     probeIndex = event.probeIndex;
     previousProbeIndex = event.previousProbeIndex;
 
-    executionMessage =
-        '${event.title}: ${event.description}';
+    executionMessage = '${event.title}: ${event.description}';
 
     activeCodeLine = _codeLineForEvent(event.type);
 
@@ -994,8 +937,7 @@ int interpolationSearch(int[] arr, int target) {
 
       activeCodeLine = 0;
 
-      executionMessage =
-          'Ready to start Interpolation Search.';
+      executionMessage = 'Ready to start Interpolation Search.';
     });
   }
 
@@ -1021,8 +963,7 @@ int interpolationSearch(int[] arr, int target) {
 
       activeCodeLine = 0;
 
-      executionMessage =
-          'Ready to start Interpolation Search.';
+      executionMessage = 'Ready to start Interpolation Search.';
     });
   }
 
@@ -1044,9 +985,7 @@ int interpolationSearch(int[] arr, int target) {
   // CODE LINE
   // ==========================================================================
 
-  int _codeLineForEvent(
-    InterpolationSearchEventType type,
-  ) {
+  int _codeLineForEvent(InterpolationSearchEventType type) {
     switch (type) {
       case InterpolationSearchEventType.initialize:
         return 1;
@@ -1084,9 +1023,7 @@ int interpolationSearch(int[] arr, int target) {
   // EVENT COLOR
   // ==========================================================================
 
-  Color _eventColor(
-    InterpolationSearchEventType type,
-  ) {
+  Color _eventColor(InterpolationSearchEventType type) {
     switch (type) {
       case InterpolationSearchEventType.initialize:
         return blue;
@@ -1120,9 +1057,7 @@ int interpolationSearch(int[] arr, int target) {
   // EVENT ICON
   // ==========================================================================
 
-  IconData _eventIcon(
-    InterpolationSearchEventType type,
-  ) {
+  IconData _eventIcon(InterpolationSearchEventType type) {
     switch (type) {
       case InterpolationSearchEventType.initialize:
         return Icons.play_arrow_rounded;
@@ -1160,10 +1095,7 @@ int interpolationSearch(int[] arr, int target) {
   // SNACKBAR
   // ==========================================================================
 
-  void _showSnackBar(
-    String message,
-    Color color,
-  ) {
+  void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -1175,7 +1107,7 @@ int interpolationSearch(int[] arr, int target) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withOpacity(0.85),
+        backgroundColor: color.withValues(alpha: 0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1186,14 +1118,9 @@ int interpolationSearch(int[] arr, int target) {
   // ==========================================================================
 
   Future<void> _copyCode() async {
-    await Clipboard.setData(
-      ClipboardData(text: sourceCode),
-    );
+    await Clipboard.setData(ClipboardData(text: sourceCode));
 
-    _showSnackBar(
-      'Source code copied.',
-      cyan,
-    );
+    _showSnackBar('Source code copied.', cyan);
   }
 
   // ==========================================================================
@@ -1204,34 +1131,14 @@ int interpolationSearch(int[] arr, int target) {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-
-                  const SizedBox(height: 16),
-
-                  _buildAlgorithmInfo(),
-
-                  const SizedBox(height: 16),
-
-                  _buildInputSection(),
-
-                  const SizedBox(height: 16),
-
-                  _buildMainWorkspace(
-                    constraints.maxWidth,
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+      body: AlgorithmScreenShell(
+        header: _buildHeader(),
+        algorithmInfo: _buildAlgorithmInfo(),
+        inputSection: _buildInputSection(),
+        visualization: _buildVisualization(),
+        controls: _buildControls(),
+        sourceCode: _buildSourceCode(),
+        executionSteps: _buildExecutionSteps(),
       ),
     );
   }
@@ -1242,16 +1149,11 @@ int interpolationSearch(int[] arr, int target) {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: cyan.withOpacity(0.16),
-        ),
+        border: Border.all(color: cyan.withValues(alpha: 0.16)),
       ),
       child: Row(
         children: [
@@ -1266,9 +1168,7 @@ int interpolationSearch(int[] arr, int target) {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.08),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -1284,12 +1184,7 @@ int interpolationSearch(int[] arr, int target) {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  cyan,
-                  blue,
-                ],
-              ),
+              gradient: const LinearGradient(colors: [cyan, blue]),
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
@@ -1317,7 +1212,7 @@ int interpolationSearch(int[] arr, int target) {
                 Text(
                   'Position-based searching for sorted data',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.55),
+                    color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
                   ),
                 ),
@@ -1351,16 +1246,11 @@ int interpolationSearch(int[] arr, int target) {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity(0.35),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1368,10 +1258,7 @@ int interpolationSearch(int[] arr, int target) {
           Container(
             width: 7,
             height: 7,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 7),
           Text(
@@ -1411,7 +1298,7 @@ int interpolationSearch(int[] arr, int target) {
             'at the current low and high boundaries. It works best '
             'when sorted values are approximately uniformly distributed.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.64),
+              color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
@@ -1423,36 +1310,12 @@ int interpolationSearch(int[] arr, int target) {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox(
-                'Time',
-                'O(log log n)',
-                cyan,
-              ),
-              _infoBox(
-                'Space',
-                'O(1)',
-                blue,
-              ),
-              _infoBox(
-                'Type',
-                'Searching',
-                purple,
-              ),
-              _infoBox(
-                'Best',
-                'O(1)',
-                green,
-              ),
-              _infoBox(
-                'Worst',
-                'O(n)',
-                orange,
-              ),
-              _infoBox(
-                'Requirement',
-                'Sorted Array',
-                pink,
-              ),
+              _infoBox('Time', 'O(log log n)', cyan),
+              _infoBox('Space', 'O(1)', blue),
+              _infoBox('Type', 'Searching', purple),
+              _infoBox('Best', 'O(1)', green),
+              _infoBox('Worst', 'O(n)', orange),
+              _infoBox('Requirement', 'Sorted Array', pink),
             ],
           ),
         ],
@@ -1469,11 +1332,7 @@ int interpolationSearch(int[] arr, int target) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.input_rounded,
-            'Input',
-            cyan,
-          ),
+          _sectionTitle(Icons.input_rounded, 'Input', cyan),
 
           const SizedBox(height: 12),
 
@@ -1502,13 +1361,9 @@ int interpolationSearch(int[] arr, int target) {
 
                     Row(
                       children: [
-                        Expanded(
-                          child: _generateButton(),
-                        ),
+                        Expanded(child: _generateButton()),
                         const SizedBox(width: 10),
-                        Expanded(
-                          child: _loadButton(),
-                        ),
+                        Expanded(child: _loadButton()),
                       ],
                     ),
                   ],
@@ -1542,17 +1397,11 @@ int interpolationSearch(int[] arr, int target) {
 
                   const SizedBox(width: 10),
 
-                  SizedBox(
-                    height: 46,
-                    child: _generateButton(),
-                  ),
+                  SizedBox(height: 46, child: _generateButton()),
 
                   const SizedBox(width: 10),
 
-                  SizedBox(
-                    height: 46,
-                    child: _loadButton(),
-                  ),
+                  SizedBox(height: 46, child: _loadButton()),
                 ],
               );
             },
@@ -1564,7 +1413,7 @@ int interpolationSearch(int[] arr, int target) {
             children: [
               Icon(
                 Icons.sort_rounded,
-                color: orange.withOpacity(0.85),
+                color: orange.withValues(alpha: 0.85),
                 size: 15,
               ),
               const SizedBox(width: 7),
@@ -1573,7 +1422,7 @@ int interpolationSearch(int[] arr, int target) {
                   'Interpolation Search requires a sorted array. '
                   'The array will be sorted automatically when loaded.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.45),
+                    color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -1597,27 +1446,20 @@ int interpolationSearch(int[] arr, int target) {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 13,
-      ),
+      style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         labelStyle: TextStyle(
-          color: Colors.white.withOpacity(0.58),
+          color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.25),
+          color: Colors.white.withValues(alpha: 0.25),
           fontSize: 12,
         ),
-        prefixIcon: Icon(
-          icon,
-          color: cyan.withOpacity(0.8),
-          size: 19,
-        ),
+        prefixIcon: Icon(icon, color: cyan.withValues(alpha: 0.8), size: 19),
         filled: true,
         fillColor: visualizationColor,
         contentPadding: const EdgeInsets.symmetric(
@@ -1626,15 +1468,11 @@ int interpolationSearch(int[] arr, int target) {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.08),
-          ),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: cyan.withOpacity(0.55),
-          ),
+          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
         ),
       ),
     );
@@ -1647,28 +1485,17 @@ int interpolationSearch(int[] arr, int target) {
   Widget _generateButton() {
     return ElevatedButton.icon(
       onPressed: _generateNumbers,
-      icon: const Icon(
-        Icons.auto_awesome_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
         'Generate Numbers',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: purple,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1680,28 +1507,17 @@ int interpolationSearch(int[] arr, int target) {
   Widget _loadButton() {
     return ElevatedButton.icon(
       onPressed: _loadArray,
-      icon: const Icon(
-        Icons.download_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.download_rounded, size: 17),
       label: const Text(
         'LOAD ARRAY',
-        style: TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
         foregroundColor: background,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1709,61 +1525,6 @@ int interpolationSearch(int[] arr, int target) {
   // ==========================================================================
   // MAIN WORKSPACE
   // ==========================================================================
-
-  Widget _buildMainWorkspace(double width) {
-    if (width < 900) {
-      return Column(
-        children: [
-          _buildVisualization(),
-
-          const SizedBox(height: 14),
-
-          _buildControls(),
-
-          const SizedBox(height: 14),
-
-          _buildSourceCode(),
-
-          const SizedBox(height: 14),
-
-          _buildExecutionSteps(),
-        ],
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              _buildVisualization(),
-
-              const SizedBox(height: 14),
-
-              _buildControls(),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              _buildSourceCode(),
-
-              const SizedBox(height: 14),
-
-              _buildExecutionSteps(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   // ==========================================================================
   // VISUALIZATION
@@ -1774,29 +1535,17 @@ int interpolationSearch(int[] arr, int target) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.bar_chart_rounded,
-            'Visualization',
-            cyan,
-          ),
+          _sectionTitle(Icons.bar_chart_rounded, 'Visualization', cyan),
 
           const SizedBox(height: 12),
 
           Row(
             children: [
-              _miniBadge(
-                'LOW',
-                low >= 0 ? low.toString() : '-',
-                blue,
-              ),
+              _miniBadge('LOW', low >= 0 ? low.toString() : '-', blue),
 
               const SizedBox(width: 8),
 
-              _miniBadge(
-                'HIGH',
-                high >= 0 ? high.toString() : '-',
-                orange,
-              ),
+              _miniBadge('HIGH', high >= 0 ? high.toString() : '-', orange),
 
               const SizedBox(width: 8),
 
@@ -1808,11 +1557,7 @@ int interpolationSearch(int[] arr, int target) {
 
               const SizedBox(width: 8),
 
-              _miniBadge(
-                'TARGET',
-                target.toString(),
-                pink,
-              ),
+              _miniBadge('TARGET', target.toString(), pink),
             ],
           ),
 
@@ -1820,16 +1565,11 @@ int interpolationSearch(int[] arr, int target) {
 
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              vertical: 18,
-              horizontal: 10,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -1862,23 +1602,14 @@ int interpolationSearch(int[] arr, int target) {
   // MINI BADGE
   // ==========================================================================
 
-  Widget _miniBadge(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: color.withOpacity(0.18),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           children: [
@@ -1913,8 +1644,8 @@ int interpolationSearch(int[] arr, int target) {
   Widget _buildArrayItem(int index) {
     final value = array[index];
 
-    Color itemColor = Colors.white.withOpacity(0.12);
-    Color borderColor = Colors.white.withOpacity(0.08);
+    Color itemColor = Colors.white.withValues(alpha: 0.12);
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
 
     bool isLow = index == low;
     bool isHigh = index == high;
@@ -1922,26 +1653,23 @@ int interpolationSearch(int[] arr, int target) {
     bool isFound = index == foundIndex;
 
     final bool insideRange =
-        low >= 0 &&
-        high >= 0 &&
-        index >= low &&
-        index <= high;
+        low >= 0 && high >= 0 && index >= low && index <= high;
 
     if (isFound) {
-      itemColor = green.withOpacity(0.20);
+      itemColor = green.withValues(alpha: 0.20);
       borderColor = green;
     } else if (isProbe) {
-      itemColor = cyan.withOpacity(0.20);
+      itemColor = cyan.withValues(alpha: 0.20);
       borderColor = cyan;
     } else if (isLow) {
-      itemColor = blue.withOpacity(0.17);
+      itemColor = blue.withValues(alpha: 0.17);
       borderColor = blue;
     } else if (isHigh) {
-      itemColor = orange.withOpacity(0.17);
+      itemColor = orange.withValues(alpha: 0.17);
       borderColor = orange;
     } else if (insideRange) {
-      itemColor = purple.withOpacity(0.07);
-      borderColor = purple.withOpacity(0.16);
+      itemColor = purple.withValues(alpha: 0.07);
+      borderColor = purple.withValues(alpha: 0.16);
     }
 
     return Container(
@@ -1956,20 +1684,20 @@ int interpolationSearch(int[] arr, int target) {
                 isFound
                     ? 'FOUND'
                     : isProbe
-                        ? 'PROBE'
-                        : isLow
-                            ? 'LOW'
-                            : isHigh
-                                ? 'HIGH'
-                                : '',
+                    ? 'PROBE'
+                    : isLow
+                    ? 'LOW'
+                    : isHigh
+                    ? 'HIGH'
+                    : '',
                 style: TextStyle(
                   color: isFound
                       ? green
                       : isProbe
-                          ? cyan
-                          : isLow
-                              ? blue
-                              : orange,
+                      ? cyan
+                      : isLow
+                      ? blue
+                      : orange,
                   fontSize: 8,
                   fontWeight: FontWeight.w900,
                 ),
@@ -1985,13 +1713,12 @@ int interpolationSearch(int[] arr, int target) {
               borderRadius: BorderRadius.circular(11),
               border: Border.all(
                 color: borderColor,
-                width:
-                    isProbe || isFound ? 1.6 : 1,
+                width: isProbe || isFound ? 1.6 : 1,
               ),
               boxShadow: isProbe || isFound
                   ? [
                       BoxShadow(
-                        color: borderColor.withOpacity(0.18),
+                        color: borderColor.withValues(alpha: 0.18),
                         blurRadius: 12,
                         spreadRadius: 1,
                       ),
@@ -2005,8 +1732,8 @@ int interpolationSearch(int[] arr, int target) {
                   color: isFound
                       ? green
                       : isProbe
-                          ? cyan
-                          : Colors.white,
+                      ? cyan
+                      : Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
@@ -2019,7 +1746,7 @@ int interpolationSearch(int[] arr, int target) {
           Text(
             '[$index]',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.4),
+              color: Colors.white.withValues(alpha: 0.4),
               fontSize: 10,
               fontWeight: FontWeight.w600,
             ),
@@ -2038,34 +1765,16 @@ int interpolationSearch(int[] arr, int target) {
       spacing: 14,
       runSpacing: 8,
       children: [
-        _legendItem(
-          'Search Range',
-          purple,
-        ),
-        _legendItem(
-          'Low',
-          blue,
-        ),
-        _legendItem(
-          'High',
-          orange,
-        ),
-        _legendItem(
-          'Probe',
-          cyan,
-        ),
-        _legendItem(
-          'Found',
-          green,
-        ),
+        _legendItem('Search Range', purple),
+        _legendItem('Low', blue),
+        _legendItem('High', orange),
+        _legendItem('Probe', cyan),
+        _legendItem('Found', green),
       ],
     );
   }
 
-  Widget _legendItem(
-    String title,
-    Color color,
-  ) {
+  Widget _legendItem(String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -2081,7 +1790,7 @@ int interpolationSearch(int[] arr, int target) {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.58),
+            color: Colors.white.withValues(alpha: 0.58),
             fontSize: 10,
             fontWeight: FontWeight.w600,
           ),
@@ -2110,9 +1819,7 @@ int interpolationSearch(int[] arr, int target) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: purple.withOpacity(0.15),
-        ),
+        border: Border.all(color: purple.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
@@ -2120,7 +1827,7 @@ int interpolationSearch(int[] arr, int target) {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: purple.withOpacity(0.10),
+              color: purple.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -2139,7 +1846,7 @@ int interpolationSearch(int[] arr, int target) {
                 Text(
                   'Current Search Range',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.45),
+                    color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2190,11 +1897,9 @@ int interpolationSearch(int[] arr, int target) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withOpacity(0.18),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2203,8 +1908,8 @@ int interpolationSearch(int[] arr, int target) {
             foundIndex >= 0
                 ? Icons.check_circle_rounded
                 : isCompleted
-                    ? Icons.cancel_rounded
-                    : Icons.info_outline_rounded,
+                ? Icons.cancel_rounded
+                : Icons.info_outline_rounded,
             color: color,
             size: 18,
           ),
@@ -2215,7 +1920,7 @@ int interpolationSearch(int[] arr, int target) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.72),
+                color: Colors.white.withValues(alpha: 0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -2239,9 +1944,7 @@ int interpolationSearch(int[] arr, int target) {
               _controlButton(
                 icon: Icons.skip_previous_rounded,
                 label: 'Previous',
-                onPressed: executionHistory.isEmpty
-                    ? null
-                    : _previousStep,
+                onPressed: executionHistory.isEmpty ? null : _previousStep,
               ),
 
               const SizedBox(width: 8),
@@ -2252,9 +1955,7 @@ int interpolationSearch(int[] arr, int target) {
                       ? Icons.pause_rounded
                       : Icons.play_arrow_rounded,
                   label: isRunning ? 'Pause' : 'Play',
-                  onPressed: isCompleted
-                      ? null
-                      : _togglePlayPause,
+                  onPressed: isCompleted ? null : _togglePlayPause,
                   primary: true,
                 ),
               ),
@@ -2264,10 +1965,7 @@ int interpolationSearch(int[] arr, int target) {
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next Step',
-                onPressed:
-                    currentStep >= events.length
-                        ? null
-                        : _nextStep,
+                onPressed: currentStep >= events.length ? null : _nextStep,
               ),
 
               const SizedBox(width: 8),
@@ -2284,18 +1982,14 @@ int interpolationSearch(int[] arr, int target) {
 
           Row(
             children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: cyan,
-                size: 17,
-              ),
+              const Icon(Icons.speed_rounded, color: cyan, size: 17),
 
               const SizedBox(width: 8),
 
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -2308,7 +2002,7 @@ int interpolationSearch(int[] arr, int target) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor: Colors.white.withOpacity(0.08),
+                  inactiveColor: Colors.white.withValues(alpha: 0.08),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -2333,29 +2027,22 @@ int interpolationSearch(int[] arr, int target) {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: events.isEmpty
-                  ? 0
-                  : currentStep / events.length,
+              value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor:
-                  Colors.white.withOpacity(0.06),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(
-                cyan,
-              ),
+              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
 
           const SizedBox(height: 6),
 
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.45),
+                  color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 10,
                 ),
               ),
@@ -2363,14 +2050,14 @@ int interpolationSearch(int[] arr, int target) {
                 isCompleted
                     ? 'Execution Finished'
                     : isRunning
-                        ? 'Running...'
-                        : 'Paused',
+                    ? 'Running...'
+                    : 'Paused',
                 style: TextStyle(
                   color: isCompleted
                       ? green
                       : isRunning
-                          ? orange
-                          : Colors.white.withOpacity(0.4),
+                      ? orange
+                      : Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -2392,44 +2079,26 @@ int interpolationSearch(int[] arr, int target) {
     required VoidCallback? onPressed,
     bool primary = false,
   }) {
-    final bool enabled = onPressed != null;
-
     return SizedBox(
       height: 42,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: Icon(
-          icon,
-          size: 17,
-        ),
+        icon: Icon(icon, size: 17),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: primary
-              ? cyan
-              : cardColor,
-          foregroundColor: primary
-              ? background
-              : Colors.white,
-          disabledBackgroundColor:
-              Colors.white.withOpacity(0.04),
-          disabledForegroundColor:
-              Colors.white.withOpacity(0.20),
+          backgroundColor: primary ? cyan : cardColor,
+          foregroundColor: primary ? background : Colors.white,
+          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary
-                  ? cyan
-                  : Colors.white.withOpacity(0.08),
+              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
             ),
           ),
         ),
@@ -2450,11 +2119,7 @@ int interpolationSearch(int[] arr, int target) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.code_rounded,
-                'Source Code',
-                purple,
-              ),
+              _sectionTitle(Icons.code_rounded, 'Source Code', purple),
 
               const Spacer(),
 
@@ -2467,20 +2132,14 @@ int interpolationSearch(int[] arr, int target) {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withOpacity(0.08),
+                    color: purple.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: purple.withOpacity(0.20),
-                    ),
+                    border: Border.all(color: purple.withValues(alpha: 0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.copy_rounded,
-                        color: purple,
-                        size: 14,
-                      ),
+                      Icon(Icons.copy_rounded, color: purple, size: 14),
                       SizedBox(width: 5),
                       Text(
                         'Copy',
@@ -2501,83 +2160,69 @@ int interpolationSearch(int[] arr, int target) {
 
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(
-              minHeight: 350,
-              maxHeight: 520,
-            ),
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-            ),
+            constraints: const BoxConstraints(minHeight: 350, maxHeight: 520),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFF050A14),
+              color: AppColors.codeBackground,
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
-                children: List.generate(
-                  lines.length,
-                  (index) {
-                    final lineNumber = index + 1;
+                children: List.generate(lines.length, (index) {
+                  final lineNumber = index + 1;
 
-                    final bool active =
-                        lineNumber == activeCodeLine;
+                  final bool active = lineNumber == activeCodeLine;
 
-                    return Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      color: active
-                          ? cyan.withOpacity(0.09)
-                          : Colors.transparent,
-                      child: Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 25,
-                            child: Text(
-                              '$lineNumber',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: active
-                                    ? cyan
-                                    : Colors.white
-                                        .withOpacity(0.20),
-                                fontSize: 9,
-                                fontFamily: 'monospace',
-                              ),
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    color: active
+                        ? cyan.withValues(alpha: 0.09)
+                        : Colors.transparent,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 25,
+                          child: Text(
+                            '$lineNumber',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: active
+                                  ? cyan
+                                  : Colors.white.withValues(alpha: 0.20),
+                              fontSize: 9,
+                              fontFamily: 'monospace',
                             ),
                           ),
+                        ),
 
-                          const SizedBox(width: 10),
+                        const SizedBox(width: 10),
 
-                          Expanded(
-                            child: Text(
-                              lines[index],
-                              style: TextStyle(
-                                color: active
-                                    ? Colors.white
-                                    : Colors.white
-                                        .withOpacity(0.65),
-                                fontSize: 10,
-                                height: 1.45,
-                                fontFamily: 'monospace',
-                                fontWeight: active
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                              ),
+                        Expanded(
+                          child: Text(
+                            lines[index],
+                            style: TextStyle(
+                              color: active
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.65),
+                              fontSize: 10,
+                              height: 1.45,
+                              fontFamily: 'monospace',
+                              fontWeight: active
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ),
           ),
@@ -2597,25 +2242,16 @@ int interpolationSearch(int[] arr, int target) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.history_rounded,
-                'Execution Steps',
-                cyan,
-              ),
+              _sectionTitle(Icons.history_rounded, 'Execution Steps', cyan),
 
               const Spacer(),
 
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withOpacity(0.07),
+                  color: cyan.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(
-                    color: cyan.withOpacity(0.14),
-                  ),
+                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -2635,20 +2271,14 @@ int interpolationSearch(int[] arr, int target) {
             _emptyExecutionState()
           else
             ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: 460,
-              ),
+              constraints: const BoxConstraints(maxHeight: 460),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: executionHistory.length,
                 itemBuilder: (context, index) {
-                  final event =
-                      executionHistory[index];
+                  final event = executionHistory[index];
 
-                  return _executionStepItem(
-                    index,
-                    event,
-                  );
+                  return _executionStepItem(index, event);
                 },
               ),
             ),
@@ -2664,22 +2294,17 @@ int interpolationSearch(int[] arr, int target) {
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 35,
-        horizontal: 15,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.06),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withOpacity(0.20),
+            color: Colors.white.withValues(alpha: 0.20),
             size: 32,
           ),
 
@@ -2688,7 +2313,7 @@ int interpolationSearch(int[] arr, int target) {
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -2699,7 +2324,7 @@ int interpolationSearch(int[] arr, int target) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.30),
+              color: Colors.white.withValues(alpha: 0.30),
               fontSize: 10,
             ),
           ),
@@ -2712,23 +2337,16 @@ int interpolationSearch(int[] arr, int target) {
   // EXECUTION STEP ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(
-    int index,
-    InterpolationSearchEvent event,
-  ) {
+  Widget _executionStepItem(int index, InterpolationSearchEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: 7,
-      ),
+      margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.045),
+        color: color.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity(0.14),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2737,14 +2355,10 @@ int interpolationSearch(int[] arr, int target) {
             width: 27,
             height: 27,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
+              color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(
-              _eventIcon(event.type),
-              color: color,
-              size: 15,
-            ),
+            child: Icon(_eventIcon(event.type), color: color, size: 15),
           ),
 
           const SizedBox(width: 9),
@@ -2769,8 +2383,7 @@ int interpolationSearch(int[] arr, int target) {
                     Text(
                       '#${index + 1}',
                       style: TextStyle(
-                        color: Colors.white
-                            .withOpacity(0.22),
+                        color: Colors.white.withValues(alpha: 0.22),
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                       ),
@@ -2783,8 +2396,7 @@ int interpolationSearch(int[] arr, int target) {
                 Text(
                   event.description,
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.53),
+                    color: Colors.white.withValues(alpha: 0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -2795,8 +2407,7 @@ int interpolationSearch(int[] arr, int target) {
                 Text(
                   event.operation,
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(0.30),
+                    color: Colors.white.withValues(alpha: 0.30),
                     fontSize: 8.5,
                     fontFamily: 'monospace',
                   ),
@@ -2813,21 +2424,17 @@ int interpolationSearch(int[] arr, int target) {
   // CARD
   // ==========================================================================
 
-  Widget _card({
-    required Widget child,
-  }) {
+  Widget _card({required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.065),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -2841,11 +2448,7 @@ int interpolationSearch(int[] arr, int target) {
   // SECTION TITLE
   // ==========================================================================
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -2853,14 +2456,10 @@ int interpolationSearch(int[] arr, int target) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.09),
+            color: color.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 17,
-          ),
+          child: Icon(icon, color: color, size: 17),
         ),
 
         const SizedBox(width: 9),
@@ -2881,22 +2480,13 @@ int interpolationSearch(int[] arr, int target) {
   // INFO BOX
   // ==========================================================================
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity(0.16),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2904,7 +2494,7 @@ int interpolationSearch(int[] arr, int target) {
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),

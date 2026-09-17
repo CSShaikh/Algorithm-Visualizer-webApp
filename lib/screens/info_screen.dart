@@ -1,4 +1,7 @@
+import 'package:a_algorithm_visualizer/models/algorithm.dart';
 import 'package:flutter/material.dart';
+import '../core/theme/app_colors.dart';
+import '../registry/algorithm_registry.dart';
 import 'dashboard_screen.dart';
 
 class InfoScreen extends StatelessWidget {
@@ -8,16 +11,34 @@ class InfoScreen extends StatelessWidget {
   // COLORS
   // ================================================================
 
-  static const Color background = Color(0xFF030712);
-  static const Color background2 = Color(0xFF07101F);
-  static const Color cardColor = Color(0xFF0B1428);
+  static const Color background = AppColors.background;
+  static const Color background2 = AppColors.background2;
+  static const Color cardColor = AppColors.card;
 
-  static const Color cyan = Color(0xFF00E5FF);
-  static const Color blue = Color(0xFF2979FF);
-  static const Color purple = Color(0xFF9C27FF);
-  static const Color green = Color(0xFF00E676);
-  static const Color orange = Color(0xFFFFB300);
-  static const Color pink = Color(0xFFFF4081);
+  static const Color cyan = AppColors.cyan;
+  static const Color blue = AppColors.blue;
+  static const Color purple = AppColors.purple;
+  static const Color green = AppColors.green;
+  static const Color orange = AppColors.orange;
+  static const Color pink = AppColors.pink;
+
+  Widget _buildAlgorithmGrid(AlgorithmCategory category) {
+    final algorithms = AlgorithmRegistry.byCategory(category);
+
+    return _ResponsiveGrid(
+      children: algorithms
+          .map(
+            (algorithm) => _AlgorithmCard(
+              icon: algorithm.icon,
+              title: algorithm.title,
+              description: algorithm.description,
+              complexity: algorithm.complexity,
+              color: algorithm.color,
+            ),
+          )
+          .toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +116,7 @@ class InfoScreen extends StatelessWidget {
                       children: [
                         _StatCard(
                           icon: Icons.category_rounded,
-                          value: '12+',
+                          value: '${AlgorithmRegistry.implemented.length}+',
                           label: 'Algorithms',
                           color: cyan,
                         ),
@@ -267,42 +288,7 @@ class InfoScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    _ResponsiveGrid(
-                      children: [
-                        _AlgorithmCard(
-                          icon: Icons.swap_vert_rounded,
-                          title: 'Bubble Sort',
-                          description:
-                              'Compares adjacent elements and sorts them into the correct order.',
-                          complexity: 'O(n²)',
-                          color: cyan,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.select_all_rounded,
-                          title: 'Selection Sort',
-                          description:
-                              'Selects the minimum element at each step and places it in the correct position.',
-                          complexity: 'O(n²)',
-                          color: blue,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.call_split_rounded,
-                          title: 'Merge Sort',
-                          description:
-                              'Divides the array, recursively sorts the parts, and then merges them.',
-                          complexity: 'O(n log n)',
-                          color: purple,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.compare_arrows_rounded,
-                          title: 'Quick Sort',
-                          description:
-                              'Partitions the data around a pivot element.',
-                          complexity: 'O(n log n)',
-                          color: green,
-                        ),
-                      ],
-                    ),
+                    _buildAlgorithmGrid(AlgorithmCategory.sorting),
 
                     const SizedBox(height: 45),
 
@@ -317,26 +303,7 @@ class InfoScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    _ResponsiveGrid(
-                      children: [
-                        _AlgorithmCard(
-                          icon: Icons.search_rounded,
-                          title: 'Linear Search',
-                          description:
-                              'Checks elements one by one to find the required value.',
-                          complexity: 'O(n)',
-                          color: orange,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.manage_search_rounded,
-                          title: 'Binary Search',
-                          description:
-                              'Repeatedly divides sorted data in half to find the required value.',
-                          complexity: 'O(log n)',
-                          color: cyan,
-                        ),
-                      ],
-                    ),
+                    _buildAlgorithmGrid(AlgorithmCategory.searching),
 
                     const SizedBox(height: 45),
 
@@ -351,33 +318,7 @@ class InfoScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    _ResponsiveGrid(
-                      children: [
-                        _AlgorithmCard(
-                          icon: Icons.route_rounded,
-                          title: 'Dijkstra',
-                          description:
-                              'Finds the shortest path from a source vertex in a graph.',
-                          complexity: 'O((V+E) log V)',
-                          color: green,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.explore_rounded,
-                          title: 'BFS',
-                          description: 'Traverses the graph level by level.',
-                          complexity: 'O(V + E)',
-                          color: cyan,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.account_tree_rounded,
-                          title: 'DFS',
-                          description:
-                              'Explores the graph according to its depth.',
-                          complexity: 'O(V + E)',
-                          color: purple,
-                        ),
-                      ],
-                    ),
+                    _buildAlgorithmGrid(AlgorithmCategory.graphs),
 
                     const SizedBox(height: 45),
 
@@ -392,34 +333,7 @@ class InfoScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    _ResponsiveGrid(
-                      children: [
-                        _AlgorithmCard(
-                          icon: Icons.account_tree_rounded,
-                          title: 'Preorder Traversal',
-                          description:
-                              'Visits each node in Root, Left, Right order.',
-                          complexity: 'O(n)',
-                          color: purple,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.device_hub_rounded,
-                          title: 'Binary Tree',
-                          description:
-                              'Represents hierarchical data using a tree structure.',
-                          complexity: 'Depends',
-                          color: purple,
-                        ),
-                        _AlgorithmCard(
-                          icon: Icons.schema_rounded,
-                          title: 'Binary Search Tree',
-                          description:
-                              'An ordered tree where searching and insertion can be efficient.',
-                          complexity: 'Avg O(log n)',
-                          color: blue,
-                        ),
-                      ],
-                    ),
+                    _buildAlgorithmGrid(AlgorithmCategory.trees),
 
                     const SizedBox(height: 45),
 
@@ -652,7 +566,7 @@ class InfoScreen extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: background.withOpacity(.92),
+      backgroundColor: background.withValues(alpha: 0.92),
       elevation: 0,
       centerTitle: false,
       titleSpacing: 18,
@@ -665,7 +579,7 @@ class InfoScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(13),
               gradient: const LinearGradient(colors: [cyan, blue, purple]),
               boxShadow: [
-                BoxShadow(color: cyan.withOpacity(.18), blurRadius: 18),
+                BoxShadow(color: cyan.withValues(alpha: 0.18), blurRadius: 18),
               ],
             ),
             child: const Icon(
@@ -752,12 +666,12 @@ class _HeroSectionState extends State<_HeroSection>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.cyan.withOpacity(.08),
+                  color: Colors.cyan.withValues(alpha: 0.08),
                   blurRadius: 40,
                   spreadRadius: 3,
                 ),
                 BoxShadow(
-                  color: Colors.purple.withOpacity(.06),
+                  color: Colors.purple.withValues(alpha: 0.06),
                   blurRadius: 45,
                   spreadRadius: 4,
                 ),
@@ -783,13 +697,13 @@ class _HeroSectionState extends State<_HeroSection>
                           height: 65,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.cyan.withOpacity(.08),
+                            color: Colors.cyan.withValues(alpha: 0.08),
                             border: Border.all(
-                              color: Colors.cyan.withOpacity(.25),
+                              color: Colors.cyan.withValues(alpha: 0.25),
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.cyan.withOpacity(.15),
+                                color: Colors.cyan.withValues(alpha: 0.15),
                                 blurRadius: 25,
                               ),
                             ],
@@ -819,7 +733,7 @@ class _HeroSectionState extends State<_HeroSection>
                             backgroundColor: Colors.cyan,
                             foregroundColor: Colors.black,
                             elevation: 10,
-                            shadowColor: Colors.cyan.withOpacity(.35),
+                            shadowColor: Colors.cyan.withValues(alpha: 0.35),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 25,
                               vertical: 15,
@@ -841,9 +755,9 @@ class _HeroSectionState extends State<_HeroSection>
                         height: 65,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.cyan.withOpacity(.08),
+                          color: Colors.cyan.withValues(alpha: 0.08),
                           border: Border.all(
-                            color: Colors.cyan.withOpacity(.25),
+                            color: Colors.cyan.withValues(alpha: 0.25),
                           ),
                         ),
                         child: const Icon(
@@ -865,7 +779,7 @@ class _HeroSectionState extends State<_HeroSection>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.cyan.withOpacity(.30),
+                            color: Colors.cyan.withValues(alpha: 0.30),
                             blurRadius: 35,
                             spreadRadius: 2,
                           ),
@@ -1059,9 +973,9 @@ class _HeroTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.045),
+        color: Colors.white.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withOpacity(.10)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1106,10 +1020,10 @@ class _SectionTitle extends StatelessWidget {
           height: 45,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            color: color.withOpacity(.07),
-            border: Border.all(color: color.withOpacity(.30)),
+            color: color.withValues(alpha: 0.07),
+            border: Border.all(color: color.withValues(alpha: 0.30)),
             boxShadow: [
-              BoxShadow(color: color.withOpacity(.06), blurRadius: 15),
+              BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 15),
             ],
           ),
           child: Icon(icon, color: color, size: 22),
@@ -1130,7 +1044,7 @@ class _SectionTitle extends StatelessWidget {
           width: 35,
           height: 2,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [color, color.withOpacity(0)]),
+            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0)]),
           ),
         ),
       ],
@@ -1161,12 +1075,12 @@ class _InfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A1326).withOpacity(.92),
+        color: const Color(0xFF0A1326).withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accentColor.withOpacity(.13)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.13)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1182,7 +1096,7 @@ class _InfoCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: accentColor.withOpacity(.08),
+                  color: accentColor.withValues(alpha: 0.08),
                 ),
                 child: Icon(icon, color: accentColor, size: 21),
               ),
@@ -1274,7 +1188,7 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withOpacity(.14)),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
@@ -1283,7 +1197,7 @@ class _StatCard extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: color.withOpacity(.08),
+              color: color.withValues(alpha: 0.08),
             ),
             child: Icon(icon, color: color, size: 23),
           ),
@@ -1339,8 +1253,8 @@ class _FeatureCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(.17)),
-        boxShadow: [BoxShadow(color: color.withOpacity(.025), blurRadius: 20)],
+        border: Border.all(color: color.withValues(alpha: 0.17)),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.025), blurRadius: 20)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1350,8 +1264,8 @@ class _FeatureCard extends StatelessWidget {
             height: 47,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: color.withOpacity(.08),
-              border: Border.all(color: color.withOpacity(.12)),
+              color: color.withValues(alpha: 0.08),
+              border: Border.all(color: color.withValues(alpha: 0.12)),
             ),
             child: Icon(icon, color: color, size: 25),
           ),
@@ -1407,8 +1321,8 @@ class _AlgorithmCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(.17)),
-        boxShadow: [BoxShadow(color: color.withOpacity(.025), blurRadius: 18)],
+        border: Border.all(color: color.withValues(alpha: 0.17)),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.025), blurRadius: 18)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1421,7 +1335,7 @@ class _AlgorithmCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(13),
                   gradient: LinearGradient(
-                    colors: [color.withOpacity(.15), color.withOpacity(.035)],
+                    colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.035)],
                   ),
                 ),
                 child: Icon(icon, color: color, size: 22),
@@ -1454,9 +1368,9 @@ class _AlgorithmCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withOpacity(.07),
+              color: color.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: color.withOpacity(.10)),
+              border: Border.all(color: color.withValues(alpha: 0.10)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1504,7 +1418,7 @@ class _StepCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(.16)),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1567,7 +1481,7 @@ class _RealWorldCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(.16)),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1577,7 +1491,7 @@ class _RealWorldCard extends StatelessWidget {
             height: 47,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: color.withOpacity(.08),
+              color: color.withValues(alpha: 0.08),
             ),
             child: Icon(icon, color: color, size: 24),
           ),
@@ -1665,9 +1579,9 @@ class _ComplexityRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 11),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.025),
+        color: Colors.white.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: Colors.white.withOpacity(.035)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.035)),
       ),
       child: Column(
         children: [
@@ -1698,7 +1612,7 @@ class _ComplexityRow extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               minHeight: 4,
-              backgroundColor: Colors.white.withOpacity(.05),
+              backgroundColor: Colors.white.withValues(alpha: 0.05),
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
@@ -1727,9 +1641,9 @@ class _FinalCTA extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFF06233B), Color(0xFF10133A), Color(0xFF1D0B38)],
         ),
-        border: Border.all(color: Colors.cyan.withOpacity(.25)),
+        border: Border.all(color: Colors.cyan.withValues(alpha: 0.25)),
         boxShadow: [
-          BoxShadow(color: Colors.cyan.withOpacity(.06), blurRadius: 35),
+          BoxShadow(color: Colors.cyan.withValues(alpha: 0.06), blurRadius: 35),
         ],
       ),
       child: Column(
@@ -1739,10 +1653,10 @@ class _FinalCTA extends StatelessWidget {
             height: 65,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.cyan.withOpacity(.08),
-              border: Border.all(color: Colors.cyan.withOpacity(.25)),
+              color: Colors.cyan.withValues(alpha: 0.08),
+              border: Border.all(color: Colors.cyan.withValues(alpha: 0.25)),
               boxShadow: [
-                BoxShadow(color: Colors.cyan.withOpacity(.15), blurRadius: 25),
+                BoxShadow(color: Colors.cyan.withValues(alpha: 0.15), blurRadius: 25),
               ],
             ),
             child: const Icon(
@@ -1787,7 +1701,7 @@ class _FinalCTA extends StatelessWidget {
               backgroundColor: Colors.cyan,
               foregroundColor: Colors.black,
               elevation: 10,
-              shadowColor: Colors.cyan.withOpacity(.35),
+              shadowColor: Colors.cyan.withValues(alpha: 0.35),
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -1820,8 +1734,8 @@ class _Glow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              color.withOpacity(.10),
-              color.withOpacity(.025),
+              color.withValues(alpha: 0.10),
+              color.withValues(alpha: 0.025),
               Colors.transparent,
             ],
           ),
@@ -1841,7 +1755,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(.018)
+      ..color = Colors.white.withValues(alpha: 0.018)
       ..strokeWidth = .7;
 
     const double spacing = 45;

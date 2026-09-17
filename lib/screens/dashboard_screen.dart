@@ -1,35 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../algorithms/searching_algorithms/linear_search_screen.dart';
-import '../algorithms/searching_algorithms/binary_search_screen.dart';
-import '../algorithms/searching_algorithms/jump_search_screen.dart';
-import '../algorithms/searching_algorithms/interpolation_search_screen.dart';
-import '../algorithms/sorting_algorithms/bubble_sort_screen.dart';
-import '../algorithms/sorting_algorithms/selection_sort_screen.dart';
-import '../algorithms/sorting_algorithms/insertion_sort_screen.dart';
-import '../algorithms/sorting_algorithms/merge_sort_screen.dart';
-import '../algorithms/sorting_algorithms/quick_sort_screen.dart';
-import '../algorithms/sorting_algorithms/heap_sort_screen.dart';
-import '../algorithms/tree_algorithms/preorder_traversal_screen.dart';
-import '../algorithms/tree_algorithms/inorder_traversal_screen.dart';
-import '../algorithms/tree_algorithms/postorder_traversal_screen.dart';
-import '../algorithms/graph_algorithms/dijkstra_screen.dart';
-// ================================================================
-// APP COLORS
-// ================================================================
-
-class AppColors {
-  static const Color background = Color(0xFF030712);
-  static const Color background2 = Color(0xFF07101F);
-  static const Color card = Color(0xFF0B1428);
-
-  static const Color cyan = Color(0xFF00E5FF);
-  static const Color blue = Color(0xFF2979FF);
-  static const Color purple = Color(0xFF9C27FF);
-  static const Color green = Color(0xFF00E676);
-  static const Color orange = Color(0xFFFFB300);
-  static const Color pink = Color(0xFFFF4081);
-}
+import '../core/theme/app_colors.dart';
+import '../core/theme/theme_controller.dart';
+import '../registry/algorithm_registry.dart';
 
 // ================================================================
 // DASHBOARD SCREEN
@@ -50,7 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int selectedIndex = 0;
 
   bool isSidebarOpen = true;
-  bool isDarkMode = true;
+  bool get isDarkMode => ThemeController.instance.isDarkMode;
 
   String selectedCategory = 'Searching';
   String searchQuery = '';
@@ -93,9 +66,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return isDarkMode ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
   }
 
-  Color get _borderColor {
-    return isDarkMode ? Colors.white.withOpacity(.07) : const Color(0xFFD9E2EC);
-  }
 
   Color get _sidebarSearchBackground {
     return isDarkMode ? const Color(0xFF030712) : const Color(0xFFF1F5F9);
@@ -113,224 +83,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ALGORITHMS
   // ==============================================================
 
-  final List<AlgorithmItem> algorithms = [
-    // ============================================================
-    // SEARCHING
-    // ============================================================
+  List<AlgorithmItem> get algorithms {
+    return AlgorithmRegistry.implemented
+        .map(
+          (algorithm) => AlgorithmItem(
+            id: algorithm.id,
+            title: algorithm.title,
+            description: algorithm.description,
+            complexity: algorithm.complexity,
+            category: algorithm.categoryLabel,
+            color: algorithm.color,
+            icon: algorithm.icon,
+            difficulty: algorithm.difficulty,
+          ),
+        )
+        .toList(growable: false);
+  }
 
-    AlgorithmItem(
-      title: 'Linear Search',
-      description:
-          'Searches elements one by one until the required value is found.',
-      complexity: 'O(n)',
-      category: 'Searching',
-      color: AppColors.cyan,
-      icon: Icons.search_rounded,
-      difficulty: 'Easy',
-    ),
-
-    AlgorithmItem(
-      title: 'Binary Search',
-      description:
-          'Searches sorted data by repeatedly dividing the search space.',
-      complexity: 'O(log n)',
-      category: 'Searching',
-      color: AppColors.cyan,
-      icon: Icons.manage_search_rounded,
-      difficulty: 'Easy',
-    ),
-
-    AlgorithmItem(
-      title: 'Jump Search',
-      description:
-          'Jumps through sorted blocks and performs linear search locally.',
-      complexity: 'O(√n)',
-      category: 'Searching',
-      color: AppColors.green,
-      icon: Icons.double_arrow_rounded,
-      difficulty: 'Medium',
-    ),
-
-    AlgorithmItem(
-      title: 'Interpolation Search',
-      description:
-          'Estimates the position of a value in uniformly distributed sorted data.',
-      complexity: 'O(log log n)',
-      category: 'Searching',
-      color: AppColors.blue,
-      icon: Icons.my_location_rounded,
-      difficulty: 'Medium',
-    ),
-
-    // ============================================================
-    // SORTING
-    // ============================================================
-    AlgorithmItem(
-      title: 'Bubble Sort',
-      description: 'Repeatedly compares adjacent elements and swaps them.',
-      complexity: 'O(n²)',
-      category: 'Sorting',
-      color: AppColors.cyan,
-      icon: Icons.swap_vert_rounded,
-      difficulty: 'Easy',
-    ),
-
-    AlgorithmItem(
-      title: 'Selection Sort',
-      description:
-          'Selects the minimum element and places it at the correct position.',
-      complexity: 'O(n²)',
-      category: 'Sorting',
-      color: AppColors.blue,
-      icon: Icons.select_all_rounded,
-      difficulty: 'Easy',
-    ),
-
-    AlgorithmItem(
-      title: 'Insertion Sort',
-      description: 'Builds the final sorted array one item at a time.',
-      complexity: 'O(n²)',
-      category: 'Sorting',
-      color: AppColors.orange,
-      icon: Icons.input_rounded,
-      difficulty: 'Easy',
-    ),
-
-    AlgorithmItem(
-      title: 'Merge Sort',
-      description:
-          'Divides the array into smaller parts and merges sorted parts.',
-      complexity: 'O(n log n)',
-      category: 'Sorting',
-      color: AppColors.green,
-      icon: Icons.merge_type_rounded,
-      difficulty: 'Medium',
-    ),
-
-    AlgorithmItem(
-      title: 'Quick Sort',
-      description: 'Uses a pivot to partition elements into smaller subarrays.',
-      complexity: 'O(n log n)',
-      category: 'Sorting',
-      color: AppColors.purple,
-      icon: Icons.call_split_rounded,
-      difficulty: 'Medium',
-    ),
-
-    AlgorithmItem(
-      title: 'Heap Sort',
-      description: 'Uses a heap data structure to efficiently sort elements.',
-      complexity: 'O(n log n)',
-      category: 'Sorting',
-      color: AppColors.pink,
-      icon: Icons.account_tree_rounded,
-      difficulty: 'Hard',
-    ),
-
-    // ============================================================
-    // GRAPH
-    // ============================================================
-    AlgorithmItem(
-      title: 'Dijkstra',
-      description:
-          'Finds the shortest path between vertices in a weighted graph.',
-      complexity: 'O((V+E) log V)',
-      category: 'Graph',
-      color: AppColors.green,
-      icon: Icons.route_rounded,
-      difficulty: 'Hard',
-    ),
-
-    AlgorithmItem(
-      title: 'BFS',
-      description: 'Traverses a graph level by level using a queue.',
-      complexity: 'O(V + E)',
-      category: 'Graph',
-      color: AppColors.cyan,
-      icon: Icons.hub_rounded,
-      difficulty: 'Medium',
-    ),
-
-    AlgorithmItem(
-      title: 'DFS',
-      description: 'Explores a graph deeply before backtracking.',
-      complexity: 'O(V + E)',
-      category: 'Graph',
-      color: AppColors.purple,
-      icon: Icons.account_tree_rounded,
-      difficulty: 'Medium',
-    ),
-
-    // ============================================================
-    // TREES
-    // ============================================================
-    
-
-AlgorithmItem(
-  title: 'Preorder Traversal',
-  description:
-      'Visits each node of a binary tree in Root, Left, Right order.',
-  complexity: 'O(n)',
-  category: 'Trees',
-  color: AppColors.purple,
-  icon: Icons.account_tree_rounded,
-  difficulty: 'Easy',
-),
-
-AlgorithmItem(
-  title: 'Inorder Traversal',
-  description:
-      'Visits each node of a binary tree in Left, Root, Right order.',
-  complexity: 'O(n)',
-  category: 'Trees',
-  color: AppColors.cyan,
-  icon: Icons.account_tree_rounded,
-  difficulty: 'Easy',
-),
-
-AlgorithmItem(
-  title: 'Postorder Traversal',
-  description:
-      'Visits each node of a binary tree in Left, Right, Root order.',
-  complexity: 'O(n)',
-  category: 'Trees',
-  color: AppColors.orange,
-  icon: Icons.account_tree_rounded,
-  difficulty: 'Easy',
-),
-
-AlgorithmItem(
-  title: 'Level Order Traversal',
-  description:
-      'Visits each node of a binary tree level by level from top to bottom.',
-  complexity: 'O(n)',
-  category: 'Trees',
-  color: AppColors.green,
-  icon: Icons.account_tree_rounded,
-  difficulty: 'Medium',
-),
-    AlgorithmItem(
-      title: 'Binary Tree',
-      description:
-          'A hierarchical structure where each node has at most two children.',
-      complexity: 'Depends',
-      category: 'Trees',
-      color: AppColors.purple,
-      icon: Icons.device_hub_rounded,
-      difficulty: 'Medium',
-    ),
-
-    AlgorithmItem(
-      title: 'Binary Search Tree',
-      description:
-          'An ordered tree structure designed for efficient searching.',
-      complexity: 'Avg O(log n)',
-      category: 'Trees',
-      color: AppColors.blue,
-      icon: Icons.schema_rounded,
-      difficulty: 'Medium',
-    ),
-  ];
+  List<AlgorithmItem> _algorithmsForCategory(String category) {
+    return algorithms
+        .where((algorithm) => algorithm.category == category)
+        .toList(growable: false);
+  }
 
   // ==============================================================
   // DISPOSE
@@ -347,9 +121,8 @@ AlgorithmItem(
   // ==============================================================
 
   void _toggleTheme() {
-    setState(() {
-      isDarkMode = !isDarkMode;
-    });
+    ThemeController.instance.toggle();
+    setState(() {});
   }
 
   // ==============================================================
@@ -426,179 +199,15 @@ AlgorithmItem(
   // ==============================================================
 
   void _openAlgorithm(AlgorithmItem item) {
-    // ------------------------------------------------------------
-    // LINEAR SEARCH
-    // ------------------------------------------------------------
+    final screen = AlgorithmRegistry.buildScreen(item.id);
 
-    if (item.title == 'Linear Search') {
+    if (screen != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const LinearSearchScreen()),
-      );
-
-      return;
-    }
-
-    // ------------------------------------------------------------
-    // BINARY SEARCH
-    // ------------------------------------------------------------
-
-    if (item.title == 'Binary Search') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BinarySearchScreen()),
-      );
-
-      return;
-    }
-
-    //Bubble Sort
-    if (item.title == 'Bubble Sort') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BubbleSortScreen()),
-      );
-
-      return;
-    }
-
-    // Jump Search //
-    if (item.title == 'Jump Search') {
-      // Navigate to Jump Search screen
-      // Replace with your actual Jump Search screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const JumpSearchScreen()),
-      );
-
-      return;
-    }
-
-    // Interpolation Search //
-    if (item.title == 'Interpolation Search') {
-      // Navigate to Interpolation Search screen
-      // Replace with your actual Interpolation Search screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const InterpolationSearchScreen()),
-      );
-
-      return;
-    }
-
-    // Selection Sort
-    if (item.title == 'Selection Sort') {
-      // Navigate to Selection Sort screen
-      // Replace with your actual Selection Sort screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const SelectionSortScreen()),
-      );
-
-      return;
-    }
-
-    // Insertion Sort//
-    if (item.title == 'Insertion Sort') {
-      // Navigate to Insertion Sort screen
-      // Replace with your actual Insertion Sort screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const InsertionSortScreen()),
-      );
-
-      return;
-    }
-
-    // Merge Sort
-    if (item.title == 'Merge Sort') {
-      // Navigate to Merge Sort screen
-      // Replace with your actual Merge Sort screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const MergeSortScreen()),
-      );
-
-      return;
-    }
-
-    // Quick Sort //
-    if (item.title == 'Quick Sort') {
-      // Navigate to Quick Sort screen
-      // Replace with your actual Quick Sort screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const QuickSortScreen()),
-      );
-
-      return;
-    }
-
-    // Heap Sort //
-    if (item.title == 'Heap Sort') {
-      // Navigate to Heap Sort screen
-      // Replace with your actual Heap Sort screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const HeapSortScreen()),
-      );
-
-      return;
-    }
-
-
-// Tree Algorithms //
-// Preorder Traversal //
-    if (item.title == 'Preorder Traversal') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const PreorderTraversalScreen(),
-        ),
-      );
-
-      return;
-    }
-
-    //Inorder Traversal //
-    if (item.title == 'Inorder Traversal') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const InorderTraversalScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => screen),
       );
       return;
     }
-
-    // Postorder Traversal //
-    if (item.title == 'Postorder Traversal') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const PostorderTraversalScreen(),
-        ),
-      );
-      return;
-    }
-
-    // Graph Algorithms //
-
-    // Dijkstra algorithm //
-
-    if (item.title == 'Dijkstra') {
-      // Navigate to Dijkstra algorithm screen
-      // Replace with your actual Dijkstra algorithm screen widget
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const DijkstraScreen()),
-      );
-
-      return;
-    }
-    // ------------------------------------------------------------
-    // FUTURE ALGORITHMS
-    // ------------------------------------------------------------
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -615,7 +224,7 @@ AlgorithmItem(
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  '${item.title} selected',
+                  '${item.title} is coming soon',
                   style: TextStyle(
                     color: _primaryText,
                     fontWeight: FontWeight.w600,
@@ -697,7 +306,7 @@ AlgorithmItem(
                     isSidebarOpen = false;
                   });
                 },
-                child: Container(color: Colors.black.withOpacity(.55)),
+                child: Container(color: Colors.black.withValues(alpha: 0.55)),
               ),
             ),
 
@@ -777,10 +386,10 @@ AlgorithmItem(
                 : 28,
           ),
           decoration: BoxDecoration(
-            color: _background.withOpacity(.97),
+            color: _background.withValues(alpha: 0.97),
             border: Border(
               bottom: BorderSide(
-                color: AppColors.cyan.withOpacity(isDarkMode ? .08 : .18),
+                color: AppColors.cyan.withValues(alpha: isDarkMode ? 0.08 : 0.18),
               ),
             ),
           ),
@@ -841,7 +450,7 @@ AlgorithmItem(
         decoration: BoxDecoration(
           color: _background2,
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: AppColors.cyan.withOpacity(.18)),
+          border: Border.all(color: AppColors.cyan.withValues(alpha: 0.18)),
         ),
         child: Icon(
           mobile
@@ -904,7 +513,7 @@ AlgorithmItem(
       decoration: BoxDecoration(
         color: _background2,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: AppColors.cyan.withOpacity(.16)),
+        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.16)),
       ),
       child: TextField(
         onChanged: (value) {
@@ -949,9 +558,9 @@ AlgorithmItem(
         decoration: BoxDecoration(
           color: _background2,
           borderRadius: BorderRadius.circular(13),
-          border: Border.all(color: AppColors.cyan.withOpacity(.14)),
+          border: Border.all(color: AppColors.cyan.withValues(alpha: 0.14)),
         ),
-        child: Icon(icon, color: _primaryText.withOpacity(.75), size: 21),
+        child: Icon(icon, color: _primaryText.withValues(alpha: 0.75), size: 21),
       ),
     );
   }
@@ -1040,50 +649,40 @@ AlgorithmItem(
                       title: 'Searching',
                       icon: Icons.search_rounded,
                       color: AppColors.green,
-                      count: 4,
-                      algorithms: const [
-                        'Linear Search',
-                        'Binary Search',
-                        'Jump Search',
-                        'Interpolation Search',
-                      ],
+                      count: _algorithmsForCategory('Searching').length,
+                      algorithms: _algorithmsForCategory('Searching')
+                          .map((algorithm) => algorithm.title)
+                          .toList(growable: false),
                     ),
 
                     _categoryGroup(
                       title: 'Sorting',
                       icon: Icons.bar_chart_rounded,
                       color: AppColors.purple,
-                      count: 6,
-                      algorithms: const [
-                        'Bubble Sort',
-                        'Selection Sort',
-                        'Insertion Sort',
-                        'Merge Sort',
-                        'Quick Sort',
-                        'Heap Sort',
-                      ],
+                      count: _algorithmsForCategory('Sorting').length,
+                      algorithms: _algorithmsForCategory('Sorting')
+                          .map((algorithm) => algorithm.title)
+                          .toList(growable: false),
                     ),
 
                     _categoryGroup(
-                      title: 'Graph',
+                      title: 'Graphs',
                       icon: Icons.hub_rounded,
                       color: AppColors.blue,
-                      count: 3,
-                      algorithms: const ['Dijkstra', 'BFS', 'DFS'],
+                      count: _algorithmsForCategory('Graphs').length,
+                      algorithms: _algorithmsForCategory('Graphs')
+                          .map((algorithm) => algorithm.title)
+                          .toList(growable: false),
                     ),
 
                     _categoryGroup(
                       title: 'Trees',
                       icon: Icons.account_tree_rounded,
                       color: AppColors.orange,
-                      count: 5,
-                      algorithms: const [
-                        'Preorder Traversal',
-                        'Inorder Traversal',
-                        'Postorder Traversal',
-                        'Binary Tree',
-                        'Binary Search Tree',
-                      ],
+                      count: _algorithmsForCategory('Trees').length,
+                      algorithms: _algorithmsForCategory('Trees')
+                          .map((algorithm) => algorithm.title)
+                          .toList(growable: false),
                     ),
                   ],
                 ),
@@ -1101,7 +700,7 @@ AlgorithmItem(
                 decoration: BoxDecoration(
                   color: _sidebarSearchBackground,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.cyan.withOpacity(.14)),
+                  border: Border.all(color: AppColors.cyan.withValues(alpha: 0.14)),
                 ),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -1143,11 +742,11 @@ AlgorithmItem(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         decoration: BoxDecoration(
-          color: active ? AppColors.cyan.withOpacity(.08) : Colors.transparent,
+          color: active ? AppColors.cyan.withValues(alpha: 0.08) : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: active
-                ? AppColors.cyan.withOpacity(.22)
+                ? AppColors.cyan.withValues(alpha: 0.22)
                 : Colors.transparent,
           ),
         ),
@@ -1158,7 +757,7 @@ AlgorithmItem(
               height: 38,
               decoration: BoxDecoration(
                 color: active
-                    ? AppColors.cyan.withOpacity(.10)
+                    ? AppColors.cyan.withValues(alpha: 0.10)
                     : _sidebarSearchBackground,
                 borderRadius: BorderRadius.circular(11),
               ),
@@ -1208,7 +807,7 @@ AlgorithmItem(
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.cyan.withOpacity(.35),
+                      color: AppColors.cyan.withValues(alpha: 0.35),
                       blurRadius: 8,
                     ),
                   ],
@@ -1231,7 +830,7 @@ AlgorithmItem(
         color: _sidebarSearchBackground,
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-          color: AppColors.cyan.withOpacity(isDarkMode ? .12 : .20),
+          color: AppColors.cyan.withValues(alpha: isDarkMode ? 0.12 : 0.20),
         ),
       ),
       child: TextField(
@@ -1281,9 +880,9 @@ AlgorithmItem(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(.055),
+            color: color.withValues(alpha: 0.055),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: color.withOpacity(.15)),
+            border: Border.all(color: color.withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
@@ -1291,7 +890,7 @@ AlgorithmItem(
                 width: 35,
                 height: 35,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(.10),
+                  color: color.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 18),
@@ -1313,7 +912,7 @@ AlgorithmItem(
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(.08),
+                  color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -1355,7 +954,7 @@ AlgorithmItem(
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      color: item.color.withOpacity(.75),
+                      color: item.color.withValues(alpha: 0.75),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -1377,7 +976,7 @@ AlgorithmItem(
 
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: _mutedText.withOpacity(.55),
+                    color: _mutedText.withValues(alpha: 0.55),
                     size: 16,
                   ),
                 ],
@@ -1435,9 +1034,9 @@ AlgorithmItem(
 
             _collapsedSidebarItem(
               icon: Icons.hub_rounded,
-              active: selectedCategory == 'Graph',
+              active: selectedCategory == 'Graphs',
               color: AppColors.blue,
-              onTap: () => _selectCategory('Graph'),
+              onTap: () => _selectCategory('Graphs'),
             ),
 
             const SizedBox(height: 12),
@@ -1486,10 +1085,10 @@ AlgorithmItem(
         width: 54,
         height: 54,
         decoration: BoxDecoration(
-          color: active ? itemColor.withOpacity(.10) : Colors.transparent,
+          color: active ? itemColor.withValues(alpha: 0.10) : Colors.transparent,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: active ? itemColor.withOpacity(.30) : Colors.transparent,
+            color: active ? itemColor.withValues(alpha: 0.30) : Colors.transparent,
           ),
         ),
         child: Icon(icon, color: active ? itemColor : _secondaryText, size: 24),
@@ -1511,7 +1110,7 @@ AlgorithmItem(
           colors: [AppColors.cyan, AppColors.blue],
         ),
         boxShadow: [
-          BoxShadow(color: AppColors.cyan.withOpacity(.22), blurRadius: 25),
+          BoxShadow(color: AppColors.cyan.withValues(alpha: 0.22), blurRadius: 25),
         ],
       ),
       child: Icon(
@@ -1695,9 +1294,9 @@ AlgorithmItem(
               end: Alignment.bottomRight,
               colors: [Color(0xFF071B36), Color(0xFF080F22), Color(0xFF180A2F)],
             ),
-            border: Border.all(color: AppColors.cyan.withOpacity(.25)),
+            border: Border.all(color: AppColors.cyan.withValues(alpha: 0.25)),
             boxShadow: [
-              BoxShadow(color: AppColors.cyan.withOpacity(.07), blurRadius: 35),
+              BoxShadow(color: AppColors.cyan.withValues(alpha: 0.07), blurRadius: 35),
             ],
           ),
           child: Stack(
@@ -1829,9 +1428,9 @@ AlgorithmItem(
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: AppColors.cyan.withOpacity(.10),
+        color: AppColors.cyan.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.cyan.withOpacity(.30)),
+        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.30)),
       ),
       child: const Text(
         'WELCOME TO THE LAB',
@@ -1855,10 +1454,10 @@ AlgorithmItem(
       height: 125,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.cyan.withOpacity(.06),
-        border: Border.all(color: AppColors.cyan.withOpacity(.20)),
+        color: AppColors.cyan.withValues(alpha: 0.06),
+        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.20)),
         boxShadow: [
-          BoxShadow(color: AppColors.cyan.withOpacity(.10), blurRadius: 35),
+          BoxShadow(color: AppColors.cyan.withValues(alpha: 0.10), blurRadius: 35),
         ],
       ),
       child: Stack(
@@ -1869,7 +1468,7 @@ AlgorithmItem(
             height: 85,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.blue.withOpacity(.30)),
+              border: Border.all(color: AppColors.blue.withValues(alpha: 0.30)),
             ),
           ),
 
@@ -1878,8 +1477,8 @@ AlgorithmItem(
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.purple.withOpacity(.12),
-              border: Border.all(color: AppColors.purple.withOpacity(.35)),
+              color: AppColors.purple.withValues(alpha: 0.12),
+              border: Border.all(color: AppColors.purple.withValues(alpha: 0.35)),
             ),
             child: const Icon(
               Icons.account_tree_rounded,
@@ -1913,9 +1512,9 @@ AlgorithmItem(
               width: 43,
               height: 43,
               decoration: BoxDecoration(
-                color: color.withOpacity(.08),
+                color: color.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withOpacity(.20)),
+                border: Border.all(color: color.withValues(alpha: 0.20)),
               ),
               child: Icon(icon, color: color, size: 21),
             ),
@@ -1954,9 +1553,9 @@ AlgorithmItem(
         final countChip = Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: color.withOpacity(.08),
+            color: color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: color.withOpacity(.30)),
+            border: Border.all(color: color.withValues(alpha: 0.30)),
           ),
           child: Text(
             '$count ALGORITHMS',
@@ -2049,7 +1648,7 @@ AlgorithmItem(
       decoration: BoxDecoration(
         color: _cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.cyan.withOpacity(.16)),
+        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.16)),
       ),
       child: Column(
         children: [
@@ -2151,6 +1750,7 @@ AlgorithmItem(
 // ====================================================================
 
 class AlgorithmItem {
+  final String id;
   final String title;
   final String description;
   final String complexity;
@@ -2160,6 +1760,7 @@ class AlgorithmItem {
   final String difficulty;
 
   const AlgorithmItem({
+    required this.id,
     required this.title,
     required this.description,
     required this.complexity,
@@ -2235,13 +1836,13 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
             color: cardColor,
             borderRadius: BorderRadius.circular(mobile ? 18 : 20),
             border: Border.all(
-              color: hovered ? color.withOpacity(.45) : color.withOpacity(.20),
+              color: hovered ? color.withValues(alpha: 0.45) : color.withValues(alpha: 0.20),
             ),
             boxShadow: [
               BoxShadow(
                 color: widget.isDarkMode
-                    ? color.withOpacity(hovered ? .12 : .02)
-                    : Colors.black.withOpacity(hovered ? .10 : .05),
+                    ? color.withValues(alpha: hovered ? 0.12 : 0.02)
+                    : Colors.black.withValues(alpha: hovered ? 0.10 : 0.05),
                 blurRadius: hovered ? 24 : 14,
                 offset: const Offset(0, 6),
               ),
@@ -2259,8 +1860,8 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                       height: mobile ? 44 : 47,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(13),
-                        color: color.withOpacity(.10),
-                        border: Border.all(color: color.withOpacity(.18)),
+                        color: color.withValues(alpha: 0.10),
+                        border: Border.all(color: color.withValues(alpha: 0.18)),
                       ),
                       child: Icon(
                         widget.item.icon,
@@ -2294,7 +1895,7 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                       decoration: BoxDecoration(
                         color: _difficultyColor(
                           widget.item.difficulty,
-                        ).withOpacity(.10),
+                        ).withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: Text(
@@ -2334,7 +1935,7 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(.09),
+                        color: color.withValues(alpha: 0.09),
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Row(
@@ -2360,7 +1961,7 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
 
                     Icon(
                       Icons.arrow_forward_rounded,
-                      color: hovered ? color : secondaryText.withOpacity(.60),
+                      color: hovered ? color : secondaryText.withValues(alpha: 0.60),
                       size: 19,
                     ),
                   ],
@@ -2423,12 +2024,12 @@ class StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: color.withOpacity(.20)),
+        border: Border.all(color: color.withValues(alpha: 0.20)),
         boxShadow: isDarkMode
             ? []
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 14,
                   offset: const Offset(0, 5),
                 ),
@@ -2441,7 +2042,7 @@ class StatCard extends StatelessWidget {
             height: 43,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: color.withOpacity(.10),
+              color: color.withValues(alpha: 0.10),
             ),
             child: Icon(icon, color: color, size: 21),
           ),
@@ -2501,8 +2102,8 @@ class _Glow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              color.withOpacity(.10),
-              color.withOpacity(.025),
+              color.withValues(alpha: 0.10),
+              color.withValues(alpha: 0.025),
               Colors.transparent,
             ],
           ),
@@ -2525,8 +2126,8 @@ class DashboardGridPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = isDarkMode
-          ? Colors.white.withOpacity(.018)
-          : const Color(0xFF94A3B8).withOpacity(.16)
+          ? Colors.white.withValues(alpha: 0.018)
+          : const Color(0xFF94A3B8).withValues(alpha: 0.16)
       ..strokeWidth = .7;
 
     const spacing = 45.0;
