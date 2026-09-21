@@ -52,8 +52,7 @@ class PreorderEvent {
   });
 }
 
-class _PreorderTraversalScreenState
-    extends State<PreorderTraversalScreen> {
+class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
   static const background = Color(0xFF030712);
   static const cardColor = Color(0xFF0B1428);
   static const visualizationColor = Color(0xFF081120);
@@ -64,8 +63,9 @@ class _PreorderTraversalScreenState
   static const orange = Color(0xFFFFB300);
   static const pink = Color(0xFFFF4081);
 
-  final TextEditingController arrayController =
-      TextEditingController(text: '1, 2, 3, 4, 5, 6, 7');
+  final TextEditingController arrayController = TextEditingController(
+    text: '1, 2, 3, 4, 5, 6, 7',
+  );
 
   List<int> tree = [1, 2, 3, 4, 5, 6, 7];
   List<int> originalTree = [1, 2, 3, 4, 5, 6, 7];
@@ -136,29 +136,33 @@ class _PreorderTraversalScreenState
     final result = <int>[];
     final visited = <int>{};
 
-    generated.add(const PreorderEvent(
-      type: PreorderEventType.initialize,
-      nodeIndex: 0,
-      result: [],
-      visited: {},
-      title: 'Initialize',
-      description: 'Start recursive preorder traversal from the root.',
-      operation: 'preorder(root)',
-    ));
+    generated.add(
+      const PreorderEvent(
+        type: PreorderEventType.initialize,
+        nodeIndex: 0,
+        result: [],
+        visited: {},
+        title: 'Initialize',
+        description: 'Start recursive preorder traversal from the root.',
+        operation: 'preorder(root)',
+      ),
+    );
 
     if (tree.isNotEmpty) {
       _walkPreorder(0, generated, result, visited);
     }
 
-    generated.add(PreorderEvent(
-      type: PreorderEventType.complete,
-      nodeIndex: -1,
-      result: List<int>.from(result),
-      visited: Set<int>.from(visited),
-      title: 'Traversal Complete',
-      description: 'All nodes have been visited in preorder.',
-      operation: 'return result',
-    ));
+    generated.add(
+      PreorderEvent(
+        type: PreorderEventType.complete,
+        nodeIndex: -1,
+        result: List<int>.from(result),
+        visited: Set<int>.from(visited),
+        title: 'Traversal Complete',
+        description: 'All nodes have been visited in preorder.',
+        operation: 'return result',
+      ),
+    );
 
     events = generated;
   }
@@ -169,144 +173,164 @@ class _PreorderTraversalScreenState
     final visited = <int>{};
     final stack = <int>[];
 
-    generated.add(const PreorderEvent(
-      type: PreorderEventType.initialize,
-      nodeIndex: 0,
-      result: [],
-      visited: {},
-      stack: [],
-      title: 'Initialize',
-      description:
-          'Start non-recursive preorder using an explicit stack instead of the call stack.',
-      operation: 'Stack stack = []',
-    ));
-
-    if (tree.isEmpty) {
-      generated.add(const PreorderEvent(
-        type: PreorderEventType.complete,
-        nodeIndex: -1,
+    generated.add(
+      const PreorderEvent(
+        type: PreorderEventType.initialize,
+        nodeIndex: 0,
         result: [],
         visited: {},
         stack: [],
-        title: 'Traversal Complete',
-        description: 'The tree is empty.',
-        operation: 'return result',
-      ));
+        title: 'Initialize',
+        description:
+            'Start non-recursive preorder using an explicit stack instead of the call stack.',
+        operation: 'Stack stack = []',
+      ),
+    );
+
+    if (tree.isEmpty) {
+      generated.add(
+        const PreorderEvent(
+          type: PreorderEventType.complete,
+          nodeIndex: -1,
+          result: [],
+          visited: {},
+          stack: [],
+          title: 'Traversal Complete',
+          description: 'The tree is empty.',
+          operation: 'return result',
+        ),
+      );
       events = generated;
       return;
     }
 
     stack.add(0);
-    generated.add(PreorderEvent(
-      type: PreorderEventType.push,
-      nodeIndex: 0,
-      result: const [],
-      visited: const {},
-      stack: List<int>.from(stack),
-      title: 'Push Root ${tree[0]}',
-      description: 'Push the root onto the stack to begin iteration.',
-      operation: 'stack.push(root)',
-    ));
+    generated.add(
+      PreorderEvent(
+        type: PreorderEventType.push,
+        nodeIndex: 0,
+        result: const [],
+        visited: const {},
+        stack: List<int>.from(stack),
+        title: 'Push Root ${tree[0]}',
+        description: 'Push the root onto the stack to begin iteration.',
+        operation: 'stack.push(root)',
+      ),
+    );
 
     while (stack.isNotEmpty) {
       final index = stack.removeLast();
       final value = tree[index];
 
-      generated.add(PreorderEvent(
-        type: PreorderEventType.pop,
-        nodeIndex: index,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        stack: List<int>.from(stack),
-        title: 'Pop Node $value',
-        description:
-            'Stack is not empty. Pop $value and process it as the current node.',
-        operation: 'node = stack.pop()',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.pop,
+          nodeIndex: index,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          stack: List<int>.from(stack),
+          title: 'Pop Node $value',
+          description:
+              'Stack is not empty. Pop $value and process it as the current node.',
+          operation: 'node = stack.pop()',
+        ),
+      );
 
       result.add(value);
       visited.add(index);
 
-      generated.add(PreorderEvent(
-        type: PreorderEventType.visit,
-        nodeIndex: index,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        stack: List<int>.from(stack),
-        title: 'Visit Node $value',
-        description: 'Visit $value and add it to the preorder result.',
-        operation: 'visit(node)',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.visit,
+          nodeIndex: index,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          stack: List<int>.from(stack),
+          title: 'Visit Node $value',
+          description: 'Visit $value and add it to the preorder result.',
+          operation: 'visit(node)',
+        ),
+      );
 
       final right = _right(index);
       final left = _left(index);
 
       if (right < tree.length) {
         stack.add(right);
-        generated.add(PreorderEvent(
-          type: PreorderEventType.push,
-          nodeIndex: index,
-          childIndex: right,
-          result: List<int>.from(result),
-          visited: Set<int>.from(visited),
-          stack: List<int>.from(stack),
-          title: 'Push Right ${tree[right]}',
-          description:
-              'Push the right child first so the left child is processed next (LIFO).',
-          operation: 'stack.push(node.right)',
-        ));
+        generated.add(
+          PreorderEvent(
+            type: PreorderEventType.push,
+            nodeIndex: index,
+            childIndex: right,
+            result: List<int>.from(result),
+            visited: Set<int>.from(visited),
+            stack: List<int>.from(stack),
+            title: 'Push Right ${tree[right]}',
+            description:
+                'Push the right child first so the left child is processed next (LIFO).',
+            operation: 'stack.push(node.right)',
+          ),
+        );
       } else {
-        generated.add(PreorderEvent(
-          type: PreorderEventType.nullChild,
-          nodeIndex: index,
-          result: List<int>.from(result),
-          visited: Set<int>.from(visited),
-          stack: List<int>.from(stack),
-          title: 'Right Child is Null',
-          description: 'Node $value has no right child to push.',
-          operation: 'node.right == null',
-        ));
+        generated.add(
+          PreorderEvent(
+            type: PreorderEventType.nullChild,
+            nodeIndex: index,
+            result: List<int>.from(result),
+            visited: Set<int>.from(visited),
+            stack: List<int>.from(stack),
+            title: 'Right Child is Null',
+            description: 'Node $value has no right child to push.',
+            operation: 'node.right == null',
+          ),
+        );
       }
 
       if (left < tree.length) {
         stack.add(left);
-        generated.add(PreorderEvent(
-          type: PreorderEventType.push,
-          nodeIndex: index,
-          childIndex: left,
-          result: List<int>.from(result),
-          visited: Set<int>.from(visited),
-          stack: List<int>.from(stack),
-          title: 'Push Left ${tree[left]}',
-          description:
-              'Push the left child last so it is popped first and visited next.',
-          operation: 'stack.push(node.left)',
-        ));
+        generated.add(
+          PreorderEvent(
+            type: PreorderEventType.push,
+            nodeIndex: index,
+            childIndex: left,
+            result: List<int>.from(result),
+            visited: Set<int>.from(visited),
+            stack: List<int>.from(stack),
+            title: 'Push Left ${tree[left]}',
+            description:
+                'Push the left child last so it is popped first and visited next.',
+            operation: 'stack.push(node.left)',
+          ),
+        );
       } else {
-        generated.add(PreorderEvent(
-          type: PreorderEventType.nullChild,
-          nodeIndex: index,
-          result: List<int>.from(result),
-          visited: Set<int>.from(visited),
-          stack: List<int>.from(stack),
-          title: 'Left Child is Null',
-          description: 'Node $value has no left child to push.',
-          operation: 'node.left == null',
-        ));
+        generated.add(
+          PreorderEvent(
+            type: PreorderEventType.nullChild,
+            nodeIndex: index,
+            result: List<int>.from(result),
+            visited: Set<int>.from(visited),
+            stack: List<int>.from(stack),
+            title: 'Left Child is Null',
+            description: 'Node $value has no left child to push.',
+            operation: 'node.left == null',
+          ),
+        );
       }
     }
 
-    generated.add(PreorderEvent(
-      type: PreorderEventType.complete,
-      nodeIndex: -1,
-      result: List<int>.from(result),
-      visited: Set<int>.from(visited),
-      stack: const [],
-      title: 'Traversal Complete',
-      description:
-          'The stack is empty, so every node has been visited in preorder.',
-      operation: 'stack.isEmpty',
-    ));
+    generated.add(
+      PreorderEvent(
+        type: PreorderEventType.complete,
+        nodeIndex: -1,
+        result: List<int>.from(result),
+        visited: Set<int>.from(visited),
+        stack: const [],
+        title: 'Traversal Complete',
+        description:
+            'The stack is empty, so every node has been visited in preorder.',
+        operation: 'stack.isEmpty',
+      ),
+    );
 
     events = generated;
   }
@@ -324,96 +348,110 @@ class _PreorderTraversalScreenState
     result.add(value);
     visited.add(index);
 
-    generated.add(PreorderEvent(
-      type: PreorderEventType.visit,
-      nodeIndex: index,
-      result: List<int>.from(result),
-      visited: Set<int>.from(visited),
-      title: 'Visit Node $value',
-      description: 'Visit $value and add it to the preorder result.',
-      operation: 'visit(node)',
-    ));
+    generated.add(
+      PreorderEvent(
+        type: PreorderEventType.visit,
+        nodeIndex: index,
+        result: List<int>.from(result),
+        visited: Set<int>.from(visited),
+        title: 'Visit Node $value',
+        description: 'Visit $value and add it to the preorder result.',
+        operation: 'visit(node)',
+      ),
+    );
 
     final left = _left(index);
 
     if (left < tree.length) {
-      generated.add(PreorderEvent(
-        type: PreorderEventType.goLeft,
-        nodeIndex: index,
-        childIndex: left,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        title: 'Go Left: $value → ${tree[left]}',
-        description: 'Recursively enter the left subtree of $value.',
-        operation: 'preorder(node.left)',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.goLeft,
+          nodeIndex: index,
+          childIndex: left,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          title: 'Go Left: $value → ${tree[left]}',
+          description: 'Recursively enter the left subtree of $value.',
+          operation: 'preorder(node.left)',
+        ),
+      );
 
       _walkPreorder(left, generated, result, visited);
 
       // IMPORTANT:
       // Recursion returns to the immediate parent, not to root.
-      generated.add(PreorderEvent(
-        type: PreorderEventType.backtrack,
-        nodeIndex: index,
-        childIndex: index,
-        fromIndex: left,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        title: 'Backtrack: ${tree[left]} → $value',
-        description:
-            'Left subtree finished. Return from ${tree[left]} to parent $value.',
-        operation: 'return to $value',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.backtrack,
+          nodeIndex: index,
+          childIndex: index,
+          fromIndex: left,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          title: 'Backtrack: ${tree[left]} → $value',
+          description:
+              'Left subtree finished. Return from ${tree[left]} to parent $value.',
+          operation: 'return to $value',
+        ),
+      );
     } else {
-      generated.add(PreorderEvent(
-        type: PreorderEventType.nullChild,
-        nodeIndex: index,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        title: 'Left Child is Null',
-        description: 'Node $value has no left child.',
-        operation: 'node.left == null',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.nullChild,
+          nodeIndex: index,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          title: 'Left Child is Null',
+          description: 'Node $value has no left child.',
+          operation: 'node.left == null',
+        ),
+      );
     }
 
     final right = _right(index);
 
     if (right < tree.length) {
-      generated.add(PreorderEvent(
-        type: PreorderEventType.goRight,
-        nodeIndex: index,
-        childIndex: right,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        title: 'Go Right: $value → ${tree[right]}',
-        description: 'Recursively enter the right subtree of $value.',
-        operation: 'preorder(node.right)',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.goRight,
+          nodeIndex: index,
+          childIndex: right,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          title: 'Go Right: $value → ${tree[right]}',
+          description: 'Recursively enter the right subtree of $value.',
+          operation: 'preorder(node.right)',
+        ),
+      );
 
       _walkPreorder(right, generated, result, visited);
 
-      generated.add(PreorderEvent(
-        type: PreorderEventType.backtrack,
-        nodeIndex: index,
-        childIndex: index,
-        fromIndex: right,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        title: 'Backtrack: ${tree[right]} → $value',
-        description:
-            'Right subtree finished. Return from ${tree[right]} to parent $value.',
-        operation: 'return to $value',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.backtrack,
+          nodeIndex: index,
+          childIndex: index,
+          fromIndex: right,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          title: 'Backtrack: ${tree[right]} → $value',
+          description:
+              'Right subtree finished. Return from ${tree[right]} to parent $value.',
+          operation: 'return to $value',
+        ),
+      );
     } else {
-      generated.add(PreorderEvent(
-        type: PreorderEventType.nullChild,
-        nodeIndex: index,
-        result: List<int>.from(result),
-        visited: Set<int>.from(visited),
-        title: 'Right Child is Null',
-        description: 'Node $value has no right child.',
-        operation: 'node.right == null',
-      ));
+      generated.add(
+        PreorderEvent(
+          type: PreorderEventType.nullChild,
+          nodeIndex: index,
+          result: List<int>.from(result),
+          visited: Set<int>.from(visited),
+          title: 'Right Child is Null',
+          description: 'Node $value has no right child.',
+          operation: 'node.right == null',
+        ),
+      );
     }
   }
 
@@ -422,8 +460,9 @@ class _PreorderTraversalScreenState
       currentIndex = event.nodeIndex;
       exploringIndex = event.childIndex;
       backtrackFrom = event.fromIndex;
-      backtrackTo =
-          event.type == PreorderEventType.backtrack ? event.nodeIndex : -1;
+      backtrackTo = event.type == PreorderEventType.backtrack
+          ? event.nodeIndex
+          : -1;
       traversalResult = List<int>.from(event.result);
       visitedIndexes = Set<int>.from(event.visited);
       stackSnapshot = List<int>.from(event.stack);
@@ -449,8 +488,7 @@ class _PreorderTraversalScreenState
         backtrackTo = -1;
         isRunning = false;
         isCompleted = true;
-        executionMessage =
-            'Preorder Complete: ${event.result.join(' → ')}';
+        executionMessage = 'Preorder Complete: ${event.result.join(' → ')}';
       }
     });
   }
@@ -596,8 +634,7 @@ class _PreorderTraversalScreenState
 
   void _generateTree() {
     final random = Random();
-    final values =
-        List.generate(7, (_) => random.nextInt(90) + 10);
+    final values = List.generate(7, (_) => random.nextInt(90) + 10);
 
     arrayController.text = values.join(', ');
 
@@ -735,9 +772,9 @@ class _PreorderTraversalScreenState
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: cyan.withOpacity(.10),
+            color: cyan.withValues(alpha: .10),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cyan.withOpacity(.25)),
+            border: Border.all(color: cyan.withValues(alpha: .25)),
           ),
           child: const Icon(Icons.account_tree_rounded, color: cyan),
         ),
@@ -776,9 +813,9 @@ class _PreorderTraversalScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(.08),
+        color: color.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(.22)),
+        border: Border.all(color: color.withValues(alpha: .22)),
       ),
       child: Text(
         text,
@@ -800,9 +837,7 @@ class _PreorderTraversalScreenState
           _infoBox('ORDER', 'Root → Left → Right', cyan),
           _infoBox(
             'METHOD',
-            method == PreorderMethod.recursive
-                ? 'Recursive'
-                : 'Non-recursive',
+            method == PreorderMethod.recursive ? 'Recursive' : 'Non-recursive',
             purple,
           ),
           _infoBox('TYPE', 'DFS', orange),
@@ -820,13 +855,11 @@ class _PreorderTraversalScreenState
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: Colors.white.withOpacity(.10)),
+        border: Border.all(color: Colors.white.withValues(alpha: .10)),
       ),
       child: Row(
         children: [
-          Expanded(
-            child: _methodButton(PreorderMethod.recursive, 'RECURSIVE'),
-          ),
+          Expanded(child: _methodButton(PreorderMethod.recursive, 'RECURSIVE')),
           Expanded(
             child: _methodButton(PreorderMethod.iterative, 'NON-RECURSIVE'),
           ),
@@ -858,7 +891,7 @@ class _PreorderTraversalScreenState
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? cyan.withOpacity(.16) : Colors.transparent,
+          color: selected ? cyan.withValues(alpha: .16) : Colors.transparent,
           borderRadius: BorderRadius.circular(7),
         ),
         child: Text(
@@ -902,8 +935,9 @@ class _PreorderTraversalScreenState
                   fillColor: visualizationColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide:
-                        BorderSide(color: Colors.white.withOpacity(.08)),
+                    borderSide: BorderSide(
+                      color: Colors.white.withValues(alpha: .08),
+                    ),
                   ),
                 ),
               );
@@ -913,16 +947,12 @@ class _PreorderTraversalScreenState
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _generateTree,
-                      icon: const Icon(
-                        Icons.auto_awesome_rounded,
-                        size: 17,
-                      ),
+                      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
                       label: const Text('GENERATE'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: purple,
                         foregroundColor: Colors.white,
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),
@@ -930,16 +960,12 @@ class _PreorderTraversalScreenState
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _loadTree,
-                      icon: const Icon(
-                        Icons.download_rounded,
-                        size: 17,
-                      ),
+                      icon: const Icon(Icons.download_rounded, size: 17),
                       label: const Text('LOAD TREE'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: cyan,
                         foregroundColor: background,
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),
@@ -948,11 +974,7 @@ class _PreorderTraversalScreenState
 
               if (stacked) {
                 return Column(
-                  children: [
-                    field,
-                    const SizedBox(height: 9),
-                    buttons,
-                  ],
+                  children: [field, const SizedBox(height: 9), buttons],
                 );
               }
 
@@ -969,7 +991,7 @@ class _PreorderTraversalScreenState
           Text(
             'Array representation: left = 2i + 1, right = 2i + 2',
             style: TextStyle(
-              color: Colors.white.withOpacity(.35),
+              color: Colors.white.withValues(alpha: .35),
               fontSize: 10,
             ),
           ),
@@ -979,19 +1001,14 @@ class _PreorderTraversalScreenState
   }
 
   Widget _visualization() {
-    final levels =
-        tree.isEmpty ? 1 : (log(tree.length) / log(2)).floor() + 1;
+    final levels = tree.isEmpty ? 1 : (log(tree.length) / log(2)).floor() + 1;
     final height = max(300.0, levels * 105.0);
 
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.account_tree_rounded,
-            'Visualization',
-            cyan,
-          ),
+          _sectionTitle(Icons.account_tree_rounded, 'Visualization', cyan),
           const SizedBox(height: 11),
           Row(
             children: [
@@ -1003,23 +1020,11 @@ class _PreorderTraversalScreenState
                 cyan,
               ),
               const SizedBox(width: 7),
-              _miniBadge(
-                'VISITED',
-                '${visitedIndexes.length}',
-                green,
-              ),
+              _miniBadge('VISITED', '${visitedIndexes.length}', green),
               const SizedBox(width: 7),
-              _miniBadge(
-                'RESULT',
-                '${traversalResult.length}',
-                purple,
-              ),
+              _miniBadge('RESULT', '${traversalResult.length}', purple),
               const SizedBox(width: 7),
-              _miniBadge(
-                'STEP',
-                '$currentStep/${events.length}',
-                orange,
-              ),
+              _miniBadge('STEP', '$currentStep/${events.length}', orange),
             ],
           ),
           const SizedBox(height: 12),
@@ -1030,9 +1035,7 @@ class _PreorderTraversalScreenState
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: .06)),
             ),
             child: tree.isEmpty
                 ? const Center(
@@ -1063,11 +1066,9 @@ class _PreorderTraversalScreenState
             width: double.infinity,
             padding: const EdgeInsets.all(11),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.025),
+              color: Colors.white.withValues(alpha: .025),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: Colors.white.withOpacity(.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: .06)),
             ),
             child: Text(
               executionMessage,
@@ -1120,12 +1121,8 @@ class _PreorderTraversalScreenState
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed:
-                      currentStep > 0 ? _previousStep : null,
-                  icon: const Icon(
-                    Icons.skip_previous_rounded,
-                    size: 17,
-                  ),
+                  onPressed: currentStep > 0 ? _previousStep : null,
+                  icon: const Icon(Icons.skip_previous_rounded, size: 17),
                   label: const Text('PREVIOUS'),
                 ),
               ),
@@ -1134,9 +1131,7 @@ class _PreorderTraversalScreenState
                 child: ElevatedButton.icon(
                   onPressed: _play,
                   icon: Icon(
-                    isRunning
-                        ? Icons.pause_rounded
-                        : Icons.play_arrow_rounded,
+                    isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
                   ),
                   label: Text(isRunning ? 'PAUSE' : 'PLAY'),
                   style: ElevatedButton.styleFrom(
@@ -1148,13 +1143,8 @@ class _PreorderTraversalScreenState
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: currentStep < events.length
-                      ? _nextStep
-                      : null,
-                  icon: const Icon(
-                    Icons.skip_next_rounded,
-                    size: 17,
-                  ),
+                  onPressed: currentStep < events.length ? _nextStep : null,
+                  icon: const Icon(Icons.skip_next_rounded, size: 17),
                   label: const Text('NEXT'),
                 ),
               ),
@@ -1171,10 +1161,7 @@ class _PreorderTraversalScreenState
             children: [
               const Text(
                 'Speed',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: Colors.white54, fontSize: 10),
               ),
               Expanded(
                 child: Slider(
@@ -1190,10 +1177,7 @@ class _PreorderTraversalScreenState
               ),
               Text(
                 '${speed.toStringAsFixed(1)}x',
-                style: const TextStyle(
-                  color: cyan,
-                  fontSize: 10,
-                ),
+                style: const TextStyle(color: cyan, fontSize: 10),
               ),
             ],
           ),
@@ -1238,7 +1222,7 @@ class _PreorderTraversalScreenState
               Expanded(
                 child: _sectionTitle(
                   Icons.code_rounded,
-                    _isRecursive
+                  _isRecursive
                       ? 'Recursive Source Code'
                       : 'Iterative Source Code',
                   purple,
@@ -1247,13 +1231,9 @@ class _PreorderTraversalScreenState
               IconButton(
                 tooltip: 'Copy code',
                 onPressed: () {
-                  Clipboard.setData(
-                    ClipboardData(text: code),
-                  );
+                  Clipboard.setData(ClipboardData(text: code));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Source code copied.'),
-                    ),
+                    const SnackBar(content: Text('Source code copied.')),
                   );
                 },
                 icon: const Icon(
@@ -1295,11 +1275,7 @@ class _PreorderTraversalScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.timeline_rounded,
-            'Execution Steps',
-            green,
-          ),
+          _sectionTitle(Icons.timeline_rounded, 'Execution Steps', green),
           const SizedBox(height: 9),
           if (history.isEmpty)
             Container(
@@ -1312,10 +1288,7 @@ class _PreorderTraversalScreenState
               child: const Center(
                 child: Text(
                   'Press PLAY or NEXT to start',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: Colors.white38, fontSize: 11),
                 ),
               ),
             )
@@ -1333,25 +1306,18 @@ class _PreorderTraversalScreenState
                     margin: const EdgeInsets.only(bottom: 7),
                     padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(.045),
+                      color: color.withValues(alpha: .045),
                       borderRadius: BorderRadius.circular(9),
-                      border: Border.all(
-                        color: color.withOpacity(.14),
-                      ),
+                      border: Border.all(color: color.withValues(alpha: .14)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          _eventIcon(event.type),
-                          color: color,
-                          size: 16,
-                        ),
+                        Icon(_eventIcon(event.type), color: color, size: 16),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '#${index + 1}  ${event.title}',
@@ -1400,9 +1366,7 @@ class _PreorderTraversalScreenState
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity(.065),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: .065)),
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,
@@ -1415,11 +1379,7 @@ class _PreorderTraversalScreenState
     );
   }
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1427,7 +1387,7 @@ class _PreorderTraversalScreenState
           width: 29,
           height: 29,
           decoration: BoxDecoration(
-            color: color.withOpacity(.09),
+            color: color.withValues(alpha: .09),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 16),
@@ -1445,22 +1405,13 @@ class _PreorderTraversalScreenState
     );
   }
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(.05),
+        color: color.withValues(alpha: .05),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity(.15),
-        ),
+        border: Border.all(color: color.withValues(alpha: .15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1468,7 +1419,7 @@ class _PreorderTraversalScreenState
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity(.8),
+              color: color.withValues(alpha: .8),
               fontSize: 8,
               fontWeight: FontWeight.w800,
             ),
@@ -1487,23 +1438,14 @@ class _PreorderTraversalScreenState
     );
   }
 
-  Widget _miniBadge(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 7,
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
         decoration: BoxDecoration(
-          color: color.withOpacity(.06),
+          color: color.withValues(alpha: .06),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: color.withOpacity(.16),
-          ),
+          border: Border.all(color: color.withValues(alpha: .16)),
         ),
         child: Column(
           children: [
@@ -1575,8 +1517,7 @@ class _PreorderTreePainter extends CustomPainter {
       final positionInLevel = i - first;
       final countInLevel = 1 << level;
 
-      final x =
-          size.width * (positionInLevel + 1) / (countInLevel + 1);
+      final x = size.width * (positionInLevel + 1) / (countInLevel + 1);
 
       final y = levels == 1
           ? size.height / 2
@@ -1586,17 +1527,17 @@ class _PreorderTreePainter extends CustomPainter {
     }
 
     final normalEdge = Paint()
-      ..color = Colors.white.withOpacity(.15)
+      ..color = Colors.white.withValues(alpha: .15)
       ..strokeWidth = 1.6
       ..style = PaintingStyle.stroke;
 
     final activeEdge = Paint()
-      ..color = orange.withOpacity(.95)
+      ..color = orange.withValues(alpha: .95)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
     final returnEdge = Paint()
-      ..color = blue.withOpacity(.98)
+      ..color = blue.withValues(alpha: .98)
       ..strokeWidth = 3.5
       ..style = PaintingStyle.stroke;
 
@@ -1605,30 +1546,24 @@ class _PreorderTreePainter extends CustomPainter {
       final right = i * 2 + 2;
 
       if (left < n) {
-        final isReturn =
-            backtrackFrom == left && backtrackTo == i;
+        final isReturn = backtrackFrom == left && backtrackTo == i;
         final isActive = exploringIndex == left;
 
         canvas.drawLine(
           positions[i],
           positions[left],
-          isReturn
-              ? returnEdge
-              : (isActive ? activeEdge : normalEdge),
+          isReturn ? returnEdge : (isActive ? activeEdge : normalEdge),
         );
       }
 
       if (right < n) {
-        final isReturn =
-            backtrackFrom == right && backtrackTo == i;
+        final isReturn = backtrackFrom == right && backtrackTo == i;
         final isActive = exploringIndex == right;
 
         canvas.drawLine(
           positions[i],
           positions[right],
-          isReturn
-              ? returnEdge
-              : (isActive ? activeEdge : normalEdge),
+          isReturn ? returnEdge : (isActive ? activeEdge : normalEdge),
         );
       }
     }
@@ -1650,54 +1585,45 @@ class _PreorderTreePainter extends CustomPainter {
 
     for (int i = 0; i < n; i++) {
       Color fill = const Color(0xFF111827);
-      Color border = Colors.white.withOpacity(.18);
+      Color border = Colors.white.withValues(alpha: .18);
       Color textColor = Colors.white;
 
       if (visitedIndexes.contains(i)) {
-        fill = green.withOpacity(.16);
+        fill = green.withValues(alpha: .16);
         border = green;
         textColor = green;
       }
 
       if (i == exploringIndex) {
-        fill = orange.withOpacity(.18);
+        fill = orange.withValues(alpha: .18);
         border = orange;
         textColor = orange;
       }
 
       if (i == currentIndex) {
-        fill = cyan.withOpacity(.22);
+        fill = cyan.withValues(alpha: .22);
         border = cyan;
         textColor = cyan;
       }
 
       if (i == backtrackFrom) {
-        fill = blue.withOpacity(.18);
+        fill = blue.withValues(alpha: .18);
         border = blue;
         textColor = blue;
       }
 
       final glow = Paint()
-        ..color = border.withOpacity(.24)
-        ..maskFilter =
-            const MaskFilter.blur(BlurStyle.normal, 11);
+        ..color = border.withValues(alpha: .24)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 11);
 
       if (i == currentIndex ||
           i == exploringIndex ||
           i == backtrackFrom ||
           visitedIndexes.contains(i)) {
-        canvas.drawCircle(
-          positions[i],
-          radius + 6,
-          glow,
-        );
+        canvas.drawCircle(positions[i], radius + 6, glow);
       }
 
-      canvas.drawCircle(
-        positions[i],
-        radius,
-        Paint()..color = fill,
-      );
+      canvas.drawCircle(positions[i], radius, Paint()..color = fill);
 
       canvas.drawCircle(
         positions[i],
@@ -1722,15 +1648,14 @@ class _PreorderTreePainter extends CustomPainter {
 
       text.paint(
         canvas,
-        positions[i] -
-            Offset(text.width / 2, text.height / 2),
+        positions[i] - Offset(text.width / 2, text.height / 2),
       );
 
       final indexText = TextPainter(
         text: TextSpan(
           text: '[$i]',
           style: TextStyle(
-            color: Colors.white.withOpacity(.28),
+            color: Colors.white.withValues(alpha: .28),
             fontSize: 7.5,
           ),
         ),
@@ -1739,8 +1664,7 @@ class _PreorderTreePainter extends CustomPainter {
 
       indexText.paint(
         canvas,
-        positions[i] +
-            Offset(-indexText.width / 2, radius + 4),
+        positions[i] + Offset(-indexText.width / 2, radius + 4),
       );
     }
   }
@@ -1765,13 +1689,15 @@ class _PreorderTreePainter extends CustomPainter {
     final angle = atan2(unit.dy, unit.dx);
     const arrowSize = 9.0;
 
-    final p1 = end -
+    final p1 =
+        end -
         Offset(
           cos(angle - pi / 6) * arrowSize,
           sin(angle - pi / 6) * arrowSize,
         );
 
-    final p2 = end -
+    final p2 =
+        end -
         Offset(
           cos(angle + pi / 6) * arrowSize,
           sin(angle + pi / 6) * arrowSize,
@@ -1783,16 +1709,11 @@ class _PreorderTreePainter extends CustomPainter {
       ..lineTo(p2.dx, p2.dy)
       ..close();
 
-    canvas.drawPath(
-      path,
-      paint..style = PaintingStyle.fill,
-    );
+    canvas.drawPath(path, paint..style = PaintingStyle.fill);
   }
 
   @override
-  bool shouldRepaint(
-    covariant _PreorderTreePainter oldDelegate,
-  ) {
+  bool shouldRepaint(covariant _PreorderTreePainter oldDelegate) {
     return oldDelegate.currentIndex != currentIndex ||
         oldDelegate.exploringIndex != exploringIndex ||
         oldDelegate.backtrackFrom != backtrackFrom ||

@@ -4,25 +4,26 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class BubbleSortScreen extends StatefulWidget {
-  const BubbleSortScreen({super.key});
+class EuclideanAlgorithmScreen extends StatefulWidget {
+  const EuclideanAlgorithmScreen({super.key});
 
   @override
-  State<BubbleSortScreen> createState() => _BubbleSortScreenState();
+  State<EuclideanAlgorithmScreen> createState() =>
+      _EuclideanAlgorithmScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum BubbleSortEventType { initialize, compare, noSwap, swap, sorted, complete }
+enum EuclideanEventType { initialize, calculate, remainder, complete }
 
 // ============================================================================
 // EVENT MODEL
 // ============================================================================
 
-class BubbleSortEvent {
-  final BubbleSortEventType type;
+class EuclideanEvent {
+  final EuclideanEventType type;
 
   /// Snapshot of the array at this exact event.
   final List<int> array;
@@ -39,7 +40,7 @@ class BubbleSortEvent {
   final String description;
   final String operation;
 
-  const BubbleSortEvent({
+  const EuclideanEvent({
     required this.type,
     required this.array,
     required this.index,
@@ -57,7 +58,7 @@ class BubbleSortEvent {
 // STATE
 // ============================================================================
 
-class _BubbleSortScreenState extends State<BubbleSortScreen> {
+class _EuclideanAlgorithmScreenState extends State<EuclideanAlgorithmScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
@@ -79,26 +80,26 @@ class _BubbleSortScreenState extends State<BubbleSortScreen> {
   // DATA
   // ==========================================================================
 
-  List<int> array = [64, 25, 12, 22, 11];
+  List<int> array = [48, 18];
 
   /// Original state used by Reset.
-  List<int> originalArray = [64, 25, 12, 22, 11];
+  List<int> originalArray = [48, 18];
 
   // ==========================================================================
   // CONTROLLER
   // ==========================================================================
 
   final TextEditingController arrayController = TextEditingController(
-    text: '64, 25, 12, 22, 11',
+    text: '48, 18',
   );
 
   // ==========================================================================
   // EVENTS
   // ==========================================================================
 
-  List<BubbleSortEvent> events = [];
+  List<EuclideanEvent> events = [];
 
-  List<BubbleSortEvent> executionHistory = [];
+  List<EuclideanEvent> executionHistory = [];
 
   // ==========================================================================
   // EXECUTION
@@ -119,358 +120,319 @@ class _BubbleSortScreenState extends State<BubbleSortScreen> {
   // ==========================================================================
 
   int comparingIndex = -1;
-
   int secondComparingIndex = -1;
-
   int swappingIndex = -1;
-
   int secondSwappingIndex = -1;
-
   int sortedCount = 0;
-
   Set<int> sortedIndexes = {};
-
   int activeCodeLine = 0;
-
-  String executionMessage = 'Ready to start Bubble Sort.';
-
-  // ==========================================================================
-  // SOURCE CODE
-  // ==========================================================================
+  int gcdResult = 0;
+  String executionMessage = 'Ready to start Euclidean Algorithm.';
 
   final String sourceCode = '''
-void bubbleSort(int[] arr) {
-  for (int i = 0; i < arr.length - 1; i++) {
-    bool swapped = false;
+int gcd(int a, int b) {
+  a = a.abs();
+  b = b.abs();
 
-    for (int j = 0; j < arr.length - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        int temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-        swapped = true;
-      }
-    }
-
-    if (!swapped) {
-      break;
-    }
+  while (b != 0) {
+    int remainder = a % b;
+    a = b;
+    b = remainder;
   }
+
+  return a;
 }
 ''';
-
-  // ==========================================================================
-  // INIT
-  // ==========================================================================
 
   @override
   void initState() {
     super.initState();
-
     originalArray = [...array];
-
     _generateEvents();
   }
-
-  // ==========================================================================
-  // DISPOSE
-  // ==========================================================================
 
   @override
   void dispose() {
     timer?.cancel();
     arrayController.dispose();
-
     super.dispose();
   }
 
-  // ==========================================================================
-  // GENERATE EVENTS
-  // ==========================================================================
-
   void _generateEvents() {
-    final working = [...array];
-
-    final generated = <BubbleSortEvent>[];
-
-    if (working.isEmpty) {
+    final generated = <EuclideanEvent>[];
+    if (array.length < 2) {
       events = generated;
       return;
     }
-
-    // ------------------------------------------------------------------------
-    // INITIALIZE
-    // ------------------------------------------------------------------------
+    int a = array[0].abs();
+    int b = array[1].abs();
+    int step = 0;
 
     generated.add(
-      BubbleSortEvent(
-        type: BubbleSortEventType.initialize,
-        array: [...working],
-        index: -1,
-        secondIndex: -1,
-        firstValue: -1,
-        secondValue: -1,
+      EuclideanEvent(
+        type: EuclideanEventType.initialize,
+        array: [a, b],
+        index: 0,
+        secondIndex: 1,
+        firstValue: a,
+        secondValue: b,
         sortedCount: 0,
-        title: 'Bubble Sort Initialized',
+        title: 'Euclidean Algorithm Initialized',
         description:
-            'The array will be sorted by repeatedly comparing adjacent elements.',
-        operation: 'Start Bubble Sort',
+            'Start with $a and $b and repeatedly calculate the remainder.',
+        operation: 'gcd($a, $b)',
       ),
     );
 
-    // ------------------------------------------------------------------------
-    // BUBBLE SORT
-    // ------------------------------------------------------------------------
-
-    int totalSorted = 0;
-
-    for (int i = 0; i < working.length - 1; i++) {
-      bool swapped = false;
-
-      // ----------------------------------------------------------------------
-      // INNER LOOP
-      // ----------------------------------------------------------------------
-
-      for (int j = 0; j < working.length - i - 1; j++) {
-        final left = working[j];
-        final right = working[j + 1];
-
-        // --------------------------------------------------------------------
-        // COMPARE
-        // --------------------------------------------------------------------
-
-        generated.add(
-          BubbleSortEvent(
-            type: BubbleSortEventType.compare,
-            array: [...working],
-            index: j,
-            secondIndex: j + 1,
-            firstValue: left,
-            secondValue: right,
-            sortedCount: totalSorted,
-            title: 'Comparing Adjacent Elements',
-            description: 'Compare $left and $right.',
-            operation: 'arr[$j] > arr[${j + 1}]',
-          ),
-        );
-
-        // --------------------------------------------------------------------
-        // SWAP
-        // --------------------------------------------------------------------
-
-        if (left > right) {
-          // Perform the actual swap FIRST.
-          working[j] = right;
-          working[j + 1] = left;
-
-          swapped = true;
-
-          // Store the UPDATED array snapshot.
-          generated.add(
-            BubbleSortEvent(
-              type: BubbleSortEventType.swap,
-              array: [...working],
-              index: j,
-              secondIndex: j + 1,
-              firstValue: left,
-              secondValue: right,
-              sortedCount: totalSorted,
-              title: 'Swap Required',
-              description:
-                  '$left is greater than $right, so the elements are swapped.',
-              operation: 'Swap arr[$j] and arr[${j + 1}]',
-            ),
-          );
-        } else {
-          // ------------------------------------------------------------------
-          // NO SWAP
-          // ------------------------------------------------------------------
-
-          generated.add(
-            BubbleSortEvent(
-              type: BubbleSortEventType.noSwap,
-              array: [...working],
-              index: j,
-              secondIndex: j + 1,
-              firstValue: left,
-              secondValue: right,
-              sortedCount: totalSorted,
-              title: 'No Swap',
-              description: '$left is already smaller than or equal to $right.',
-              operation: 'arr[$j] <= arr[${j + 1}]',
-            ),
-          );
-        }
-      }
-
-      // ----------------------------------------------------------------------
-      // LAST ELEMENT OF PASS IS SORTED
-      // ----------------------------------------------------------------------
-
-      totalSorted++;
-
-      final sortedIndex = working.length - i - 1;
-
+    while (b != 0) {
+      step++;
+      final remainder = a % b;
       generated.add(
-        BubbleSortEvent(
-          type: BubbleSortEventType.sorted,
-          array: [...working],
-          index: sortedIndex,
-          secondIndex: -1,
-          firstValue: working[sortedIndex],
-          secondValue: -1,
-          sortedCount: totalSorted,
-          title: 'Element Sorted',
-          description:
-              'Value ${working[sortedIndex]} is now in its final position.',
-          operation: 'Sorted position $sortedIndex',
+        EuclideanEvent(
+          type: EuclideanEventType.calculate,
+          array: [a, b],
+          index: 0,
+          secondIndex: 1,
+          firstValue: a,
+          secondValue: b,
+          sortedCount: step,
+          title: 'Calculate Remainder',
+          description: '$a % $b = $remainder.',
+          operation: 'remainder = $a % $b = $remainder',
         ),
       );
-
-      // ----------------------------------------------------------------------
-      // OPTIMIZATION
-      // ----------------------------------------------------------------------
-
-      if (!swapped) {
-        break;
+      if (remainder != 0) {
+        a = b;
+        b = remainder;
+        generated.add(
+          EuclideanEvent(
+            type: EuclideanEventType.remainder,
+            array: [a, b],
+            index: 0,
+            secondIndex: 1,
+            firstValue: a,
+            secondValue: b,
+            sortedCount: step,
+            title: 'Update Values',
+            description: 'Set a = previous b and b = remainder $remainder.',
+            operation: 'a = b; b = remainder',
+          ),
+        );
+      } else {
+        a = b;
+        b = 0;
       }
     }
-
-    // ------------------------------------------------------------------------
-    // COMPLETE
-    // ------------------------------------------------------------------------
-
     generated.add(
-      BubbleSortEvent(
-        type: BubbleSortEventType.complete,
-        array: [...working],
-        index: -1,
-        secondIndex: -1,
-        firstValue: -1,
-        secondValue: -1,
-        sortedCount: working.length,
-        title: 'Bubble Sort Complete',
-        description: 'The array is now sorted in ascending order.',
-        operation: 'Sorting completed',
+      EuclideanEvent(
+        type: EuclideanEventType.complete,
+        array: [a, b],
+        index: 0,
+        secondIndex: 1,
+        firstValue: a,
+        secondValue: b,
+        sortedCount: step,
+        title: 'Euclidean Algorithm Complete',
+        description:
+            'The second value is 0, so the first value $a is the Greatest Common Divisor (GCD).',
+        operation: 'GCD = $a',
       ),
     );
-
     events = generated;
   }
 
+  void _applyEvent(EuclideanEvent event, {bool updateState = true}) {
+    array = [...event.array];
+    comparingIndex = -1;
+    secondComparingIndex = -1;
+    swappingIndex = -1;
+    secondSwappingIndex = -1;
+    sortedCount = event.sortedCount;
+    executionMessage = '${event.title}: ${event.description}';
+    activeCodeLine = _codeLineForEvent(event.type);
+    if (event.type == EuclideanEventType.calculate) {
+      comparingIndex = 0;
+      secondComparingIndex = 1;
+    }
+    if (event.type == EuclideanEventType.remainder) {
+      swappingIndex = 0;
+      secondSwappingIndex = 1;
+    }
+    if (event.type == EuclideanEventType.complete) {
+      gcdResult = event.firstValue;
+      sortedIndexes = {0};
+      executionMessage =
+          'Euclidean Algorithm Complete: GCD = ${event.firstValue}';
+    }
+    if (updateState) setState(() {});
+  }
+
+  void _rebuildVisualState() {
+    array = [...originalArray];
+    comparingIndex = -1;
+    secondComparingIndex = -1;
+    swappingIndex = -1;
+    secondSwappingIndex = -1;
+    sortedCount = 0;
+    sortedIndexes.clear();
+    activeCodeLine = 0;
+    gcdResult = 0;
+    executionMessage = 'Ready to start Euclidean Algorithm.';
+    for (final event in executionHistory) {
+      _applyEvent(event, updateState: false);
+    }
+  }
+
+  void _reset() {
+    timer?.cancel();
+    setState(() {
+      array = [...originalArray];
+      executionHistory.clear();
+      currentStep = 0;
+      isRunning = false;
+      isCompleted = false;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
+      sortedCount = 0;
+      sortedIndexes.clear();
+      activeCodeLine = 0;
+      gcdResult = 0;
+      executionMessage = 'Ready to start Euclidean Algorithm.';
+    });
+    _generateEvents();
+  }
+
+  void _setSpeed(double value) {
+    setState(() => speed = value);
+    if (isRunning) _play();
+  }
+
+  int _codeLineForEvent(EuclideanEventType type) {
+    switch (type) {
+      case EuclideanEventType.initialize:
+        return 1;
+      case EuclideanEventType.calculate:
+        return 6;
+      case EuclideanEventType.remainder:
+        return 7;
+      case EuclideanEventType.complete:
+        return 11;
+    }
+  }
+
+  Color _eventColor(EuclideanEventType type) {
+    switch (type) {
+      case EuclideanEventType.initialize:
+        return blue;
+      case EuclideanEventType.calculate:
+        return cyan;
+      case EuclideanEventType.remainder:
+        return orange;
+      case EuclideanEventType.complete:
+        return green;
+    }
+  }
+
+  IconData _eventIcon(EuclideanEventType type) {
+    switch (type) {
+      case EuclideanEventType.initialize:
+        return Icons.play_arrow_rounded;
+      case EuclideanEventType.calculate:
+        return Icons.calculate_rounded;
+      case EuclideanEventType.remainder:
+        return Icons.swap_horiz_rounded;
+      case EuclideanEventType.complete:
+        return Icons.check_circle_rounded;
+    }
+  }
+
+  Future<void> _copyCode() async {
+    await Clipboard.setData(ClipboardData(text: sourceCode));
+    _showSnackBar('Source code copied.', cyan);
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: color.withValues(alpha: 0.85),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   // ==========================================================================
-  // LOAD ARRAY
+  // LOAD INPUT
   // ==========================================================================
 
   void _loadArray() {
     final text = arrayController.text.trim();
-
-    if (text.isEmpty) {
-      _showSnackBar('Please enter numbers.', red);
-      return;
-    }
-
     final parts = text.split(RegExp(r'[\s,]+'));
-
     final values = <int>[];
-
     for (final part in parts) {
-      final value = int.tryParse(part);
-
-      if (value != null) {
-        values.add(value);
-      }
+      final v = int.tryParse(part);
+      if (v != null) values.add(v);
     }
-
-    if (values.isEmpty) {
-      _showSnackBar('No valid numbers found.', red);
+    if (values.length < 2) {
+      _showSnackBar('Please enter two valid numbers.', red);
       return;
     }
-
+    final pair = [values[0], values[1]];
     timer?.cancel();
-
     setState(() {
-      array = [...values];
-
-      // Save this as the new reset state.
-      originalArray = [...values];
-
+      array = [...pair];
+      originalArray = [...pair];
+      arrayController.text = pair.join(', ');
       executionHistory.clear();
-
       currentStep = 0;
-
       isRunning = false;
-
       isCompleted = false;
-
       comparingIndex = -1;
-
       secondComparingIndex = -1;
-
       swappingIndex = -1;
-
       secondSwappingIndex = -1;
-
       sortedCount = 0;
-
       sortedIndexes.clear();
-
       activeCodeLine = 0;
-
-      executionMessage = 'Array loaded. Ready to start Bubble Sort.';
+      gcdResult = 0;
+      executionMessage = 'Numbers loaded. Ready to find the GCD.';
     });
-
     _generateEvents();
-
-    _showSnackBar('Array loaded successfully.', green);
+    _showSnackBar('Numbers loaded successfully.', green);
   }
-
-  // ==========================================================================
-  // GENERATE NUMBERS
-  // ==========================================================================
 
   void _generateNumbers() {
     final random = Random();
-
-    final generated = List.generate(8, (_) => random.nextInt(90) + 10);
-
+    final generated = [random.nextInt(90) + 10, random.nextInt(90) + 10];
     arrayController.text = generated.join(', ');
-
     timer?.cancel();
-
     setState(() {
       array = [...generated];
-
-      // Generated array becomes the new reset state.
       originalArray = [...generated];
-
       executionHistory.clear();
-
       currentStep = 0;
-
       isRunning = false;
-
       isCompleted = false;
-
       comparingIndex = -1;
-
       secondComparingIndex = -1;
-
       swappingIndex = -1;
-
       secondSwappingIndex = -1;
-
       sortedCount = 0;
-
       sortedIndexes.clear();
-
       activeCodeLine = 0;
-
-      executionMessage = 'New numbers generated. Ready to sort.';
+      gcdResult = 0;
+      executionMessage = 'New numbers generated. Ready to find the GCD.';
     });
-
     _generateEvents();
-
     _showSnackBar('New numbers generated.', purple);
   }
 
@@ -597,295 +559,6 @@ void bubbleSort(int[] arr) {
   }
 
   // ==========================================================================
-  // REBUILD VISUAL STATE
-  // ==========================================================================
-
-  void _rebuildVisualState() {
-    // Restore the original array first.
-    array = [...originalArray];
-
-    comparingIndex = -1;
-
-    secondComparingIndex = -1;
-
-    swappingIndex = -1;
-
-    secondSwappingIndex = -1;
-
-    sortedCount = 0;
-
-    sortedIndexes.clear();
-
-    activeCodeLine = 0;
-
-    executionMessage = 'Ready to start Bubble Sort.';
-
-    // Replay all previous events.
-    for (final event in executionHistory) {
-      _applyEvent(event, updateState: false);
-    }
-  }
-
-  // ==========================================================================
-  // APPLY EVENT
-  // ==========================================================================
-
-  void _applyEvent(BubbleSortEvent event, {bool updateState = true}) {
-    // ========================================================================
-    // IMPORTANT FIX
-    // ========================================================================
-    //
-    // Every event contains an exact array snapshot.
-    // Apply that snapshot to the visualization.
-    //
-    // This fixes the problem where the UI kept showing:
-    //
-    // 64 5 12 2 11 6
-    //
-    // even after the algorithm was completed.
-    //
-    // ========================================================================
-
-    array = [...event.array];
-
-    comparingIndex = -1;
-
-    secondComparingIndex = -1;
-
-    swappingIndex = -1;
-
-    secondSwappingIndex = -1;
-
-    sortedCount = event.sortedCount;
-
-    executionMessage = '${event.title}: ${event.description}';
-
-    activeCodeLine = _codeLineForEvent(event.type);
-
-    // ------------------------------------------------------------------------
-    // COMPARE / NO SWAP
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.compare ||
-        event.type == BubbleSortEventType.noSwap) {
-      comparingIndex = event.index;
-      secondComparingIndex = event.secondIndex;
-    }
-
-    // ------------------------------------------------------------------------
-    // SWAP
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.swap) {
-      swappingIndex = event.index;
-      secondSwappingIndex = event.secondIndex;
-    }
-
-    // ------------------------------------------------------------------------
-    // SORTED
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.sorted) {
-      if (event.index >= 0) {
-        sortedIndexes.add(event.index);
-      }
-
-      comparingIndex = -1;
-      secondComparingIndex = -1;
-    }
-
-    // ------------------------------------------------------------------------
-    // COMPLETE
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.complete) {
-      sortedIndexes = Set<int>.from(
-        List.generate(array.length, (index) => index),
-      );
-
-      comparingIndex = -1;
-
-      secondComparingIndex = -1;
-
-      swappingIndex = -1;
-
-      secondSwappingIndex = -1;
-
-      sortedCount = array.length;
-
-      executionMessage =
-          'Bubble Sort Complete: The array is now sorted in ascending order.';
-    }
-
-    if (updateState) {
-      setState(() {});
-    }
-  }
-
-  // ==========================================================================
-  // RESET
-  // ==========================================================================
-
-  void _reset() {
-    timer?.cancel();
-
-    setState(() {
-      // Restore the exact original input.
-      array = [...originalArray];
-
-      executionHistory.clear();
-
-      currentStep = 0;
-
-      isRunning = false;
-
-      isCompleted = false;
-
-      comparingIndex = -1;
-
-      secondComparingIndex = -1;
-
-      swappingIndex = -1;
-
-      secondSwappingIndex = -1;
-
-      sortedCount = 0;
-
-      sortedIndexes.clear();
-
-      activeCodeLine = 0;
-
-      executionMessage = 'Ready to start Bubble Sort.';
-    });
-
-    _generateEvents();
-  }
-
-  // ==========================================================================
-  // SPEED
-  // ==========================================================================
-
-  void _setSpeed(double value) {
-    setState(() {
-      speed = value;
-    });
-
-    if (isRunning) {
-      _play();
-    }
-  }
-
-  // ==========================================================================
-  // CODE LINE
-  // ==========================================================================
-
-  int _codeLineForEvent(BubbleSortEventType type) {
-    switch (type) {
-      case BubbleSortEventType.initialize:
-        return 1;
-
-      case BubbleSortEventType.compare:
-        return 6;
-
-      case BubbleSortEventType.noSwap:
-        return 6;
-
-      case BubbleSortEventType.swap:
-        return 7;
-
-      case BubbleSortEventType.sorted:
-        return 12;
-
-      case BubbleSortEventType.complete:
-        return 1;
-    }
-  }
-
-  // ==========================================================================
-  // EVENT COLOR
-  // ==========================================================================
-
-  Color _eventColor(BubbleSortEventType type) {
-    switch (type) {
-      case BubbleSortEventType.initialize:
-        return blue;
-
-      case BubbleSortEventType.compare:
-        return cyan;
-
-      case BubbleSortEventType.noSwap:
-        return orange;
-
-      case BubbleSortEventType.swap:
-        return pink;
-
-      case BubbleSortEventType.sorted:
-        return green;
-
-      case BubbleSortEventType.complete:
-        return green;
-    }
-  }
-
-  // ==========================================================================
-  // EVENT ICON
-  // ==========================================================================
-
-  IconData _eventIcon(BubbleSortEventType type) {
-    switch (type) {
-      case BubbleSortEventType.initialize:
-        return Icons.play_arrow_rounded;
-
-      case BubbleSortEventType.compare:
-        return Icons.compare_arrows_rounded;
-
-      case BubbleSortEventType.noSwap:
-        return Icons.check_rounded;
-
-      case BubbleSortEventType.swap:
-        return Icons.swap_horiz_rounded;
-
-      case BubbleSortEventType.sorted:
-        return Icons.check_circle_rounded;
-
-      case BubbleSortEventType.complete:
-        return Icons.flag_rounded;
-    }
-  }
-
-  // ==========================================================================
-  // COPY
-  // ==========================================================================
-
-  Future<void> _copyCode() async {
-    await Clipboard.setData(ClipboardData(text: sourceCode));
-
-    _showSnackBar('Source code copied.', cyan);
-  }
-
-  // ==========================================================================
-  // SNACKBAR
-  // ==========================================================================
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: color.withValues(alpha: 0.85),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  // ==========================================================================
   // BUILD
   // ==========================================================================
 
@@ -933,7 +606,7 @@ void bubbleSort(int[] arr) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: orange.withValues(alpha: 0.16)),
+        border: Border.all(color: cyan.withValues(alpha: 0.16)),
       ),
       child: Row(
         children: [
@@ -968,7 +641,7 @@ void bubbleSort(int[] arr) {
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
-              Icons.bubble_chart_rounded,
+              Icons.calculate_rounded,
               color: Colors.white,
               size: 23,
             ),
@@ -981,7 +654,7 @@ void bubbleSort(int[] arr) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Bubble Sort',
+                  'Euclidean Algorithm',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -992,7 +665,7 @@ void bubbleSort(int[] arr) {
                 const SizedBox(height: 3),
 
                 Text(
-                  'Sort elements using adjacent comparisons',
+                  'Find the Greatest Common Divisor using remainders',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
@@ -1022,7 +695,7 @@ void bubbleSort(int[] arr) {
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'SORTED';
+      text = 'GCD READY';
     }
 
     return Container(
@@ -1075,11 +748,7 @@ void bubbleSort(int[] arr) {
           const SizedBox(height: 14),
 
           Text(
-            'Bubble Sort repeatedly compares adjacent '
-            'elements and swaps them when they are in '
-            'the wrong order. After every pass, the '
-            'largest unsorted element moves to its '
-            'correct position.',
+            'The Euclidean Algorithm finds the Greatest Common Divisor (GCD) by repeatedly dividing the larger value by the smaller value and using the remainder as the next value.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
@@ -1093,12 +762,12 @@ void bubbleSort(int[] arr) {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox('Time', 'O(n²)', orange),
+              _infoBox('Time', 'O(log min(a,b))', orange),
               _infoBox('Space', 'O(1)', blue),
-              _infoBox('Type', 'Sorting', purple),
-              _infoBox('Best', 'O(n)', green),
-              _infoBox('Worst', 'O(n²)', red),
-              _infoBox('Stable', 'Yes', cyan),
+              _infoBox('Type', 'Mathematical', purple),
+              _infoBox('GCD', 'Remainder Method', green),
+              _infoBox('Worst', 'O(log min(a,b))', red),
+              _infoBox('Result', 'a when b = 0', cyan),
             ],
           ),
         ],
@@ -1172,7 +841,7 @@ void bubbleSort(int[] arr) {
 
               Expanded(
                 child: Text(
-                  'Try different numbers to see comparisons and swaps.',
+                  'Enter two integers to calculate their Greatest Common Divisor.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
@@ -1197,7 +866,7 @@ void bubbleSort(int[] arr) {
       cursorColor: cyan,
       decoration: InputDecoration(
         labelText: 'Enter Numbers',
-        hintText: '64, 25, 12, 22, 11...',
+        hintText: '48, 18',
         labelStyle: TextStyle(
           color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
@@ -1363,7 +1032,7 @@ void bubbleSort(int[] arr) {
 
               const SizedBox(width: 8),
 
-              _miniBadge('SORTED', sortedIndexes.length.toString(), green),
+              _miniBadge('GCD', gcdResult > 0 ? '$gcdResult' : '-', green),
 
               const SizedBox(width: 8),
 
@@ -1439,7 +1108,7 @@ void bubbleSort(int[] arr) {
       itemColor = green.withValues(alpha: 0.18);
       borderColor = green;
       textColor = green;
-      label = 'SORTED';
+      label = 'GCD';
     }
 
     // ------------------------------------------------------------------------
@@ -1544,9 +1213,9 @@ void bubbleSort(int[] arr) {
       runSpacing: 8,
       children: [
         _legendItem('Ready', Colors.white),
-        _legendItem('Compare', cyan),
-        _legendItem('Swap', pink),
-        _legendItem('Sorted', green),
+        _legendItem('Calculate', cyan),
+        _legendItem('Update', orange),
+        _legendItem('GCD', green),
       ],
     );
   }
@@ -1590,19 +1259,20 @@ void bubbleSort(int[] arr) {
         comparingIndex < array.length &&
         secondComparingIndex < array.length) {
       message =
-          'Comparing ${array[comparingIndex]} and ${array[secondComparingIndex]}';
+          'Calculating ${array[comparingIndex]} % ${array[secondComparingIndex]}';
     }
 
     if (swappingIndex >= 0 &&
         secondSwappingIndex >= 0 &&
         swappingIndex < array.length &&
         secondSwappingIndex < array.length) {
-      message =
-          'Swapping ${array[swappingIndex]} ↔ ${array[secondSwappingIndex]}';
+      message = 'Updating values using the remainder';
     }
 
     if (isCompleted) {
-      message = 'Array sorted successfully';
+      message = gcdResult > 0
+          ? 'Greatest Common Divisor = $gcdResult'
+          : 'Calculating GCD';
     }
 
     return Container(
@@ -1621,7 +1291,7 @@ void bubbleSort(int[] arr) {
               color: cyan.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.swap_horiz_rounded, color: cyan, size: 18),
+            child: const Icon(Icons.calculate_rounded, color: cyan, size: 18),
           ),
 
           const SizedBox(width: 10),
@@ -1660,7 +1330,7 @@ void bubbleSort(int[] arr) {
               borderRadius: BorderRadius.circular(7),
             ),
             child: Text(
-              '$sortedCount sorted',
+              '$sortedCount steps',
               style: const TextStyle(
                 color: green,
                 fontSize: 10,
@@ -2131,7 +1801,7 @@ void bubbleSort(int[] arr) {
   // EXECUTION ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(int index, BubbleSortEvent event) {
+  Widget _executionStepItem(int index, EuclideanEvent event) {
     final color = _eventColor(event.type);
 
     return Container(

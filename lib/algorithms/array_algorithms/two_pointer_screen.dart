@@ -4,42 +4,43 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class BubbleSortScreen extends StatefulWidget {
-  const BubbleSortScreen({super.key});
+class TwoPointerScreen extends StatefulWidget {
+  const TwoPointerScreen({super.key});
 
   @override
-  State<BubbleSortScreen> createState() => _BubbleSortScreenState();
+  State<TwoPointerScreen> createState() => _TwoPointerScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum BubbleSortEventType { initialize, compare, noSwap, swap, sorted, complete }
+enum TwoPointerEventType {
+  initialize,
+  compare,
+  moveLeft,
+  moveRight,
+  found,
+  complete,
+}
 
 // ============================================================================
 // EVENT MODEL
 // ============================================================================
 
-class BubbleSortEvent {
-  final BubbleSortEventType type;
-
-  /// Snapshot of the array at this exact event.
+class TwoPointerEvent {
+  final TwoPointerEventType type;
   final List<int> array;
-
   final int index;
   final int secondIndex;
-
   final int firstValue;
   final int secondValue;
-
   final int sortedCount;
-
   final String title;
   final String description;
   final String operation;
 
-  const BubbleSortEvent({
+  const TwoPointerEvent({
     required this.type,
     required this.array,
     required this.index,
@@ -57,11 +58,7 @@ class BubbleSortEvent {
 // STATE
 // ============================================================================
 
-class _BubbleSortScreenState extends State<BubbleSortScreen> {
-  // ==========================================================================
-  // COLORS
-  // ==========================================================================
-
+class _TwoPointerScreenState extends State<TwoPointerScreen> {
   static const Color background = Color(0xFF030712);
   static const Color background2 = Color(0xFF07101F);
   static const Color cardColor = Color(0xFF0B1428);
@@ -75,283 +72,196 @@ class _BubbleSortScreenState extends State<BubbleSortScreen> {
   static const Color pink = Color(0xFFFF4081);
   static const Color red = Color(0xFFFF5252);
 
-  // ==========================================================================
-  // DATA
-  // ==========================================================================
-
-  List<int> array = [64, 25, 12, 22, 11];
-
-  /// Original state used by Reset.
-  List<int> originalArray = [64, 25, 12, 22, 11];
-
-  // ==========================================================================
-  // CONTROLLER
-  // ==========================================================================
+  List<int> array = [1, 2, 3, 4, 6, 8, 9];
+  List<int> originalArray = [1, 2, 3, 4, 6, 8, 9];
 
   final TextEditingController arrayController = TextEditingController(
-    text: '64, 25, 12, 22, 11',
+    text: '1, 2, 3, 4, 6, 8, 9',
   );
 
-  // ==========================================================================
-  // EVENTS
-  // ==========================================================================
+  final TextEditingController targetController = TextEditingController(
+    text: '10',
+  );
 
-  List<BubbleSortEvent> events = [];
-
-  List<BubbleSortEvent> executionHistory = [];
-
-  // ==========================================================================
-  // EXECUTION
-  // ==========================================================================
+  List<TwoPointerEvent> events = [];
+  List<TwoPointerEvent> executionHistory = [];
 
   int currentStep = 0;
-
   bool isRunning = false;
-
   bool isCompleted = false;
-
   double speed = 1.0;
-
   Timer? timer;
 
-  // ==========================================================================
-  // VISUAL STATE
-  // ==========================================================================
-
   int comparingIndex = -1;
-
   int secondComparingIndex = -1;
-
   int swappingIndex = -1;
-
   int secondSwappingIndex = -1;
-
   int sortedCount = 0;
-
   Set<int> sortedIndexes = {};
-
   int activeCodeLine = 0;
-
-  String executionMessage = 'Ready to start Bubble Sort.';
-
-  // ==========================================================================
-  // SOURCE CODE
-  // ==========================================================================
+  String executionMessage = 'Ready to start Two Pointer Search.';
+  bool pairFound = false;
+  int target = 10;
 
   final String sourceCode = '''
-void bubbleSort(int[] arr) {
-  for (int i = 0; i < arr.length - 1; i++) {
-    bool swapped = false;
+List<int> twoPointerSearch(int[] arr, int target) {
+  int left = 0;
+  int right = arr.length - 1;
 
-    for (int j = 0; j < arr.length - i - 1; j++) {
-      if (arr[j] > arr[j + 1]) {
-        int temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-        swapped = true;
-      }
+  while (left < right) {
+    int sum = arr[left] + arr[right];
+
+    if (sum == target) {
+      return [arr[left], arr[right]];
     }
 
-    if (!swapped) {
-      break;
+    if (sum < target) {
+      left++;
+    } else {
+      right--;
     }
   }
+
+  return [];
 }
 ''';
-
-  // ==========================================================================
-  // INIT
-  // ==========================================================================
 
   @override
   void initState() {
     super.initState();
-
     originalArray = [...array];
-
     _generateEvents();
   }
-
-  // ==========================================================================
-  // DISPOSE
-  // ==========================================================================
 
   @override
   void dispose() {
     timer?.cancel();
     arrayController.dispose();
-
+    targetController.dispose();
     super.dispose();
   }
 
-  // ==========================================================================
-  // GENERATE EVENTS
-  // ==========================================================================
-
   void _generateEvents() {
-    final working = [...array];
+    final working = [...array]..sort();
+    final generated = <TwoPointerEvent>[];
 
-    final generated = <BubbleSortEvent>[];
-
-    if (working.isEmpty) {
+    if (working.length < 2) {
       events = generated;
       return;
     }
 
-    // ------------------------------------------------------------------------
-    // INITIALIZE
-    // ------------------------------------------------------------------------
-
     generated.add(
-      BubbleSortEvent(
-        type: BubbleSortEventType.initialize,
+      TwoPointerEvent(
+        type: TwoPointerEventType.initialize,
         array: [...working],
-        index: -1,
-        secondIndex: -1,
-        firstValue: -1,
-        secondValue: -1,
+        index: 0,
+        secondIndex: working.length - 1,
+        firstValue: working.first,
+        secondValue: working.last,
         sortedCount: 0,
-        title: 'Bubble Sort Initialized',
+        title: 'Two Pointer Initialized',
         description:
-            'The array will be sorted by repeatedly comparing adjacent elements.',
-        operation: 'Start Bubble Sort',
+            'Start with one pointer at the beginning and one at the end of the sorted array.',
+        operation: 'left = 0, right = arr.length - 1',
       ),
     );
 
-    // ------------------------------------------------------------------------
-    // BUBBLE SORT
-    // ------------------------------------------------------------------------
+    int left = 0;
+    int right = working.length - 1;
+    int found = 0;
 
-    int totalSorted = 0;
-
-    for (int i = 0; i < working.length - 1; i++) {
-      bool swapped = false;
-
-      // ----------------------------------------------------------------------
-      // INNER LOOP
-      // ----------------------------------------------------------------------
-
-      for (int j = 0; j < working.length - i - 1; j++) {
-        final left = working[j];
-        final right = working[j + 1];
-
-        // --------------------------------------------------------------------
-        // COMPARE
-        // --------------------------------------------------------------------
-
-        generated.add(
-          BubbleSortEvent(
-            type: BubbleSortEventType.compare,
-            array: [...working],
-            index: j,
-            secondIndex: j + 1,
-            firstValue: left,
-            secondValue: right,
-            sortedCount: totalSorted,
-            title: 'Comparing Adjacent Elements',
-            description: 'Compare $left and $right.',
-            operation: 'arr[$j] > arr[${j + 1}]',
-          ),
-        );
-
-        // --------------------------------------------------------------------
-        // SWAP
-        // --------------------------------------------------------------------
-
-        if (left > right) {
-          // Perform the actual swap FIRST.
-          working[j] = right;
-          working[j + 1] = left;
-
-          swapped = true;
-
-          // Store the UPDATED array snapshot.
-          generated.add(
-            BubbleSortEvent(
-              type: BubbleSortEventType.swap,
-              array: [...working],
-              index: j,
-              secondIndex: j + 1,
-              firstValue: left,
-              secondValue: right,
-              sortedCount: totalSorted,
-              title: 'Swap Required',
-              description:
-                  '$left is greater than $right, so the elements are swapped.',
-              operation: 'Swap arr[$j] and arr[${j + 1}]',
-            ),
-          );
-        } else {
-          // ------------------------------------------------------------------
-          // NO SWAP
-          // ------------------------------------------------------------------
-
-          generated.add(
-            BubbleSortEvent(
-              type: BubbleSortEventType.noSwap,
-              array: [...working],
-              index: j,
-              secondIndex: j + 1,
-              firstValue: left,
-              secondValue: right,
-              sortedCount: totalSorted,
-              title: 'No Swap',
-              description: '$left is already smaller than or equal to $right.',
-              operation: 'arr[$j] <= arr[${j + 1}]',
-            ),
-          );
-        }
-      }
-
-      // ----------------------------------------------------------------------
-      // LAST ELEMENT OF PASS IS SORTED
-      // ----------------------------------------------------------------------
-
-      totalSorted++;
-
-      final sortedIndex = working.length - i - 1;
+    while (left < right) {
+      final leftValue = working[left];
+      final rightValue = working[right];
+      final sum = leftValue + rightValue;
 
       generated.add(
-        BubbleSortEvent(
-          type: BubbleSortEventType.sorted,
+        TwoPointerEvent(
+          type: TwoPointerEventType.compare,
           array: [...working],
-          index: sortedIndex,
-          secondIndex: -1,
-          firstValue: working[sortedIndex],
-          secondValue: -1,
-          sortedCount: totalSorted,
-          title: 'Element Sorted',
+          index: left,
+          secondIndex: right,
+          firstValue: leftValue,
+          secondValue: rightValue,
+          sortedCount: found,
+          title: 'Compare Two Pointers',
           description:
-              'Value ${working[sortedIndex]} is now in its final position.',
-          operation: 'Sorted position $sortedIndex',
+              '$leftValue + $rightValue = $sum. Compare the sum with target $target.',
+          operation: 'sum = arr[$left] + arr[$right] = $sum',
         ),
       );
 
-      // ----------------------------------------------------------------------
-      // OPTIMIZATION
-      // ----------------------------------------------------------------------
-
-      if (!swapped) {
+      if (sum == target) {
+        found = 1;
+        generated.add(
+          TwoPointerEvent(
+            type: TwoPointerEventType.found,
+            array: [...working],
+            index: left,
+            secondIndex: right,
+            firstValue: leftValue,
+            secondValue: rightValue,
+            sortedCount: found,
+            title: 'Pair Found',
+            description:
+                '$leftValue + $rightValue = $target, so the target pair is found.',
+            operation: 'sum == target',
+          ),
+        );
         break;
+      }
+
+      if (sum < target) {
+        generated.add(
+          TwoPointerEvent(
+            type: TwoPointerEventType.moveLeft,
+            array: [...working],
+            index: left,
+            secondIndex: right,
+            firstValue: leftValue,
+            secondValue: rightValue,
+            sortedCount: found,
+            title: 'Move Left Pointer',
+            description:
+                '$sum is smaller than $target, so move the left pointer to the right.',
+            operation: 'left++',
+          ),
+        );
+        left++;
+      } else {
+        generated.add(
+          TwoPointerEvent(
+            type: TwoPointerEventType.moveRight,
+            array: [...working],
+            index: left,
+            secondIndex: right,
+            firstValue: leftValue,
+            secondValue: rightValue,
+            sortedCount: found,
+            title: 'Move Right Pointer',
+            description:
+                '$sum is greater than $target, so move the right pointer to the left.',
+            operation: 'right--',
+          ),
+        );
+        right--;
       }
     }
 
-    // ------------------------------------------------------------------------
-    // COMPLETE
-    // ------------------------------------------------------------------------
-
     generated.add(
-      BubbleSortEvent(
-        type: BubbleSortEventType.complete,
+      TwoPointerEvent(
+        type: TwoPointerEventType.complete,
         array: [...working],
         index: -1,
         secondIndex: -1,
         firstValue: -1,
         secondValue: -1,
-        sortedCount: working.length,
-        title: 'Bubble Sort Complete',
-        description: 'The array is now sorted in ascending order.',
-        operation: 'Sorting completed',
+        sortedCount: found,
+        title: 'Two Pointer Search Complete',
+        description: found == 1
+            ? 'The target pair has been found.'
+            : 'No pair with the target sum exists in this array.',
+        operation: 'Search completed',
       ),
     );
 
@@ -364,171 +274,114 @@ void bubbleSort(int[] arr) {
 
   void _loadArray() {
     final text = arrayController.text.trim();
+    final parsedTarget = int.tryParse(targetController.text.trim());
 
     if (text.isEmpty) {
       _showSnackBar('Please enter numbers.', red);
       return;
     }
-
-    final parts = text.split(RegExp(r'[\s,]+'));
-
-    final values = <int>[];
-
-    for (final part in parts) {
-      final value = int.tryParse(part);
-
-      if (value != null) {
-        values.add(value);
-      }
-    }
-
-    if (values.isEmpty) {
-      _showSnackBar('No valid numbers found.', red);
+    if (parsedTarget == null) {
+      _showSnackBar('Please enter a valid target.', red);
       return;
     }
 
+    final values = <int>[];
+    for (final part in text.split(RegExp(r'[\s,]+'))) {
+      final value = int.tryParse(part);
+      if (value != null) values.add(value);
+    }
+
+    if (values.length < 2) {
+      _showSnackBar('Enter at least two numbers.', red);
+      return;
+    }
+
+    values.sort();
     timer?.cancel();
 
     setState(() {
       array = [...values];
-
-      // Save this as the new reset state.
       originalArray = [...values];
-
+      target = parsedTarget;
+      arrayController.text = values.join(', ');
       executionHistory.clear();
-
       currentStep = 0;
-
       isRunning = false;
-
       isCompleted = false;
-
       comparingIndex = -1;
-
       secondComparingIndex = -1;
-
       swappingIndex = -1;
-
       secondSwappingIndex = -1;
-
       sortedCount = 0;
-
       sortedIndexes.clear();
-
       activeCodeLine = 0;
-
-      executionMessage = 'Array loaded. Ready to start Bubble Sort.';
+      pairFound = false;
+      executionMessage = 'Array loaded. Ready to search for target $target.';
     });
 
     _generateEvents();
-
-    _showSnackBar('Array loaded successfully.', green);
+    _showSnackBar('Array loaded and sorted for Two Pointer Search.', green);
   }
-
-  // ==========================================================================
-  // GENERATE NUMBERS
-  // ==========================================================================
 
   void _generateNumbers() {
     final random = Random();
-
-    final generated = List.generate(8, (_) => random.nextInt(90) + 10);
+    final generated = List.generate(8, (_) => random.nextInt(90) + 10)..sort();
+    final generatedTarget = generated.first + generated.last;
 
     arrayController.text = generated.join(', ');
-
+    targetController.text = generatedTarget.toString();
     timer?.cancel();
 
     setState(() {
       array = [...generated];
-
-      // Generated array becomes the new reset state.
       originalArray = [...generated];
-
+      target = generatedTarget;
       executionHistory.clear();
-
       currentStep = 0;
-
       isRunning = false;
-
       isCompleted = false;
-
       comparingIndex = -1;
-
       secondComparingIndex = -1;
-
       swappingIndex = -1;
-
       secondSwappingIndex = -1;
-
       sortedCount = 0;
-
       sortedIndexes.clear();
-
       activeCodeLine = 0;
-
-      executionMessage = 'New numbers generated. Ready to sort.';
+      pairFound = false;
+      executionMessage = 'New sorted numbers generated. Ready to search.';
     });
 
     _generateEvents();
-
-    _showSnackBar('New numbers generated.', purple);
+    _showSnackBar('New numbers and target generated.', purple);
   }
 
-  // ==========================================================================
-  // PLAY
-  // ==========================================================================
-
   void _play() {
-    if (events.isEmpty || isCompleted) {
-      return;
-    }
-
+    if (events.isEmpty || isCompleted) return;
     timer?.cancel();
-
-    setState(() {
-      isRunning = true;
-    });
-
+    setState(() => isRunning = true);
     final milliseconds = (900 / speed).round().clamp(100, 2000);
-
     timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
       if (!mounted) {
         timer?.cancel();
         return;
       }
-
       if (currentStep >= events.length) {
         timer?.cancel();
-
         setState(() {
           isRunning = false;
           isCompleted = true;
         });
-
         return;
       }
-
       _nextStepInternal();
     });
   }
 
-  // ==========================================================================
-  // PAUSE
-  // ==========================================================================
-
   void _pause() {
     timer?.cancel();
-
     if (!mounted) return;
-
-    setState(() {
-      isRunning = false;
-    });
+    setState(() => isRunning = false);
   }
-
-  // ==========================================================================
-  // TOGGLE
-  // ==========================================================================
 
   void _togglePlayPause() {
     if (isRunning) {
@@ -538,34 +391,19 @@ void bubbleSort(int[] arr) {
     }
   }
 
-  // ==========================================================================
-  // NEXT
-  // ==========================================================================
-
   void _nextStep() {
-    if (currentStep >= events.length) {
-      return;
-    }
-
+    if (currentStep >= events.length) return;
     _nextStepInternal();
   }
 
   void _nextStepInternal() {
-    if (currentStep >= events.length) {
-      return;
-    }
-
+    if (currentStep >= events.length) return;
     final event = events[currentStep];
-
     executionHistory.add(event);
-
     currentStep++;
-
     _applyEvent(event);
-
     if (currentStep >= events.length) {
       timer?.cancel();
-
       setState(() {
         isRunning = false;
         isCompleted = true;
@@ -573,303 +411,154 @@ void bubbleSort(int[] arr) {
     }
   }
 
-  // ==========================================================================
-  // PREVIOUS
-  // ==========================================================================
-
   void _previousStep() {
-    if (executionHistory.isEmpty) {
-      return;
-    }
-
+    if (executionHistory.isEmpty) return;
     timer?.cancel();
-
     executionHistory.removeLast();
-
     currentStep = executionHistory.length;
-
     _rebuildVisualState();
-
     setState(() {
       isRunning = false;
       isCompleted = false;
     });
   }
 
-  // ==========================================================================
-  // REBUILD VISUAL STATE
-  // ==========================================================================
-
   void _rebuildVisualState() {
-    // Restore the original array first.
     array = [...originalArray];
-
     comparingIndex = -1;
-
     secondComparingIndex = -1;
-
     swappingIndex = -1;
-
     secondSwappingIndex = -1;
-
     sortedCount = 0;
-
     sortedIndexes.clear();
-
     activeCodeLine = 0;
-
-    executionMessage = 'Ready to start Bubble Sort.';
-
-    // Replay all previous events.
+    pairFound = false;
+    executionMessage = 'Ready to start Two Pointer Search.';
     for (final event in executionHistory) {
       _applyEvent(event, updateState: false);
     }
   }
 
-  // ==========================================================================
-  // APPLY EVENT
-  // ==========================================================================
-
-  void _applyEvent(BubbleSortEvent event, {bool updateState = true}) {
-    // ========================================================================
-    // IMPORTANT FIX
-    // ========================================================================
-    //
-    // Every event contains an exact array snapshot.
-    // Apply that snapshot to the visualization.
-    //
-    // This fixes the problem where the UI kept showing:
-    //
-    // 64 5 12 2 11 6
-    //
-    // even after the algorithm was completed.
-    //
-    // ========================================================================
-
+  void _applyEvent(TwoPointerEvent event, {bool updateState = true}) {
     array = [...event.array];
-
     comparingIndex = -1;
-
     secondComparingIndex = -1;
-
     swappingIndex = -1;
-
     secondSwappingIndex = -1;
-
     sortedCount = event.sortedCount;
-
     executionMessage = '${event.title}: ${event.description}';
-
     activeCodeLine = _codeLineForEvent(event.type);
 
-    // ------------------------------------------------------------------------
-    // COMPARE / NO SWAP
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.compare ||
-        event.type == BubbleSortEventType.noSwap) {
+    if (event.type == TwoPointerEventType.compare ||
+        event.type == TwoPointerEventType.moveLeft ||
+        event.type == TwoPointerEventType.moveRight ||
+        event.type == TwoPointerEventType.found) {
       comparingIndex = event.index;
       secondComparingIndex = event.secondIndex;
     }
 
-    // ------------------------------------------------------------------------
-    // SWAP
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.swap) {
-      swappingIndex = event.index;
-      secondSwappingIndex = event.secondIndex;
+    if (event.type == TwoPointerEventType.found) {
+      pairFound = true;
+      if (event.index >= 0) sortedIndexes.add(event.index);
+      if (event.secondIndex >= 0) sortedIndexes.add(event.secondIndex);
     }
 
-    // ------------------------------------------------------------------------
-    // SORTED
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.sorted) {
-      if (event.index >= 0) {
-        sortedIndexes.add(event.index);
-      }
-
+    if (event.type == TwoPointerEventType.complete) {
+      pairFound = event.sortedCount > 0;
       comparingIndex = -1;
       secondComparingIndex = -1;
-    }
-
-    // ------------------------------------------------------------------------
-    // COMPLETE
-    // ------------------------------------------------------------------------
-
-    if (event.type == BubbleSortEventType.complete) {
-      sortedIndexes = Set<int>.from(
-        List.generate(array.length, (index) => index),
-      );
-
-      comparingIndex = -1;
-
-      secondComparingIndex = -1;
-
       swappingIndex = -1;
-
       secondSwappingIndex = -1;
-
-      sortedCount = array.length;
-
-      executionMessage =
-          'Bubble Sort Complete: The array is now sorted in ascending order.';
+      executionMessage = event.description;
     }
 
-    if (updateState) {
-      setState(() {});
-    }
+    if (updateState) setState(() {});
   }
-
-  // ==========================================================================
-  // RESET
-  // ==========================================================================
 
   void _reset() {
     timer?.cancel();
-
     setState(() {
-      // Restore the exact original input.
       array = [...originalArray];
-
       executionHistory.clear();
-
       currentStep = 0;
-
       isRunning = false;
-
       isCompleted = false;
-
       comparingIndex = -1;
-
       secondComparingIndex = -1;
-
       swappingIndex = -1;
-
       secondSwappingIndex = -1;
-
       sortedCount = 0;
-
       sortedIndexes.clear();
-
       activeCodeLine = 0;
-
-      executionMessage = 'Ready to start Bubble Sort.';
+      pairFound = false;
+      executionMessage = 'Ready to start Two Pointer Search.';
     });
-
     _generateEvents();
   }
 
-  // ==========================================================================
-  // SPEED
-  // ==========================================================================
-
   void _setSpeed(double value) {
-    setState(() {
-      speed = value;
-    });
-
-    if (isRunning) {
-      _play();
-    }
+    setState(() => speed = value);
+    if (isRunning) _play();
   }
 
-  // ==========================================================================
-  // CODE LINE
-  // ==========================================================================
-
-  int _codeLineForEvent(BubbleSortEventType type) {
+  int _codeLineForEvent(TwoPointerEventType type) {
     switch (type) {
-      case BubbleSortEventType.initialize:
-        return 1;
-
-      case BubbleSortEventType.compare:
-        return 6;
-
-      case BubbleSortEventType.noSwap:
-        return 6;
-
-      case BubbleSortEventType.swap:
+      case TwoPointerEventType.initialize:
+        return 2;
+      case TwoPointerEventType.compare:
         return 7;
-
-      case BubbleSortEventType.sorted:
-        return 12;
-
-      case BubbleSortEventType.complete:
-        return 1;
+      case TwoPointerEventType.moveLeft:
+        return 14;
+      case TwoPointerEventType.moveRight:
+        return 16;
+      case TwoPointerEventType.found:
+        return 10;
+      case TwoPointerEventType.complete:
+        return 20;
     }
   }
 
-  // ==========================================================================
-  // EVENT COLOR
-  // ==========================================================================
-
-  Color _eventColor(BubbleSortEventType type) {
+  Color _eventColor(TwoPointerEventType type) {
     switch (type) {
-      case BubbleSortEventType.initialize:
+      case TwoPointerEventType.initialize:
         return blue;
-
-      case BubbleSortEventType.compare:
+      case TwoPointerEventType.compare:
         return cyan;
-
-      case BubbleSortEventType.noSwap:
+      case TwoPointerEventType.moveLeft:
         return orange;
-
-      case BubbleSortEventType.swap:
+      case TwoPointerEventType.moveRight:
         return pink;
-
-      case BubbleSortEventType.sorted:
+      case TwoPointerEventType.found:
         return green;
-
-      case BubbleSortEventType.complete:
+      case TwoPointerEventType.complete:
         return green;
     }
   }
 
-  // ==========================================================================
-  // EVENT ICON
-  // ==========================================================================
-
-  IconData _eventIcon(BubbleSortEventType type) {
+  IconData _eventIcon(TwoPointerEventType type) {
     switch (type) {
-      case BubbleSortEventType.initialize:
+      case TwoPointerEventType.initialize:
         return Icons.play_arrow_rounded;
-
-      case BubbleSortEventType.compare:
+      case TwoPointerEventType.compare:
         return Icons.compare_arrows_rounded;
-
-      case BubbleSortEventType.noSwap:
-        return Icons.check_rounded;
-
-      case BubbleSortEventType.swap:
-        return Icons.swap_horiz_rounded;
-
-      case BubbleSortEventType.sorted:
+      case TwoPointerEventType.moveLeft:
+        return Icons.arrow_forward_rounded;
+      case TwoPointerEventType.moveRight:
+        return Icons.arrow_back_rounded;
+      case TwoPointerEventType.found:
         return Icons.check_circle_rounded;
-
-      case BubbleSortEventType.complete:
+      case TwoPointerEventType.complete:
         return Icons.flag_rounded;
     }
   }
 
-  // ==========================================================================
-  // COPY
-  // ==========================================================================
-
   Future<void> _copyCode() async {
     await Clipboard.setData(ClipboardData(text: sourceCode));
-
     _showSnackBar('Source code copied.', cyan);
   }
 
-  // ==========================================================================
-  // SNACKBAR
-  // ==========================================================================
-
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -968,7 +657,7 @@ void bubbleSort(int[] arr) {
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
-              Icons.bubble_chart_rounded,
+              Icons.compare_arrows_rounded,
               color: Colors.white,
               size: 23,
             ),
@@ -981,7 +670,7 @@ void bubbleSort(int[] arr) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Bubble Sort',
+                  'Two Pointer',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -992,7 +681,7 @@ void bubbleSort(int[] arr) {
                 const SizedBox(height: 3),
 
                 Text(
-                  'Sort elements using adjacent comparisons',
+                  'Find a target pair using left and right pointers',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
@@ -1022,7 +711,7 @@ void bubbleSort(int[] arr) {
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'SORTED';
+      text = 'FOUND';
     }
 
     return Container(
@@ -1075,11 +764,11 @@ void bubbleSort(int[] arr) {
           const SizedBox(height: 14),
 
           Text(
-            'Bubble Sort repeatedly compares adjacent '
-            'elements and swaps them when they are in '
-            'the wrong order. After every pass, the '
-            'largest unsorted element moves to its '
-            'correct position.',
+            'Two Pointer Search uses two indexes, one at the left '
+            'and one at the right of a sorted array. The '
+            'sum of the two values decides which pointer '
+            'moves until the target pair is found or the '
+            'pointers meet.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
@@ -1093,12 +782,12 @@ void bubbleSort(int[] arr) {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox('Time', 'O(n²)', orange),
+              _infoBox('Time', 'O(n)', orange),
               _infoBox('Space', 'O(1)', blue),
-              _infoBox('Type', 'Sorting', purple),
+              _infoBox('Type', 'Searching', purple),
               _infoBox('Best', 'O(n)', green),
-              _infoBox('Worst', 'O(n²)', red),
-              _infoBox('Stable', 'Yes', cyan),
+              _infoBox('Worst', 'O(n)', red),
+              _infoBox('Input', 'Sorted', cyan),
             ],
           ),
         ],
@@ -1128,6 +817,10 @@ void bubbleSort(int[] arr) {
 
                     const SizedBox(height: 10),
 
+                    _targetField(),
+
+                    const SizedBox(height: 10),
+
                     Row(
                       children: [
                         Expanded(child: _generateButton()),
@@ -1145,6 +838,10 @@ void bubbleSort(int[] arr) {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(child: _inputField()),
+
+                  const SizedBox(width: 10),
+
+                  SizedBox(width: 130, height: 46, child: _targetField()),
 
                   const SizedBox(width: 10),
 
@@ -1172,7 +869,7 @@ void bubbleSort(int[] arr) {
 
               Expanded(
                 child: Text(
-                  'Try different numbers to see comparisons and swaps.',
+                  'Enter numbers and a target sum. The app sorts the input before the search.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
@@ -1197,7 +894,7 @@ void bubbleSort(int[] arr) {
       cursorColor: cyan,
       decoration: InputDecoration(
         labelText: 'Enter Numbers',
-        hintText: '64, 25, 12, 22, 11...',
+        hintText: '1, 2, 3, 4, 6, 8, 9...',
         labelStyle: TextStyle(
           color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
@@ -1224,6 +921,50 @@ void bubbleSort(int[] arr) {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
+        ),
+      ),
+    );
+  }
+
+  // ==========================================================================
+  // TARGET FIELD
+  // ==========================================================================
+
+  Widget _targetField() {
+    return TextField(
+      controller: targetController,
+      keyboardType: TextInputType.number,
+      style: const TextStyle(color: Colors.white, fontSize: 13),
+      cursorColor: orange,
+      decoration: InputDecoration(
+        labelText: 'Target Sum',
+        hintText: '10',
+        labelStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.58),
+          fontSize: 12,
+        ),
+        hintStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.25),
+          fontSize: 12,
+        ),
+        prefixIcon: Icon(
+          Icons.track_changes_rounded,
+          color: orange.withValues(alpha: 0.8),
+          size: 19,
+        ),
+        filled: true,
+        fillColor: visualizationColor,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 13,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: orange.withValues(alpha: 0.55)),
         ),
       ),
     );
@@ -1348,7 +1089,7 @@ void bubbleSort(int[] arr) {
           Row(
             children: [
               _miniBadge(
-                'COMPARE',
+                'LEFT',
                 comparingIndex >= 0 ? '$comparingIndex' : '-',
                 cyan,
               ),
@@ -1356,14 +1097,14 @@ void bubbleSort(int[] arr) {
               const SizedBox(width: 8),
 
               _miniBadge(
-                'SECOND',
+                'RIGHT',
                 secondComparingIndex >= 0 ? '$secondComparingIndex' : '-',
                 blue,
               ),
 
               const SizedBox(width: 8),
 
-              _miniBadge('SORTED', sortedIndexes.length.toString(), green),
+              _miniBadge('FOUND', sortedIndexes.length.toString(), green),
 
               const SizedBox(width: 8),
 
@@ -1439,7 +1180,7 @@ void bubbleSort(int[] arr) {
       itemColor = green.withValues(alpha: 0.18);
       borderColor = green;
       textColor = green;
-      label = 'SORTED';
+      label = 'FOUND';
     }
 
     // ------------------------------------------------------------------------
@@ -1450,7 +1191,7 @@ void bubbleSort(int[] arr) {
       itemColor = cyan.withValues(alpha: 0.18);
       borderColor = cyan;
       textColor = cyan;
-      label = 'COMPARE';
+      label = index == comparingIndex ? 'LEFT' : 'RIGHT';
     }
 
     // ------------------------------------------------------------------------
@@ -1461,7 +1202,7 @@ void bubbleSort(int[] arr) {
       itemColor = pink.withValues(alpha: 0.20);
       borderColor = pink;
       textColor = pink;
-      label = 'SWAP';
+      label = 'MOVE';
     }
 
     return Container(
@@ -1475,11 +1216,13 @@ void bubbleSort(int[] arr) {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: isSwapping
-                      ? pink
-                      : isComparing
+                  color: isSorted
+                      ? green
+                      : index == comparingIndex
                       ? cyan
-                      : green,
+                      : index == secondComparingIndex
+                      ? blue
+                      : Colors.white.withValues(alpha: 0.35),
                   fontSize: 7.5,
                   fontWeight: FontWeight.w900,
                 ),
@@ -1544,9 +1287,9 @@ void bubbleSort(int[] arr) {
       runSpacing: 8,
       children: [
         _legendItem('Ready', Colors.white),
-        _legendItem('Compare', cyan),
-        _legendItem('Swap', pink),
-        _legendItem('Sorted', green),
+        _legendItem('Left Pointer', cyan),
+        _legendItem('Right Pointer', blue),
+        _legendItem('Found', green),
       ],
     );
   }
@@ -1590,19 +1333,20 @@ void bubbleSort(int[] arr) {
         comparingIndex < array.length &&
         secondComparingIndex < array.length) {
       message =
-          'Comparing ${array[comparingIndex]} and ${array[secondComparingIndex]}';
+          'Left ${array[comparingIndex]} + Right ${array[secondComparingIndex]} = ${array[comparingIndex] + array[secondComparingIndex]} (target $target)';
     }
 
     if (swappingIndex >= 0 &&
         secondSwappingIndex >= 0 &&
         swappingIndex < array.length &&
         secondSwappingIndex < array.length) {
-      message =
-          'Swapping ${array[swappingIndex]} ↔ ${array[secondSwappingIndex]}';
+      message = 'Moving pointers to narrow the search';
     }
 
     if (isCompleted) {
-      message = 'Array sorted successfully';
+      message = pairFound
+          ? 'Target pair found successfully'
+          : 'No matching pair found';
     }
 
     return Container(
@@ -1621,7 +1365,11 @@ void bubbleSort(int[] arr) {
               color: cyan.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.swap_horiz_rounded, color: cyan, size: 18),
+            child: const Icon(
+              Icons.compare_arrows_rounded,
+              color: cyan,
+              size: 18,
+            ),
           ),
 
           const SizedBox(width: 10),
@@ -1660,7 +1408,7 @@ void bubbleSort(int[] arr) {
               borderRadius: BorderRadius.circular(7),
             ),
             child: Text(
-              '$sortedCount sorted',
+              '$sortedCount found',
               style: const TextStyle(
                 color: green,
                 fontSize: 10,
@@ -2116,7 +1864,7 @@ void bubbleSort(int[] arr) {
           const SizedBox(height: 5),
 
           Text(
-            'Press Next Step or Play to start',
+            'Press Next Step or Play to start the search',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.30),
               fontSize: 10,
@@ -2131,7 +1879,7 @@ void bubbleSort(int[] arr) {
   // EXECUTION ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(int index, BubbleSortEvent event) {
+  Widget _executionStepItem(int index, TwoPointerEvent event) {
     final color = _eventColor(event.type);
 
     return Container(

@@ -9,10 +9,7 @@ import 'package:flutter/services.dart';
 // Left -> Right -> Root
 // ============================================================================
 
-enum PostorderMethod {
-  recursive,
-  iterative,
-}
+enum PostorderMethod { recursive, iterative }
 
 enum PostorderEventType {
   initialize,
@@ -58,8 +55,7 @@ class PostorderTraversalScreen extends StatefulWidget {
       _PostorderTraversalScreenState();
 }
 
-class _PostorderTraversalScreenState
-    extends State<PostorderTraversalScreen> {
+class _PostorderTraversalScreenState extends State<PostorderTraversalScreen> {
   // --------------------------------------------------------------------------
   // COLORS
   // --------------------------------------------------------------------------
@@ -151,9 +147,7 @@ void postorder(Node? root) {
 }''';
 
   String get code {
-    return method == PostorderMethod.recursive
-        ? recursiveCode
-        : iterativeCode;
+    return method == PostorderMethod.recursive ? recursiveCode : iterativeCode;
   }
 
   // --------------------------------------------------------------------------
@@ -232,19 +226,6 @@ void postorder(Node? root) {
     });
 
     _generateEvents();
-  }
-
-  void _generateExample() {
-    final random = math.Random();
-
-    final generated = List.generate(
-      7,
-      (_) => 10 + random.nextInt(90),
-    );
-
-    inputController.text = generated.join(', ');
-
-    _loadInput();
   }
 
   // ==========================================================================
@@ -460,14 +441,11 @@ void postorder(Node? root) {
 
     final milliseconds = (900 / speed).round();
 
-    timer = Timer.periodic(
-      Duration(milliseconds: milliseconds),
-      (_) {
-        if (!isRunning || isPaused) return;
+    timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
+      if (!isRunning || isPaused) return;
 
-        _nextStep();
-      },
-    );
+      _nextStep();
+    });
   }
 
   void _pause() {
@@ -658,8 +636,7 @@ void postorder(Node? root) {
       isCompleted = true;
       status = 'Completed';
       operation = 'Traversal Complete';
-      description =
-          'Postorder Traversal finished: Left → Right → Root.';
+      description = 'Postorder Traversal finished: Left → Right → Root.';
     });
   }
 
@@ -745,10 +722,7 @@ void postorder(Node? root) {
   void _randomize() {
     final random = math.Random();
 
-    final generated = List.generate(
-      7,
-      (_) => 10 + random.nextInt(90),
-    );
+    final generated = List.generate(7, (_) => 10 + random.nextInt(90));
 
     inputController.text = generated.join(', ');
     _loadInput();
@@ -760,10 +734,7 @@ void postorder(Node? root) {
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: cardColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: cardColor),
     );
   }
 
@@ -824,35 +795,25 @@ void postorder(Node? root) {
       decoration: BoxDecoration(
         color: background2,
         border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withOpacity(0.06),
-          ),
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-            ),
+            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           ),
           const SizedBox(width: 6),
           Container(
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: orange.withOpacity(0.12),
+              color: orange.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: orange.withOpacity(0.35),
-              ),
+              border: Border.all(color: orange.withValues(alpha: 0.35)),
             ),
-            child: const Icon(
-              Icons.account_tree_rounded,
-              color: orange,
-            ),
+            child: const Icon(Icons.account_tree_rounded, color: orange),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -871,15 +832,14 @@ void postorder(Node? root) {
                 Text(
                   'Binary Tree • Left → Right → Root',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.55),
+                    color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-          if (width >= 600)
-            _statusBadge(),
+          if (width >= 600) _statusBadge(),
         ],
       ),
     );
@@ -887,16 +847,11 @@ void postorder(Node? root) {
 
   Widget _statusBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _statusColor().withOpacity(0.10),
+        color: _statusColor().withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: _statusColor().withOpacity(0.35),
-        ),
+        border: Border.all(color: _statusColor().withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -944,7 +899,7 @@ void postorder(Node? root) {
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: orange.withOpacity(0.10),
+                  color: orange.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -971,7 +926,7 @@ void postorder(Node? root) {
             'Postorder Traversal visits the left subtree first, '
             'then the right subtree, and finally the root node.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.70),
+              color: Colors.white.withValues(alpha: 0.70),
               height: 1.5,
               fontSize: 13,
             ),
@@ -981,31 +936,11 @@ void postorder(Node? root) {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox(
-                'Order',
-                'Left → Right → Root',
-                orange,
-              ),
-              _infoBox(
-                'Time',
-                'O(n)',
-                cyan,
-              ),
-              _infoBox(
-                'Space',
-                'O(h)',
-                purple,
-              ),
-              _infoBox(
-                'Type',
-                'Tree / DFS',
-                green,
-              ),
-              _infoBox(
-                'Difficulty',
-                'Easy',
-                pink,
-              ),
+              _infoBox('Order', 'Left → Right → Root', orange),
+              _infoBox('Time', 'O(n)', cyan),
+              _infoBox('Space', 'O(h)', purple),
+              _infoBox('Type', 'Tree / DFS', green),
+              _infoBox('Difficulty', 'Easy', pink),
             ],
           ),
         ],
@@ -1013,22 +948,13 @@ void postorder(Node? root) {
     );
   }
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.07),
+        color: color.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withOpacity(0.20),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.20)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1036,7 +962,7 @@ void postorder(Node? root) {
           Text(
             title,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.45),
+              color: Colors.white.withValues(alpha: 0.45),
               fontSize: 10,
               fontWeight: FontWeight.w600,
             ),
@@ -1076,7 +1002,7 @@ void postorder(Node? root) {
           Text(
             'Enter values in level-order format.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.48),
+              color: Colors.white.withValues(alpha: 0.48),
               fontSize: 12,
             ),
           ),
@@ -1105,45 +1031,26 @@ void postorder(Node? root) {
   Widget _inputField() {
     return TextField(
       controller: inputController,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
-      ),
+      style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
         labelText: 'Enter Number',
-        labelStyle: TextStyle(
-          color: Colors.white.withOpacity(0.50),
-        ),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.50)),
         hintText: '1, 2, 3, 4, 5, 6, 7',
-        hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.25),
-        ),
-        prefixIcon: const Icon(
-          Icons.account_tree_rounded,
-          color: orange,
-        ),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25)),
+        prefixIcon: const Icon(Icons.account_tree_rounded, color: orange),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.035),
+        fillColor: Colors.white.withValues(alpha: 0.035),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.08),
-          ),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.08),
-          ),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(12),
-          ),
-          borderSide: BorderSide(
-            color: orange,
-            width: 1.2,
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          borderSide: BorderSide(color: orange, width: 1.2),
         ),
       ),
       onSubmitted: (_) => _loadInput(),
@@ -1239,22 +1146,18 @@ void postorder(Node? root) {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: selected
-              ? color.withOpacity(0.11)
-              : Colors.white.withOpacity(0.025),
+              ? color.withValues(alpha: 0.11)
+              : Colors.white.withValues(alpha: 0.025),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
-                ? color.withOpacity(0.45)
-                : Colors.white.withOpacity(0.07),
+                ? color.withValues(alpha: 0.45)
+                : Colors.white.withValues(alpha: 0.07),
           ),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: selected ? color : Colors.white54,
-              size: 21,
-            ),
+            Icon(icon, color: selected ? color : Colors.white54, size: 21),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -1272,7 +1175,7 @@ void postorder(Node? root) {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.40),
+                      color: Colors.white.withValues(alpha: 0.40),
                       fontSize: 10,
                     ),
                   ),
@@ -1280,11 +1183,7 @@ void postorder(Node? root) {
               ),
             ),
             if (selected)
-              Icon(
-                Icons.check_circle_rounded,
-                color: color,
-                size: 18,
-              ),
+              Icon(Icons.check_circle_rounded, color: color, size: 18),
           ],
         ),
       ),
@@ -1313,10 +1212,7 @@ void postorder(Node? root) {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 6,
-              child: _buildVisualizationPanel(width),
-            ),
+            Expanded(flex: 6, child: _buildVisualizationPanel(width)),
             const SizedBox(width: 16),
             Expanded(
               flex: 4,
@@ -1347,11 +1243,7 @@ void postorder(Node? root) {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const Icon(
-                  Icons.account_tree_rounded,
-                  color: orange,
-                  size: 20,
-                ),
+                const Icon(Icons.account_tree_rounded, color: orange, size: 20),
                 const SizedBox(width: 9),
                 const Expanded(
                   child: Text(
@@ -1375,7 +1267,7 @@ void postorder(Node? root) {
             height: width < 600 ? 350 : 420,
             margin: const EdgeInsets.symmetric(horizontal: 10),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.16),
+              color: Colors.black.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(14),
             ),
             child: ClipRRect(
@@ -1414,16 +1306,13 @@ void postorder(Node? root) {
         Container(
           width: 7,
           height: 7,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: color,
-          ),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color),
         ),
         const SizedBox(width: 5),
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.42),
+            color: Colors.white.withValues(alpha: 0.42),
             fontSize: 10,
           ),
         ),
@@ -1442,22 +1331,16 @@ void postorder(Node? root) {
         width: double.infinity,
         padding: const EdgeInsets.all(13),
         decoration: BoxDecoration(
-          color: green.withOpacity(0.055),
+          color: green.withValues(alpha: 0.055),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: green.withOpacity(0.18),
-          ),
+          border: Border.all(color: green.withValues(alpha: 0.18)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Icon(
-                  Icons.route_rounded,
-                  color: green,
-                  size: 17,
-                ),
+                const Icon(Icons.route_rounded, color: green, size: 17),
                 const SizedBox(width: 7),
                 const Text(
                   'Postorder Result',
@@ -1478,7 +1361,7 @@ void postorder(Node? root) {
                     Text(
                       'Waiting...',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.35),
+                        color: Colors.white.withValues(alpha: 0.35),
                         fontSize: 13,
                       ),
                     ),
@@ -1512,19 +1395,16 @@ void postorder(Node? root) {
 
   Widget _resultChip(String value, bool last) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
         color: last
-            ? green.withOpacity(0.16)
-            : Colors.white.withOpacity(0.045),
+            ? green.withValues(alpha: 0.16)
+            : Colors.white.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(7),
         border: Border.all(
           color: last
-              ? green.withOpacity(0.40)
-              : Colors.white.withOpacity(0.08),
+              ? green.withValues(alpha: 0.40)
+              : Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: Text(
@@ -1563,13 +1443,13 @@ void postorder(Node? root) {
                     height: 42,
                     decoration: BoxDecoration(
                       color: isRunning
-                          ? orange.withOpacity(0.12)
-                          : cyan.withOpacity(0.10),
+                          ? orange.withValues(alpha: 0.12)
+                          : cyan.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(11),
                       border: Border.all(
                         color: isRunning
-                            ? orange.withOpacity(0.35)
-                            : cyan.withOpacity(0.35),
+                            ? orange.withValues(alpha: 0.35)
+                            : cyan.withValues(alpha: 0.35),
                       ),
                     ),
                     child: Icon(
@@ -1598,16 +1478,12 @@ void postorder(Node? root) {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: Colors.white54,
-                size: 17,
-              ),
+              const Icon(Icons.speed_rounded, color: Colors.white54, size: 17),
               const SizedBox(width: 8),
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.50),
+                  color: Colors.white.withValues(alpha: 0.50),
                   fontSize: 11,
                 ),
               ),
@@ -1636,7 +1512,7 @@ void postorder(Node? root) {
           Text(
             'Step ${currentStep.clamp(0, events.length)} / ${events.length}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.35),
+              color: Colors.white.withValues(alpha: 0.35),
               fontSize: 10,
             ),
           ),
@@ -1659,17 +1535,11 @@ void postorder(Node? root) {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.035),
+            color: Colors.white.withValues(alpha: 0.035),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.08),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
-          child: Icon(
-            icon,
-            color: Colors.white70,
-            size: 20,
-          ),
+          child: Icon(icon, color: Colors.white70, size: 20),
         ),
       ),
     );
@@ -1688,11 +1558,7 @@ void postorder(Node? root) {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const Icon(
-                  Icons.code_rounded,
-                  color: cyan,
-                  size: 20,
-                ),
+                const Icon(Icons.code_rounded, color: cyan, size: 20),
                 const SizedBox(width: 9),
                 const Expanded(
                   child: Text(
@@ -1706,9 +1572,7 @@ void postorder(Node? root) {
                 ),
                 InkWell(
                   onTap: () async {
-                    await Clipboard.setData(
-                      ClipboardData(text: code),
-                    );
+                    await Clipboard.setData(ClipboardData(text: code));
 
                     if (!mounted) return;
 
@@ -1721,20 +1585,14 @@ void postorder(Node? root) {
                       vertical: 7,
                     ),
                     decoration: BoxDecoration(
-                      color: cyan.withOpacity(0.07),
+                      color: cyan.withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: cyan.withOpacity(0.20),
-                      ),
+                      border: Border.all(color: cyan.withValues(alpha: 0.20)),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.copy_rounded,
-                          color: cyan,
-                          size: 14,
-                        ),
+                        Icon(Icons.copy_rounded, color: cyan, size: 14),
                         SizedBox(width: 5),
                         Text(
                           'Copy',
@@ -1757,12 +1615,10 @@ void postorder(Node? root) {
             margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.22),
+              color: Colors.black.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: SingleChildScrollView(
-              child: _buildCodeText(),
-            ),
+            child: SingleChildScrollView(child: _buildCodeText()),
           ),
         ],
       ),
@@ -1778,13 +1634,10 @@ void postorder(Node? root) {
         for (int i = 0; i < lines.length; i++)
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              vertical: 2.5,
-              horizontal: 5,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5),
             decoration: activeCodeLine == i + 1
                 ? BoxDecoration(
-                    color: cyan.withOpacity(0.08),
+                    color: cyan.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(4),
                   )
                 : null,
@@ -1796,7 +1649,7 @@ void postorder(Node? root) {
                   child: Text(
                     '${i + 1}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.20),
+                      color: Colors.white.withValues(alpha: 0.20),
                       fontSize: 11,
                       fontFamily: 'monospace',
                     ),
@@ -1808,7 +1661,7 @@ void postorder(Node? root) {
                     style: TextStyle(
                       color: activeCodeLine == i + 1
                           ? cyan
-                          : Colors.white.withOpacity(0.72),
+                          : Colors.white.withValues(alpha: 0.72),
                       fontSize: 12,
                       height: 1.5,
                       fontFamily: 'monospace',
@@ -1839,7 +1692,7 @@ void postorder(Node? root) {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: orange.withOpacity(0.10),
+                  color: orange.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: const Icon(
@@ -1874,16 +1727,14 @@ void postorder(Node? root) {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _statusColor().withOpacity(0.055),
+              color: _statusColor().withValues(alpha: 0.055),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: _statusColor().withOpacity(0.16),
-              ),
+              border: Border.all(color: _statusColor().withValues(alpha: 0.16)),
             ),
             child: Text(
               description,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.68),
+                color: Colors.white.withValues(alpha: 0.68),
                 fontSize: 12,
                 height: 1.45,
               ),
@@ -1894,7 +1745,7 @@ void postorder(Node? root) {
             Text(
               'Execution steps will appear here...',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.30),
+                color: Colors.white.withValues(alpha: 0.30),
                 fontSize: 12,
               ),
             )
@@ -1902,10 +1753,7 @@ void postorder(Node? root) {
             Column(
               children: [
                 for (int i = 0; i < executionLog.length; i++)
-                  _logItem(
-                    executionLog[i],
-                    i,
-                  ),
+                  _logItem(executionLog[i], i),
               ],
             ),
         ],
@@ -1919,19 +1767,16 @@ void postorder(Node? root) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 7),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
         color: isLatest
-            ? cyan.withOpacity(0.055)
-            : Colors.white.withOpacity(0.018),
+            ? cyan.withValues(alpha: 0.055)
+            : Colors.white.withValues(alpha: 0.018),
         borderRadius: BorderRadius.circular(9),
         border: Border.all(
           color: isLatest
-              ? cyan.withOpacity(0.16)
-              : Colors.white.withOpacity(0.05),
+              ? cyan.withValues(alpha: 0.16)
+              : Colors.white.withValues(alpha: 0.05),
         ),
       ),
       child: Row(
@@ -1943,8 +1788,8 @@ void postorder(Node? root) {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: isLatest
-                  ? cyan.withOpacity(0.12)
-                  : Colors.white.withOpacity(0.05),
+                  ? cyan.withValues(alpha: 0.12)
+                  : Colors.white.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Text(
@@ -1976,22 +1821,17 @@ void postorder(Node? root) {
   // COMMON CARD
   // ==========================================================================
 
-  Widget _card({
-    required Widget child,
-    EdgeInsetsGeometry? padding,
-  }) {
+  Widget _card({required Widget child, EdgeInsetsGeometry? padding}) {
     return Container(
       width: double.infinity,
       padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.06),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -2011,25 +1851,16 @@ void postorder(Node? root) {
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 11,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: color.withOpacity(0.25),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 16,
-            ),
+            Icon(icon, color: color, size: 16),
             const SizedBox(width: 6),
             Text(
               label,
@@ -2082,14 +1913,7 @@ class _TreePainter extends CustomPainter {
 
     final positions = <int, Offset>{};
 
-    _calculatePositions(
-      0,
-      0,
-      size.width / 2,
-      45,
-      size.width * 0.22,
-      positions,
-    );
+    _calculatePositions(0, 0, size.width / 2, 45, size.width * 0.22, positions);
 
     final edgePaint = Paint()
       ..strokeWidth = 1.5
@@ -2105,23 +1929,15 @@ class _TreePainter extends CustomPainter {
       final right = 2 * i + 2;
 
       if (left < values.length && positions[left] != null) {
-        edgePaint.color = leftColor.withOpacity(0.35);
+        edgePaint.color = leftColor.withValues(alpha: 0.35);
 
-        canvas.drawLine(
-          parent,
-          positions[left]!,
-          edgePaint,
-        );
+        canvas.drawLine(parent, positions[left]!, edgePaint);
       }
 
       if (right < values.length && positions[right] != null) {
-        edgePaint.color = rightColor.withOpacity(0.35);
+        edgePaint.color = rightColor.withValues(alpha: 0.35);
 
-        canvas.drawLine(
-          parent,
-          positions[right]!,
-          edgePaint,
-        );
+        canvas.drawLine(parent, positions[right]!, edgePaint);
       }
     }
 
@@ -2146,38 +1962,23 @@ class _TreePainter extends CustomPainter {
       }
 
       final glowPaint = Paint()
-        ..color = nodeColor.withOpacity(0.12)
-        ..maskFilter = const MaskFilter.blur(
-          BlurStyle.normal,
-          12,
-        );
+        ..color = nodeColor.withValues(alpha: 0.12)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
-      canvas.drawCircle(
-        position,
-        25,
-        glowPaint,
-      );
+      canvas.drawCircle(position, 25, glowPaint);
 
       final fillPaint = Paint()
         ..color = const Color(0xFF0F1B31)
         ..style = PaintingStyle.fill;
 
-      canvas.drawCircle(
-        position,
-        22,
-        fillPaint,
-      );
+      canvas.drawCircle(position, 22, fillPaint);
 
       final borderPaint = Paint()
         ..color = nodeColor
         ..strokeWidth = i == currentNode ? 3 : 1.8
         ..style = PaintingStyle.stroke;
 
-      canvas.drawCircle(
-        position,
-        22,
-        borderPaint,
-      );
+      canvas.drawCircle(position, 22, borderPaint);
 
       final textPainter = TextPainter(
         text: TextSpan(
@@ -2207,7 +2008,7 @@ class _TreePainter extends CustomPainter {
         text: TextSpan(
           text: '[$i]',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.28),
+            color: Colors.white.withValues(alpha: 0.28),
             fontSize: 9,
           ),
         ),
@@ -2218,10 +2019,7 @@ class _TreePainter extends CustomPainter {
 
       indexPainter.paint(
         canvas,
-        Offset(
-          position.dx - indexPainter.width / 2,
-          position.dy + 28,
-        ),
+        Offset(position.dx - indexPainter.width / 2, position.dy + 28),
       );
     }
   }

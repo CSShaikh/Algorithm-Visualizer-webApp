@@ -177,9 +177,7 @@ void heapify(int[] arr, int n, int i) {
   void initState() {
     super.initState();
 
-    arrayController = TextEditingController(
-      text: array.join(', '),
-    );
+    arrayController = TextEditingController(text: array.join(', '));
 
     sourceLines = sourceCode.split('\n');
 
@@ -218,18 +216,13 @@ void heapify(int[] arr, int n, int i) {
         array: List<int>.from(working),
         heapSize: n,
         title: 'Build Max Heap',
-        description:
-            'Start building a Max Heap from the input array.',
+        description: 'Start building a Max Heap from the input array.',
         operation: 'BUILD HEAP',
       ),
     );
 
     for (int i = (n ~/ 2) - 1; i >= 0; i--) {
-      _recordHeapifyEvents(
-        working,
-        n,
-        i,
-      );
+      _recordHeapifyEvents(working, n, i);
     }
 
     // --------------------------------------------------------------
@@ -264,17 +257,12 @@ void heapify(int[] arr, int n, int i) {
           swapIndex: i,
           heapSize: i,
           title: 'Swap Root',
-          description:
-              'Swap the maximum element at the root with index $i.',
+          description: 'Swap the maximum element at the root with index $i.',
           operation: 'SWAP',
         ),
       );
 
-      _recordHeapifyEvents(
-        working,
-        i,
-        0,
-      );
+      _recordHeapifyEvents(working, i, 0);
     }
 
     // --------------------------------------------------------------
@@ -287,8 +275,7 @@ void heapify(int[] arr, int n, int i) {
         array: List<int>.from(working),
         heapSize: 1,
         title: 'Sorting Complete',
-        description:
-            'All elements have been extracted from the heap.',
+        description: 'All elements have been extracted from the heap.',
         operation: 'COMPLETE',
       ),
     );
@@ -298,11 +285,7 @@ void heapify(int[] arr, int n, int i) {
   // RECORD HEAPIFY EVENTS
   // ==============================================================
 
-  void _recordHeapifyEvents(
-    List<int> working,
-    int size,
-    int root,
-  ) {
+  void _recordHeapifyEvents(List<int> working, int size, int root) {
     if (size <= 0 || root >= size) {
       return;
     }
@@ -319,8 +302,7 @@ void heapify(int[] arr, int n, int i) {
         activeIndex: root,
         heapSize: size,
         title: 'Heapify',
-        description:
-            'Heapify subtree rooted at index $root.',
+        description: 'Heapify subtree rooted at index $root.',
         operation: 'HEAPIFY',
       ),
     );
@@ -386,8 +368,7 @@ void heapify(int[] arr, int n, int i) {
           swapIndex: largest,
           heapSize: size,
           title: 'Swap Heap Nodes',
-          description:
-              'Move the larger child to the parent position.',
+          description: 'Move the larger child to the parent position.',
           operation: 'SWAP',
         ),
       );
@@ -396,11 +377,7 @@ void heapify(int[] arr, int n, int i) {
       working[root] = working[largest];
       working[largest] = temp;
 
-      _recordHeapifyEvents(
-        working,
-        size,
-        largest,
-      );
+      _recordHeapifyEvents(working, size, largest);
     }
   }
 
@@ -414,11 +391,7 @@ void heapify(int[] arr, int n, int i) {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: background2,
-        border: Border(
-          bottom: BorderSide(
-            color: cyan.withOpacity(0.10),
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: cyan.withValues(alpha: 0.10))),
       ),
       child: Row(
         children: [
@@ -431,9 +404,7 @@ void heapify(int[] arr, int n, int i) {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.08),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -447,12 +418,7 @@ void heapify(int[] arr, int n, int i) {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  purple,
-                  blue,
-                ],
-              ),
+              gradient: const LinearGradient(colors: [purple, blue]),
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
@@ -477,25 +443,17 @@ void heapify(int[] arr, int n, int i) {
               SizedBox(height: 2),
               Text(
                 'Sorting Algorithm Visualizer',
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: Colors.white54, fontSize: 11),
               ),
             ],
           ),
           const Spacer(),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 11,
-              vertical: 7,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
             decoration: BoxDecoration(
-              color: green.withOpacity(0.08),
+              color: green.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: green.withOpacity(0.20),
-              ),
+              border: Border.all(color: green.withValues(alpha: 0.20)),
             ),
             child: Row(
               children: [
@@ -536,9 +494,7 @@ void heapify(int[] arr, int n, int i) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.07),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,11 +508,7 @@ void heapify(int[] arr, int n, int i) {
           const Text(
             'Heap Sort builds a Max Heap and repeatedly extracts '
             'the largest element to produce a sorted array.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-              height: 1.5,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
           ),
           const SizedBox(height: 14),
           LayoutBuilder(
@@ -571,49 +523,18 @@ void heapify(int[] arr, int n, int i) {
                 count = 3;
               }
 
-              final itemWidth =
-                  (width - ((count - 1) * 10)) / count;
+              final itemWidth = (width - ((count - 1) * 10)) / count;
 
               return Wrap(
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  _infoBox(
-                    'TIME',
-                    'O(n log n)',
-                    cyan,
-                    itemWidth,
-                  ),
-                  _infoBox(
-                    'SPACE',
-                    'O(1)',
-                    blue,
-                    itemWidth,
-                  ),
-                  _infoBox(
-                    'TYPE',
-                    'Sorting',
-                    purple,
-                    itemWidth,
-                  ),
-                  _infoBox(
-                    'BEST',
-                    'O(n log n)',
-                    green,
-                    itemWidth,
-                  ),
-                  _infoBox(
-                    'WORST',
-                    'O(n log n)',
-                    orange,
-                    itemWidth,
-                  ),
-                  _infoBox(
-                    'STABLE',
-                    'No',
-                    pink,
-                    itemWidth,
-                  ),
+                  _infoBox('TIME', 'O(n log n)', cyan, itemWidth),
+                  _infoBox('SPACE', 'O(1)', blue, itemWidth),
+                  _infoBox('TYPE', 'Sorting', purple, itemWidth),
+                  _infoBox('BEST', 'O(n log n)', green, itemWidth),
+                  _infoBox('WORST', 'O(n log n)', orange, itemWidth),
+                  _infoBox('STABLE', 'No', pink, itemWidth),
                 ],
               );
             },
@@ -623,24 +544,14 @@ void heapify(int[] arr, int n, int i) {
     );
   }
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-    double width,
-  ) {
+  Widget _infoBox(String title, String value, Color color, double width) {
     return Container(
       width: width,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 11,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
+        color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withOpacity(0.14),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -679,9 +590,7 @@ void heapify(int[] arr, int n, int i) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.07),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -695,13 +604,9 @@ void heapify(int[] arr, int n, int i) {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(
-                      child: _generateButton(),
-                    ),
+                    Expanded(child: _generateButton()),
                     const SizedBox(width: 10),
-                    Expanded(
-                      child: _loadButton(),
-                    ),
+                    Expanded(child: _loadButton()),
                   ],
                 ),
               ],
@@ -711,19 +616,11 @@ void heapify(int[] arr, int n, int i) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Expanded(
-                child: _buildInputField(),
-              ),
+              Expanded(child: _buildInputField()),
               const SizedBox(width: 12),
-              SizedBox(
-                width: 160,
-                child: _generateButton(),
-              ),
+              SizedBox(width: 160, child: _generateButton()),
               const SizedBox(width: 10),
-              SizedBox(
-                width: 140,
-                child: _loadButton(),
-              ),
+              SizedBox(width: 140, child: _loadButton()),
             ],
           );
         },
@@ -746,17 +643,11 @@ void heapify(int[] arr, int n, int i) {
         const SizedBox(height: 7),
         TextField(
           controller: arrayController,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 13,
-          ),
+          style: const TextStyle(color: Colors.white, fontSize: 13),
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             hintText: '64, 25, 12, 22, 11',
-            hintStyle: const TextStyle(
-              color: Colors.white30,
-              fontSize: 12,
-            ),
+            hintStyle: const TextStyle(color: Colors.white30, fontSize: 12),
             prefixIcon: const Icon(
               Icons.format_list_numbered_rounded,
               color: cyan,
@@ -771,20 +662,18 @@ void heapify(int[] arr, int n, int i) {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha: 0.06),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
-                color: Colors.white.withOpacity(0.06),
+                color: Colors.white.withValues(alpha: 0.06),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: cyan,
-              ),
+              borderSide: const BorderSide(color: cyan),
             ),
           ),
         ),
@@ -797,10 +686,7 @@ void heapify(int[] arr, int n, int i) {
       height: 45,
       child: OutlinedButton.icon(
         onPressed: isRunning ? null : _generateNumbers,
-        icon: const Icon(
-          Icons.auto_awesome_rounded,
-          size: 17,
-        ),
+        icon: const Icon(Icons.auto_awesome_rounded, size: 17),
         label: const Text(
           'GENERATE NUMBERS',
           style: TextStyle(
@@ -811,13 +697,11 @@ void heapify(int[] arr, int n, int i) {
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: cyan,
-          side: BorderSide(
-            color: cyan.withOpacity(0.30),
-          ),
+          side: BorderSide(color: cyan.withValues(alpha: 0.30)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          backgroundColor: cyan.withOpacity(0.04),
+          backgroundColor: cyan.withValues(alpha: 0.04),
         ),
       ),
     );
@@ -828,10 +712,7 @@ void heapify(int[] arr, int n, int i) {
       height: 45,
       child: ElevatedButton.icon(
         onPressed: isRunning ? null : _loadArray,
-        icon: const Icon(
-          Icons.download_rounded,
-          size: 17,
-        ),
+        icon: const Icon(Icons.download_rounded, size: 17),
         label: const Text(
           'LOAD ARRAY',
           style: TextStyle(
@@ -885,10 +766,7 @@ void heapify(int[] arr, int n, int i) {
           ),
         ),
         const SizedBox(width: 16),
-        Expanded(
-          flex: 2,
-          child: _buildSourceAndStepsPanel(),
-        ),
+        Expanded(flex: 2, child: _buildSourceAndStepsPanel()),
       ],
     );
   }
@@ -904,9 +782,7 @@ void heapify(int[] arr, int n, int i) {
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.07),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -936,52 +812,28 @@ void heapify(int[] arr, int n, int i) {
       spacing: 14,
       runSpacing: 8,
       children: [
-        _legendItem(
-          'Heap Root',
-          orange,
-        ),
-        _legendItem(
-          'Comparing',
-          cyan,
-        ),
-        _legendItem(
-          'Swap',
-          pink,
-        ),
-        _legendItem(
-          'Sorted',
-          green,
-        ),
-        _legendItem(
-          'Heap',
-          blue,
-        ),
+        _legendItem('Heap Root', orange),
+        _legendItem('Comparing', cyan),
+        _legendItem('Swap', pink),
+        _legendItem('Sorted', green),
+        _legendItem('Heap', blue),
       ],
     );
   }
 
-  Widget _legendItem(
-    String title,
-    Color color,
-  ) {
+  Widget _legendItem(String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 9,
           height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white54,
-            fontSize: 10,
-          ),
+          style: const TextStyle(color: Colors.white54, fontSize: 10),
         ),
       ],
     );
@@ -998,10 +850,7 @@ void heapify(int[] arr, int n, int i) {
         child: Center(
           child: Text(
             'No array loaded',
-            style: TextStyle(
-              color: Colors.white38,
-              fontSize: 13,
-            ),
+            style: TextStyle(color: Colors.white38, fontSize: 13),
           ),
         ),
       );
@@ -1011,10 +860,7 @@ void heapify(int[] arr, int n, int i) {
       height: 350,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double width = max(
-            constraints.maxWidth,
-            array.length * 78.0,
-          );
+          final double width = max(constraints.maxWidth, array.length * 78.0);
 
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -1022,10 +868,7 @@ void heapify(int[] arr, int n, int i) {
               width: width,
               height: 350,
               child: Stack(
-                children: [
-                  _buildHeapLines(width),
-                  _buildHeapNodes(width),
-                ],
+                children: [_buildHeapLines(width), _buildHeapNodes(width)],
               ),
             ),
           );
@@ -1052,49 +895,22 @@ void heapify(int[] arr, int n, int i) {
       final int left = 2 * i + 1;
       final int right = 2 * i + 2;
 
-      final Offset parent = _nodePosition(
-        i,
-        width,
-        nodeWidth,
-        levelGap,
-      );
+      final Offset parent = _nodePosition(i, width, nodeWidth, levelGap);
 
       if (left < array.length) {
-        final Offset child = _nodePosition(
-          left,
-          width,
-          nodeWidth,
-          levelGap,
-        );
+        final Offset child = _nodePosition(left, width, nodeWidth, levelGap);
 
-        lines.add(
-          _connectionLine(
-            parent,
-            child,
-          ),
-        );
+        lines.add(_connectionLine(parent, child));
       }
 
       if (right < array.length) {
-        final Offset child = _nodePosition(
-          right,
-          width,
-          nodeWidth,
-          levelGap,
-        );
+        final Offset child = _nodePosition(right, width, nodeWidth, levelGap);
 
-        lines.add(
-          _connectionLine(
-            parent,
-            child,
-          ),
-        );
+        lines.add(_connectionLine(parent, child));
       }
     }
 
-    return Stack(
-      children: lines,
-    );
+    return Stack(children: lines);
   }
 
   Offset _nodePosition(
@@ -1107,38 +923,24 @@ void heapify(int[] arr, int n, int i) {
 
     final int firstIndexAtLevel = pow(2, level).toInt() - 1;
 
-    final int positionAtLevel =
-        index - firstIndexAtLevel;
+    final int positionAtLevel = index - firstIndexAtLevel;
 
-    final int nodesAtLevel =
-        pow(2, level).toInt();
+    final int nodesAtLevel = pow(2, level).toInt();
 
-    final double levelWidth =
-        width / nodesAtLevel;
+    final double levelWidth = width / nodesAtLevel;
 
-    final double x =
-        (positionAtLevel + .5) * levelWidth -
-            nodeWidth / 2;
+    final double x = (positionAtLevel + .5) * levelWidth - nodeWidth / 2;
 
-    final double y =
-        20 + level * levelGap;
+    final double y = 20 + level * levelGap;
 
-    return Offset(
-      x + nodeWidth / 2,
-      y + nodeWidth / 2,
-    );
+    return Offset(x + nodeWidth / 2, y + nodeWidth / 2);
   }
 
-  Widget _connectionLine(
-    Offset start,
-    Offset end,
-  ) {
+  Widget _connectionLine(Offset start, Offset end) {
     final dx = end.dx - start.dx;
     final dy = end.dy - start.dy;
 
-    final length = sqrt(
-      dx * dx + dy * dy,
-    );
+    final length = sqrt(dx * dx + dy * dy);
 
     final angle = atan2(dy, dx);
 
@@ -1151,7 +953,7 @@ void heapify(int[] arr, int n, int i) {
         child: Container(
           width: length,
           height: 1,
-          color: Colors.white.withOpacity(0.10),
+          color: Colors.white.withValues(alpha: 0.10),
         ),
       ),
     );
@@ -1168,26 +970,17 @@ void heapify(int[] arr, int n, int i) {
     const double levelGap = 78;
 
     for (int i = 0; i < array.length; i++) {
-      final position = _nodePosition(
-        i,
-        width,
-        nodeSize,
-        levelGap,
-      );
+      final position = _nodePosition(i, width, nodeSize, levelGap);
 
       final bool isRoot = i == 0;
 
-      final bool isActive =
-          i == activeIndex;
+      final bool isActive = i == activeIndex;
 
-      final bool isComparing =
-          i == compareIndex;
+      final bool isComparing = i == compareIndex;
 
-      final bool isSwapping =
-          i == swapIndex;
+      final bool isSwapping = i == swapIndex;
 
-      final bool isSorted =
-          sortedIndices.contains(i);
+      final bool isSorted = sortedIndices.contains(i);
 
       Color nodeColor = blue;
 
@@ -1214,40 +1007,28 @@ void heapify(int[] arr, int n, int i) {
                 height: nodeSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: nodeColor.withOpacity(0.10),
+                  color: nodeColor.withValues(alpha: 0.10),
                   border: Border.all(
                     color: nodeColor,
-                    width:
-                        isActive ||
-                                isComparing ||
-                                isSwapping ||
-                                isSorted
-                            ? 2
-                            : 1.2,
+                    width: isActive || isComparing || isSwapping || isSorted
+                        ? 2
+                        : 1.2,
                   ),
-                  boxShadow:
-                      isActive ||
-                              isComparing ||
-                              isSwapping
-                          ? [
-                              BoxShadow(
-                                color:
-                                    nodeColor.withOpacity(
-                                  0.28,
-                                ),
-                                blurRadius: 14,
-                                spreadRadius: 1,
-                              ),
-                            ]
-                          : null,
+                  boxShadow: isActive || isComparing || isSwapping
+                      ? [
+                          BoxShadow(
+                            color: nodeColor.withValues(alpha: 0.28),
+                            blurRadius: 14,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Center(
                   child: Text(
                     '${array[i]}',
                     style: TextStyle(
-                      color: isSorted
-                          ? green
-                          : Colors.white,
+                      color: isSorted ? green : Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1258,7 +1039,7 @@ void heapify(int[] arr, int n, int i) {
               Text(
                 '[$i]',
                 style: TextStyle(
-                  color: nodeColor.withOpacity(.75),
+                  color: nodeColor.withValues(alpha: .75),
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1269,9 +1050,7 @@ void heapify(int[] arr, int n, int i) {
       );
     }
 
-    return Stack(
-      children: nodes,
-    );
+    return Stack(children: nodes);
   }
 
   // ==============================================================
@@ -1282,8 +1061,7 @@ void heapify(int[] arr, int n, int i) {
     Color operationColor = cyan;
 
     if (executionHistory.isNotEmpty) {
-      final event =
-          executionHistory.last;
+      final event = executionHistory.last;
 
       switch (event.type) {
         case HeapSortEventType.swap:
@@ -1314,11 +1092,9 @@ void heapify(int[] arr, int n, int i) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: operationColor.withOpacity(0.05),
+        color: operationColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(
-          color: operationColor.withOpacity(0.16),
-        ),
+        border: Border.all(color: operationColor.withValues(alpha: 0.16)),
       ),
       child: Row(
         children: [
@@ -1326,26 +1102,20 @@ void heapify(int[] arr, int n, int i) {
             width: 35,
             height: 35,
             decoration: BoxDecoration(
-              color: operationColor.withOpacity(0.10),
+              color: operationColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(
-              _operationIcon(),
-              color: operationColor,
-              size: 18,
-            ),
+            child: Icon(_operationIcon(), color: operationColor, size: 18),
           ),
           const SizedBox(width: 11),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   executionHistory.isEmpty
                       ? 'READY'
-                      : executionHistory.last.title
-                          .toUpperCase(),
+                      : executionHistory.last.title.toUpperCase(),
                   style: TextStyle(
                     color: operationColor,
                     fontSize: 10,
@@ -1410,9 +1180,7 @@ void heapify(int[] arr, int n, int i) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.07),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
       ),
       child: Column(
         children: [
@@ -1421,22 +1189,18 @@ void heapify(int[] arr, int n, int i) {
               _controlButton(
                 icon: Icons.skip_previous_rounded,
                 label: 'Previous',
-                onPressed:
-                    currentStep > 0 && !isRunning
-                        ? _previousStep
-                        : null,
+                onPressed: currentStep > 0 && !isRunning ? _previousStep : null,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: SizedBox(
                   height: 42,
                   child: ElevatedButton.icon(
-                    onPressed:
-                        isCompleted
-                            ? null
-                            : isRunning
-                                ? _pause
-                                : _play,
+                    onPressed: isCompleted
+                        ? null
+                        : isRunning
+                        ? _pause
+                        : _play,
                     icon: Icon(
                       isRunning
                           ? Icons.pause_rounded
@@ -1447,8 +1211,8 @@ void heapify(int[] arr, int n, int i) {
                       isRunning
                           ? 'PAUSE'
                           : isCompleted
-                              ? 'COMPLETED'
-                              : 'PLAY',
+                          ? 'COMPLETED'
+                          : 'PLAY',
                       style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -1456,14 +1220,11 @@ void heapify(int[] arr, int n, int i) {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isRunning
-                          ? orange
-                          : green,
+                      backgroundColor: isRunning ? orange : green,
                       foregroundColor: background,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(9),
+                        borderRadius: BorderRadius.circular(9),
                       ),
                     ),
                   ),
@@ -1473,28 +1234,20 @@ void heapify(int[] arr, int n, int i) {
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next',
-                onPressed:
-                    !isCompleted && !isRunning
-                        ? _nextStep
-                        : null,
+                onPressed: !isCompleted && !isRunning ? _nextStep : null,
               ),
               const SizedBox(width: 8),
               _controlButton(
                 icon: Icons.restart_alt_rounded,
                 label: 'Reset',
-                onPressed:
-                    isRunning ? null : _reset,
+                onPressed: isRunning ? null : _reset,
               ),
             ],
           ),
           const SizedBox(height: 13),
           Row(
             children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: cyan,
-                size: 17,
-              ),
+              const Icon(Icons.speed_rounded, color: cyan, size: 17),
               const SizedBox(width: 8),
               const Text(
                 'Speed',
@@ -1511,8 +1264,7 @@ void heapify(int[] arr, int n, int i) {
                   max: 2.5,
                   divisions: 4,
                   activeColor: cyan,
-                  inactiveColor:
-                      Colors.white.withOpacity(.10),
+                  inactiveColor: Colors.white.withValues(alpha: .10),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -1544,25 +1296,15 @@ void heapify(int[] arr, int n, int i) {
       height: 42,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: Icon(
-          icon,
-          size: 16,
-        ),
+        icon: Icon(icon, size: 16),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-          ),
+          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.white70,
-          side: BorderSide(
-            color: Colors.white.withOpacity(.09),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(9),
-          ),
+          side: BorderSide(color: Colors.white.withValues(alpha: .09)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
         ),
       ),
     );
@@ -1589,32 +1331,19 @@ void heapify(int[] arr, int n, int i) {
   Widget _buildSourceCode() {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(
-        minHeight: 400,
-      ),
+      constraints: const BoxConstraints(minHeight: 400),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(.07),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: .07)),
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              15,
-              13,
-              10,
-              13,
-            ),
+            padding: const EdgeInsets.fromLTRB(15, 13, 10, 13),
             child: Row(
               children: [
-                _sectionTitle(
-                  Icons.code_rounded,
-                  'Source Code',
-                  cyan,
-                ),
+                _sectionTitle(Icons.code_rounded, 'Source Code', cyan),
                 const Spacer(),
                 InkWell(
                   onTap: _copyCode,
@@ -1625,20 +1354,13 @@ void heapify(int[] arr, int n, int i) {
                       vertical: 7,
                     ),
                     decoration: BoxDecoration(
-                      color: cyan.withOpacity(.06),
-                      borderRadius:
-                          BorderRadius.circular(8),
-                      border: Border.all(
-                        color: cyan.withOpacity(.15),
-                      ),
+                      color: cyan.withValues(alpha: .06),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: cyan.withValues(alpha: .15)),
                     ),
                     child: const Row(
                       children: [
-                        Icon(
-                          Icons.copy_rounded,
-                          color: cyan,
-                          size: 13,
-                        ),
+                        Icon(Icons.copy_rounded, color: cyan, size: 13),
                         SizedBox(width: 5),
                         Text(
                           'COPY',
@@ -1655,20 +1377,14 @@ void heapify(int[] arr, int n, int i) {
               ],
             ),
           ),
-          Divider(
-            height: 1,
-            color: Colors.white.withOpacity(.06),
-          ),
+          Divider(height: 1, color: Colors.white.withValues(alpha: .06)),
           SizedBox(
             height: 390,
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               itemCount: sourceLines.length,
               itemBuilder: (context, index) {
-                final bool active =
-                    index + 1 == activeCodeLine;
+                final bool active = index + 1 == activeCodeLine;
 
                 return Container(
                   width: double.infinity,
@@ -1677,11 +1393,10 @@ void heapify(int[] arr, int n, int i) {
                     vertical: 2,
                   ),
                   color: active
-                      ? cyan.withOpacity(.08)
+                      ? cyan.withValues(alpha: .08)
                       : Colors.transparent,
                   child: Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         width: 28,
@@ -1689,9 +1404,7 @@ void heapify(int[] arr, int n, int i) {
                           '${index + 1}',
                           textAlign: TextAlign.right,
                           style: TextStyle(
-                            color: active
-                                ? cyan
-                                : Colors.white24,
+                            color: active ? cyan : Colors.white24,
                             fontSize: 10,
                             fontFamily: 'monospace',
                           ),
@@ -1702,9 +1415,7 @@ void heapify(int[] arr, int n, int i) {
                         child: Text(
                           sourceLines[index],
                           style: TextStyle(
-                            color: active
-                                ? Colors.white
-                                : Colors.white60,
+                            color: active ? Colors.white : Colors.white60,
                             fontSize: 10.5,
                             height: 1.45,
                             fontFamily: 'monospace',
@@ -1732,44 +1443,28 @@ void heapify(int[] arr, int n, int i) {
   Widget _buildExecutionSteps() {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(
-        minHeight: 260,
-      ),
+      constraints: const BoxConstraints(minHeight: 260),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(.07),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: .07)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.timeline_rounded,
-            'Execution Steps',
-            orange,
-          ),
+          _sectionTitle(Icons.timeline_rounded, 'Execution Steps', orange),
           const SizedBox(height: 12),
           SizedBox(
             height: 220,
             child: executionHistory.isEmpty
                 ? _emptySteps()
                 : ListView.builder(
-                    itemCount:
-                        executionHistory.length,
-                    itemBuilder: (
-                      context,
-                      index,
-                    ) {
-                      final event =
-                          executionHistory[index];
+                    itemCount: executionHistory.length,
+                    itemBuilder: (context, index) {
+                      final event = executionHistory[index];
 
-                      return _stepTile(
-                        index,
-                        event,
-                      );
+                      return _stepTile(index, event);
                     },
                   ),
           ),
@@ -1781,63 +1476,47 @@ void heapify(int[] arr, int n, int i) {
   Widget _emptySteps() {
     return Center(
       child: Column(
-        mainAxisAlignment:
-            MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.timeline_outlined,
-            color: Colors.white.withOpacity(.16),
+            color: Colors.white.withValues(alpha: .16),
             size: 34,
           ),
           const SizedBox(height: 8),
           const Text(
             'No steps executed yet',
-            style: TextStyle(
-              color: Colors.white38,
-              fontSize: 11,
-            ),
+            style: TextStyle(color: Colors.white38, fontSize: 11),
           ),
           const SizedBox(height: 4),
           const Text(
             'Press Next Step or Play',
-            style: TextStyle(
-              color: Colors.white24,
-              fontSize: 9,
-            ),
+            style: TextStyle(color: Colors.white24, fontSize: 9),
           ),
         ],
       ),
     );
   }
 
-  Widget _stepTile(
-    int index,
-    HeapSortEvent event,
-  ) {
-    final Color color =
-        _eventColor(event.type);
+  Widget _stepTile(int index, HeapSortEvent event) {
+    final Color color = _eventColor(event.type);
 
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: 7,
-      ),
+      margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        color: color.withOpacity(.045),
+        color: color.withValues(alpha: .045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity(.10),
-        ),
+        border: Border.all(color: color.withValues(alpha: .10)),
       ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 25,
             height: 25,
             decoration: BoxDecoration(
-              color: color.withOpacity(.10),
+              color: color.withValues(alpha: .10),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -1854,8 +1533,7 @@ void heapify(int[] arr, int n, int i) {
           const SizedBox(width: 9),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   event.title,
@@ -1882,9 +1560,7 @@ void heapify(int[] arr, int n, int i) {
     );
   }
 
-  Color _eventColor(
-    HeapSortEventType type,
-  ) {
+  Color _eventColor(HeapSortEventType type) {
     switch (type) {
       case HeapSortEventType.buildHeap:
         return purple;
@@ -1913,11 +1589,7 @@ void heapify(int[] arr, int n, int i) {
   // SECTION TITLE
   // ==============================================================
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1925,14 +1597,10 @@ void heapify(int[] arr, int n, int i) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withOpacity(.08),
+            color: color.withValues(alpha: .08),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 16,
-          ),
+          child: Icon(icon, color: color, size: 16),
         ),
         const SizedBox(width: 9),
         Text(
@@ -1974,31 +1642,21 @@ void heapify(int[] arr, int n, int i) {
 
       heapSize = event.heapSize;
 
-      executionMessage =
-          event.description;
+      executionMessage = event.description;
 
-      activeCodeLine =
-          _codeLineForEvent(event);
+      activeCodeLine = _codeLineForEvent(event);
 
-      if (event.type ==
-          HeapSortEventType.extract) {
+      if (event.type == HeapSortEventType.extract) {
         if (event.swapIndex >= 0) {
-          sortedIndices.add(
-            event.swapIndex,
-          );
+          sortedIndices.add(event.swapIndex);
         }
       }
 
-      if (event.type ==
-          HeapSortEventType.complete) {
+      if (event.type == HeapSortEventType.complete) {
         isCompleted = true;
 
-        sortedIndices =
-            Set<int>.from(
-          List.generate(
-            array.length,
-            (index) => index,
-          ),
+        sortedIndices = Set<int>.from(
+          List.generate(array.length, (index) => index),
         );
 
         activeIndex = -1;
@@ -2006,8 +1664,7 @@ void heapify(int[] arr, int n, int i) {
         swapIndex = -1;
         heapSize = 0;
 
-        executionMessage =
-            'Heap Sort completed successfully.';
+        executionMessage = 'Heap Sort completed successfully.';
       }
     });
   }
@@ -2023,8 +1680,7 @@ void heapify(int[] arr, int n, int i) {
 
     executionHistory.removeLast();
 
-    final int newStep =
-        executionHistory.length;
+    final int newStep = executionHistory.length;
 
     setState(() {
       currentStep = newStep;
@@ -2032,54 +1688,42 @@ void heapify(int[] arr, int n, int i) {
       sortedIndices.clear();
 
       if (executionHistory.isEmpty) {
-        array = List<int>.from(
-          originalArray,
-        );
+        array = List<int>.from(originalArray);
 
         activeIndex = -1;
         compareIndex = -1;
         swapIndex = -1;
         heapSize = 0;
         activeCodeLine = 0;
-        executionMessage =
-            'Ready to start Heap Sort';
+        executionMessage = 'Ready to start Heap Sort';
         isCompleted = false;
         return;
       }
 
-      final event =
-          executionHistory.last;
+      final event = executionHistory.last;
 
-      array = List<int>.from(
-        event.array,
-      );
+      array = List<int>.from(event.array);
 
       activeIndex = event.activeIndex;
       compareIndex = event.compareIndex;
       swapIndex = event.swapIndex;
       heapSize = event.heapSize;
 
-      activeCodeLine =
-          _codeLineForEvent(event);
+      activeCodeLine = _codeLineForEvent(event);
 
-      executionMessage =
-          event.description;
+      executionMessage = event.description;
 
       for (final e in executionHistory) {
-        if (e.type ==
-            HeapSortEventType.extract) {
+        if (e.type == HeapSortEventType.extract) {
           if (e.swapIndex >= 0) {
-            sortedIndices.add(
-              e.swapIndex,
-            );
+            sortedIndices.add(e.swapIndex);
           }
         }
       }
 
       isCompleted = false;
 
-      if (event.type ==
-          HeapSortEventType.complete) {
+      if (event.type == HeapSortEventType.complete) {
         isCompleted = true;
       }
     });
@@ -2120,44 +1764,34 @@ void heapify(int[] arr, int n, int i) {
   void _startTimer() {
     _stopTimer();
 
-    final int milliseconds =
-        max(
-          120,
-          (850 / speed).round(),
-        );
+    final int milliseconds = max(120, (850 / speed).round());
 
-    timer = Timer.periodic(
-      Duration(
-        milliseconds: milliseconds,
-      ),
-      (_) {
-        if (currentStep >=
-            events.length) {
-          _stopTimer();
+    timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
+      if (currentStep >= events.length) {
+        _stopTimer();
 
-          if (mounted) {
-            setState(() {
-              isRunning = false;
-              isCompleted = true;
-            });
-          }
-
-          return;
+        if (mounted) {
+          setState(() {
+            isRunning = false;
+            isCompleted = true;
+          });
         }
 
-        _nextStep();
+        return;
+      }
 
-        if (isCompleted) {
-          _stopTimer();
+      _nextStep();
 
-          if (mounted) {
-            setState(() {
-              isRunning = false;
-            });
-          }
+      if (isCompleted) {
+        _stopTimer();
+
+        if (mounted) {
+          setState(() {
+            isRunning = false;
+          });
         }
-      },
-    );
+      }
+    });
   }
 
   void _stopTimer() {
@@ -2180,9 +1814,7 @@ void heapify(int[] arr, int n, int i) {
 
       executionHistory.clear();
 
-      array = List<int>.from(
-        originalArray,
-      );
+      array = List<int>.from(originalArray);
 
       activeIndex = -1;
       compareIndex = -1;
@@ -2194,8 +1826,7 @@ void heapify(int[] arr, int n, int i) {
 
       activeCodeLine = 0;
 
-      executionMessage =
-          'Ready to start Heap Sort';
+      executionMessage = 'Ready to start Heap Sort';
     });
   }
 
@@ -2204,26 +1835,18 @@ void heapify(int[] arr, int n, int i) {
   // ==============================================================
 
   void _loadArray() {
-    final text =
-        arrayController.text.trim();
+    final text = arrayController.text.trim();
 
     if (text.isEmpty) {
-      _showMessage(
-        'Please enter some numbers.',
-        red,
-      );
+      _showMessage('Please enter some numbers.', red);
       return;
     }
 
     try {
       final values = text
           .split(RegExp(r'[,;\s]+'))
-          .where(
-            (value) => value.isNotEmpty,
-          )
-          .map(
-            (value) => int.parse(value),
-          )
+          .where((value) => value.isNotEmpty)
+          .map((value) => int.parse(value))
           .toList();
 
       if (values.isEmpty) {
@@ -2242,8 +1865,7 @@ void heapify(int[] arr, int n, int i) {
 
       setState(() {
         array = List<int>.from(values);
-        originalArray =
-            List<int>.from(values);
+        originalArray = List<int>.from(values);
 
         events.clear();
         executionHistory.clear();
@@ -2263,16 +1885,12 @@ void heapify(int[] arr, int n, int i) {
 
         activeCodeLine = 0;
 
-        executionMessage =
-            'Array loaded. Ready to start Heap Sort.';
+        executionMessage = 'Array loaded. Ready to start Heap Sort.';
 
         _generateEvents();
       });
     } catch (_) {
-      _showMessage(
-        'Invalid input. Use numbers like: 64, 25, 12, 22',
-        red,
-      );
+      _showMessage('Invalid input. Use numbers like: 64, 25, 12, 22', red);
     }
   }
 
@@ -2283,13 +1901,9 @@ void heapify(int[] arr, int n, int i) {
   void _generateNumbers() {
     final random = Random();
 
-    final generated = List.generate(
-      8,
-      (_) => 10 + random.nextInt(90),
-    );
+    final generated = List.generate(8, (_) => 10 + random.nextInt(90));
 
-    arrayController.text =
-        generated.join(', ');
+    arrayController.text = generated.join(', ');
 
     _loadArray();
   }
@@ -2312,9 +1926,7 @@ void heapify(int[] arr, int n, int i) {
   // CODE LINE
   // ==============================================================
 
-  int _codeLineForEvent(
-    HeapSortEvent event,
-  ) {
+  int _codeLineForEvent(HeapSortEvent event) {
     switch (event.type) {
       case HeapSortEventType.buildHeap:
         return 5;
@@ -2344,48 +1956,31 @@ void heapify(int[] arr, int n, int i) {
   // ==============================================================
 
   Future<void> _copyCode() async {
-    await Clipboard.setData(
-      const ClipboardData(
-        text: sourceCode,
-      ),
-    );
+    await Clipboard.setData(const ClipboardData(text: sourceCode));
 
     if (!mounted) {
       return;
     }
 
-    _showMessage(
-      'Source code copied to clipboard.',
-      green,
-    );
+    _showMessage('Source code copied to clipboard.', green);
   }
 
   // ==============================================================
   // SNACKBAR
   // ==============================================================
 
-  void _showMessage(
-    String message,
-    Color color,
-  ) {
+  void _showMessage(String message, Color color) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(
-            message,
-            style: const TextStyle(
-              fontSize: 12,
-            ),
-          ),
+          content: Text(message, style: const TextStyle(fontSize: 12)),
           backgroundColor: cardColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
           ),
-          duration:
-              const Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
   }
@@ -2404,32 +1999,19 @@ void heapify(int[] arr, int n, int i) {
             _buildHeader(),
             Expanded(
               child: LayoutBuilder(
-                builder: (
-                  context,
-                  constraints,
-                ) {
+                builder: (context, constraints) {
                   return SingleChildScrollView(
-                    padding:
-                        const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(18),
                     child: Center(
                       child: ConstrainedBox(
-                        constraints:
-                            const BoxConstraints(
-                          maxWidth: 1450,
-                        ),
+                        constraints: const BoxConstraints(maxWidth: 1450),
                         child: Column(
                           children: [
                             _buildAlgorithmInfo(),
-                            const SizedBox(
-                              height: 16,
-                            ),
+                            const SizedBox(height: 16),
                             _buildInputSection(),
-                            const SizedBox(
-                              height: 16,
-                            ),
-                            _buildMainWorkspace(
-                              constraints.maxWidth,
-                            ),
+                            const SizedBox(height: 16),
+                            _buildMainWorkspace(constraints.maxWidth),
                           ],
                         ),
                       ),
