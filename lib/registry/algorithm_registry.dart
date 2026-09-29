@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+=======
+import 'package:a_algorithm_visualizer/algorithms/array_algorithms/two_pointer_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/dyanamic_programming_algorithms/lcs_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/dyanamic_programming_algorithms/lis_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_adddition_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_transpose_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/sorting_algorithms/counting_sort_screen.dart';
+>>>>>>> 4a1b1b5 (Implemented new algorithm)
 import 'package:flutter/material.dart';
 
 import '../algorithms/graph_algorithms/dijkstra_screen.dart';
@@ -324,6 +335,248 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
+<<<<<<< HEAD
+=======
+
+    // -------------------------------------------------------------------------
+    // ARRAY ALGORITHMS
+    // -------------------------------------------------------------------------
+    Algorithm(
+      id: 'two-pointer',
+      title: 'Two Pointer Technique',
+      description:
+          'Uses two pointers to solve problems on sorted arrays or linked lists.',
+      complexity: 'O(n)',
+      categoryLabel: 'Array Algorithms',
+      category: AlgorithmCategory.arrayAlgorithms,
+      color: AppColors.orange,
+      icon: Icons.compare_arrows_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    // -------------------------------------------------------------------------
+    // LINKED LIST ALGORITHMS
+    // -------------------------------------------------------------------------
+    Algorithm(
+      id: 'find-middle-linked-list',
+      title: 'Find Middle Element',
+      description:
+          'Finds the middle element of a linked list using the slow and fast pointer technique.',
+      complexity: 'O(n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.orange,
+      icon: Icons.center_focus_strong_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
+      id: 'reverse-linked-list',
+      title: 'Reverse Linked List',
+      description:
+          'Reverses the direction of all links in a singly linked list.',
+      complexity: 'O(n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.sync_alt_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
+      id: 'find-loop-start-linked-list',
+      title: 'Find Start of Loop',
+      description:
+          'Detects a loop in a linked list and finds the node where the loop starts.',
+      complexity: 'O(n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.purple,
+      icon: Icons.loop_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
+      id: 'third-element-from-tail',
+      title: 'Find 3rd Element from Tail',
+      description: 'Finds the third element from the end of a linked list.',
+      complexity: 'O(n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.blue,
+      icon: Icons.format_list_numbered_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
+      id: 'sort-linked-list',
+      title: 'Sort Linked List',
+      description: 'Sorts the elements of a linked list into ascending order.',
+      complexity: 'O(n log n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.green,
+      icon: Icons.sort_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
+      id: 'merge-two-sorted-linked-lists',
+      title: 'Merge Two Sorted Linked Lists',
+      description:
+          'Merges two sorted linked lists into a single sorted linked list.',
+      complexity: 'O(n + m)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.pink,
+      icon: Icons.merge_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
+      id: 'linked-list-to-binary-tree',
+      title: 'Convert Linked List to Binary Tree',
+      description: 'Converts linked list data into a binary tree structure.',
+      complexity: 'O(n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.orange,
+      icon: Icons.account_tree_rounded,
+      difficulty: 'Hard',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    /// Mathematical Algorithms///
+
+    /// Eculidean Algorithm///
+    Algorithm(
+      id: 'euclidean_algorithm',
+      title: 'Euclidean Algorithm',
+      categoryLabel: 'Mathematical Algorithms',
+      description:
+          'Find the Greatest Common Divisor (GCD) of two numbers using repeated remainder operations.',
+      difficulty: 'Easy',
+      complexity: 'O(log min(a,b))',
+      category: AlgorithmCategory.mathematicalAlgorithms,
+      icon: Icons.calculate_rounded,
+      color: AppColors.info,
+      status: AlgorithmStatus.implemented,
+    ),
+
+    ///Fibonacci Algorithm///
+    Algorithm(
+      id: 'fibonacci',
+      title: 'Fibonacci Algorithm',
+      description:
+          'Generates Fibonacci numbers step by step using an iterative approach.',
+      complexity: 'O(n)',
+      categoryLabel: 'Mathematical Algorithms',
+      category: AlgorithmCategory.arrayAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.auto_graph_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    /// Factorial Algorithm ///
+    Algorithm(
+      id: 'factorial',
+      title: 'Factorial Algorithm',
+      description:
+          'Calculate the factorial of a non-negative integer step by step.',
+      complexity: 'O(n)',
+      categoryLabel: 'Mathematical Algorithms',
+      category: AlgorithmCategory.mathematicalAlgorithms,
+      color: AppColors.info,
+      icon: Icons.calculate_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    /// Matrix Algorithms ///
+    Algorithm(
+      id: 'matrix-addition',
+      title: 'Matrix Addition Algorithm',
+      description:
+          'Adds two matrices element by element when both matrices have the same dimensions.',
+      complexity: 'O(r × c)',
+      categoryLabel: 'Matrix Algorithms',
+      category: AlgorithmCategory.matrixAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.grid_3x3_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    // Matix Multiplication //
+    Algorithm(
+      id: 'matrix-multiplication',
+      title: 'Matrix Multiplication Algorithm',
+      description:
+          'Multiplies two matrices by computing the dot product of each row and column.',
+      complexity: 'O(n³)',
+      categoryLabel: 'Matrix Algorithms',
+      category: AlgorithmCategory.matrixAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.grid_view_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    // Matrix Trapose
+    Algorithm(
+      id: 'matrix-transpose',
+      title: 'Matrix Transpose Algorithm',
+      description:
+          'Swaps the rows and columns of a matrix to create its transpose.',
+      complexity: 'O(n × m)',
+      categoryLabel: 'Matrix Algorithms',
+      category: AlgorithmCategory.matrixAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.swap_vert_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    // Dynamic Programming Algorithms //
+
+    // LCS //
+    Algorithm(
+      id: 'lcs',
+      title: 'Longest Common Subsequence (LCS)',
+      description:
+          'Finds the longest subsequence common to two strings using dynamic programming.',
+      complexity: 'O(m × n)',
+      categoryLabel: 'Dynamic Programming Algorithms',
+      category: AlgorithmCategory.dynamicProgrammingAlgorithms,
+      color: AppColors.purple,
+      icon: Icons.account_tree_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    //LIS //
+    Algorithm(
+      id: 'lis',
+      title: 'Longest Increasing Subsequence (LIS) Algorithm',
+      description:
+          'Finds the longest strictly increasing subsequence of an integer array using dynamic programming and predecessor links.',
+      complexity: 'O(n²)',
+      categoryLabel: 'Dynamic Programming Algorithms',
+      category: AlgorithmCategory.dynamicProgrammingAlgorithms,
+      color: AppColors.purple,
+      icon: Icons.trending_up_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+>>>>>>> 4a1b1b5 (Implemented new algorithm)
   ];
 
   // ---------------------------------------------------------------------------
@@ -411,6 +664,7 @@ abstract final class AlgorithmRegistry {
 
       case 'dijkstra':
         return const DijkstraScreen();
+<<<<<<< HEAD
 
       case 'bfs':
         return const BfsScreen();
@@ -428,6 +682,26 @@ abstract final class AlgorithmRegistry {
         return const BinarySearchTreeScreen();
 
 
+=======
+      case 'two-pointer':
+        return const TwoPointerScreen();
+      case 'euclidean_algorithm':
+        return const EuclideanAlgorithmScreen();
+      case 'fibonacci':
+        return const FibonacciAlgorithmScreen();
+      case 'factorial':
+        return const FactorialAlgorithmScreen();
+      case 'matrix-addition':
+        return const MatrixAdditionAlgorithmScreen();
+      case 'matrix-multiplication':
+        return const MatrixAdditionAlgorithmScreen();
+      case 'matrix-transpose':
+        return const MatrixTransposeAlgorithmScreen();
+      case 'lcs':
+        return const LcsAlgorithmScreen();
+      case 'lis':
+        return const LisAlgorithmScreen();
+>>>>>>> 4a1b1b5 (Implemented new algorithm)
       default:
         return null;
     }
