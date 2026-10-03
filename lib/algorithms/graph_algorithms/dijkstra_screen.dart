@@ -1,6 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
+=======
+import '../../core/theme/app_colors.dart';
+import '../../core/widgets/algorithm_screen_shell.dart';
+>>>>>>> origin/main
 
 class DijkstraScreen extends StatefulWidget {
   const DijkstraScreen({super.key});
@@ -94,17 +99,26 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
   // COLORS
   // ============================================================
 
-  static const Color background = Color(0xFF030712);
-  static const Color background2 = Color(0xFF07101F);
-  static const Color cardColor = Color(0xFF0B1428);
-  static const Color visualizationColor = Color(0xFF0A1020);
+  static const Color background = AppColors.background;
+  static const Color background2 = AppColors.background2;
+  static const Color cardColor = AppColors.card;
+  static const Color visualizationColor = AppColors.visualizationBackground;
 
+<<<<<<< HEAD
   static const Color cyan = Color(0xFF00E5FF);
   static const Color blue = Color(0xFF2979FF);
   static const Color purple = Color(0xFF9C27FF);
   static const Color green = Color(0xFF00E676);
   static const Color orange = Color(0xFFFFB300);
   static const Color pink = Color(0xFFFF4081);
+=======
+  static const Color cyan = AppColors.cyan;
+  static const Color blue = AppColors.blue;
+  static const Color purple = AppColors.purple;
+  static const Color green = AppColors.green;
+  static const Color orange = AppColors.orange;
+  static const Color pink = AppColors.pink;
+>>>>>>> origin/main
 
   // ============================================================
   // GRAPH
@@ -787,18 +801,21 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-
-            if (width < 700) {
-              return _buildMobileLayout();
-            }
-
-            return _buildDesktopLayout();
-          },
+      body: AlgorithmScreenShell(
+        header: _buildHeader(),
+        algorithmInfo: _buildAlgorithmInfo(),
+        inputSection: _buildInputSection(),
+        visualization: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildVisualizationPanel(),
+            const SizedBox(height: 14),
+            _buildDistancePanel(),
+          ],
         ),
+        controls: _buildControls(),
+        sourceCode: _buildSourceCodePanel(),
+        executionSteps: _buildExecutionSteps(),
       ),
     );
   }
@@ -807,80 +824,9 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
   // DESKTOP
   // ============================================================
 
-  Widget _buildDesktopLayout() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 14),
-          _buildAlgorithmInfo(),
-          const SizedBox(height: 14),
-          _buildInputSection(),
-          const SizedBox(height: 14),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 6,
-                child: Column(
-                  children: [
-                    _buildVisualizationPanel(),
-                    const SizedBox(height: 14),
-                    _buildControls(),
-                    const SizedBox(height: 14),
-                    _buildDistancePanel(),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                flex: 4,
-                child: Column(
-                  children: [
-                    _buildSourceCodePanel(),
-                    const SizedBox(height: 14),
-                    _buildExecutionSteps(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   // ============================================================
   // MOBILE
   // ============================================================
-
-  Widget _buildMobileLayout() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 25),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 12),
-          _buildAlgorithmInfo(),
-          const SizedBox(height: 12),
-          _buildInputSection(),
-          const SizedBox(height: 12),
-          _buildVisualizationPanel(),
-          const SizedBox(height: 12),
-          _buildControls(),
-          const SizedBox(height: 12),
-          _buildDistancePanel(),
-          const SizedBox(height: 12),
-          _buildSourceCodePanel(),
-          const SizedBox(height: 12),
-          _buildExecutionSteps(),
-        ],
-      ),
-    );
-  }
 
   // ============================================================
   // HEADER
@@ -898,7 +844,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
             decoration: BoxDecoration(
               color: cardColor,
               borderRadius: BorderRadius.circular(12),
+<<<<<<< HEAD
               border: Border.all(color: cyan.withValues(alpha: .18)),
+=======
+              border: Border.all(color: cyan.withValues(alpha: 0.18)),
+>>>>>>> origin/main
             ),
             child: const Icon(
               Icons.arrow_back_rounded,
@@ -934,7 +884,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
               Text(
                 'Shortest Path • Weighted Graph',
                 style: TextStyle(
+<<<<<<< HEAD
                   color: Colors.white.withValues(alpha: .45),
+=======
+                  color: Colors.white.withValues(alpha: 0.45),
+>>>>>>> origin/main
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -975,9 +929,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: color.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color.withValues(alpha: .25)),
+=======
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+>>>>>>> origin/main
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -989,7 +949,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
               color: color,
               shape: BoxShape.circle,
               boxShadow: [
+<<<<<<< HEAD
                 BoxShadow(color: color.withValues(alpha: .7), blurRadius: 7),
+=======
+                BoxShadow(color: color.withValues(alpha: 0.7), blurRadius: 7),
+>>>>>>> origin/main
               ],
             ),
           ),
@@ -1014,7 +978,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildAlgorithmInfo() {
     return _panel(
+<<<<<<< HEAD
       borderColor: purple.withValues(alpha: .15),
+=======
+      borderColor: purple.withValues(alpha: 0.15),
+>>>>>>> origin/main
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -1069,9 +1037,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: color.withValues(alpha: .05),
         borderRadius: BorderRadius.circular(9),
         border: Border.all(color: color.withValues(alpha: .14)),
+=======
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
+>>>>>>> origin/main
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1103,7 +1077,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildInputSection() {
     return _panel(
+<<<<<<< HEAD
       borderColor: cyan.withValues(alpha: .14),
+=======
+      borderColor: cyan.withValues(alpha: 0.14),
+>>>>>>> origin/main
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: LayoutBuilder(
@@ -1139,7 +1117,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(11),
+<<<<<<< HEAD
         border: Border.all(color: cyan.withValues(alpha: .16)),
+=======
+        border: Border.all(color: cyan.withValues(alpha: 0.16)),
+>>>>>>> origin/main
       ),
       child: Row(
         children: [
@@ -1198,10 +1180,20 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           gradient: LinearGradient(
+<<<<<<< HEAD
             colors: [cyan.withValues(alpha: .15), blue.withValues(alpha: .12)],
           ),
           borderRadius: BorderRadius.circular(11),
           border: Border.all(color: cyan.withValues(alpha: .25)),
+=======
+            colors: [
+              cyan.withValues(alpha: 0.15),
+              blue.withValues(alpha: 0.12),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(11),
+          border: Border.all(color: cyan.withValues(alpha: 0.25)),
+>>>>>>> origin/main
         ),
         child: const Row(
           mainAxisSize: MainAxisSize.min,
@@ -1229,7 +1221,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildVisualizationPanel() {
     return _panel(
+<<<<<<< HEAD
       borderColor: cyan.withValues(alpha: .18),
+=======
+      borderColor: cyan.withValues(alpha: 0.18),
+>>>>>>> origin/main
       child: Column(
         children: [
           _panelHeader(
@@ -1240,7 +1236,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
             activeCodeLine == 0 ? 'READY' : 'LINE $activeCodeLine',
             cyan,
           ),
+<<<<<<< HEAD
           Container(height: 1, color: Colors.white.withValues(alpha: .05)),
+=======
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.05)),
+>>>>>>> origin/main
           SizedBox(
             height: 430,
             child: Container(
@@ -1248,7 +1248,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
               decoration: BoxDecoration(
                 color: visualizationColor,
                 borderRadius: BorderRadius.circular(14),
+<<<<<<< HEAD
                 border: Border.all(color: cyan.withValues(alpha: .08)),
+=======
+                border: Border.all(color: cyan.withValues(alpha: 0.08)),
+>>>>>>> origin/main
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(14),
@@ -1308,7 +1312,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
             color: color,
             shape: BoxShape.circle,
             boxShadow: [
+<<<<<<< HEAD
               BoxShadow(color: color.withValues(alpha: .4), blurRadius: 5),
+=======
+              BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 5),
+>>>>>>> origin/main
             ],
           ),
         ),
@@ -1331,7 +1339,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildControls() {
     return _panel(
+<<<<<<< HEAD
       borderColor: blue.withValues(alpha: .15),
+=======
+      borderColor: blue.withValues(alpha: 0.15),
+>>>>>>> origin/main
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -1364,7 +1376,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
               child: LinearProgressIndicator(
                 value: events.isEmpty ? 0 : currentStep / events.length,
                 minHeight: 6,
+<<<<<<< HEAD
                 backgroundColor: Colors.white.withValues(alpha: .05),
+=======
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+>>>>>>> origin/main
                 valueColor: const AlwaysStoppedAnimation(cyan),
               ),
             ),
@@ -1421,11 +1437,19 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
         width: 56,
         height: 48,
         decoration: BoxDecoration(
+<<<<<<< HEAD
           color: cyan.withValues(alpha: .10),
           borderRadius: BorderRadius.circular(11),
           border: Border.all(color: cyan.withValues(alpha: .30)),
           boxShadow: [
             BoxShadow(color: cyan.withValues(alpha: .06), blurRadius: 12),
+=======
+          color: cyan.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(11),
+          border: Border.all(color: cyan.withValues(alpha: 0.30)),
+          boxShadow: [
+            BoxShadow(color: cyan.withValues(alpha: 0.06), blurRadius: 12),
+>>>>>>> origin/main
           ],
         ),
         child: Icon(
@@ -1447,7 +1471,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
         decoration: BoxDecoration(
           color: background2,
           borderRadius: BorderRadius.circular(11),
+<<<<<<< HEAD
           border: Border.all(color: blue.withValues(alpha: .18)),
+=======
+          border: Border.all(color: blue.withValues(alpha: 0.18)),
+>>>>>>> origin/main
         ),
         child: Icon(icon, color: Colors.white60, size: 20),
       ),
@@ -1476,7 +1504,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
             max: 3,
             divisions: 5,
             activeColor: cyan,
+<<<<<<< HEAD
             inactiveColor: Colors.white.withValues(alpha: .08),
+=======
+            inactiveColor: Colors.white.withValues(alpha: 0.08),
+>>>>>>> origin/main
             onChanged: _setSpeed,
           ),
         ),
@@ -1498,7 +1530,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildDistancePanel() {
     return _panel(
+<<<<<<< HEAD
       borderColor: green.withValues(alpha: .14),
+=======
+      borderColor: green.withValues(alpha: 0.14),
+>>>>>>> origin/main
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -1552,9 +1588,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
                   width: 85,
                   padding: const EdgeInsets.all(9),
                   decoration: BoxDecoration(
+<<<<<<< HEAD
                     color: color.withValues(alpha: .05),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: color.withValues(alpha: .16)),
+=======
+                    color: color.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: color.withValues(alpha: 0.16)),
+>>>>>>> origin/main
                   ),
                   child: Column(
                     children: [
@@ -1592,7 +1634,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildSourceCodePanel() {
     return _panel(
+<<<<<<< HEAD
       borderColor: purple.withValues(alpha: .18),
+=======
+      borderColor: purple.withValues(alpha: 0.18),
+>>>>>>> origin/main
       child: Column(
         children: [
           _panelHeader(
@@ -1603,7 +1649,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
             activeCodeLine == 0 ? 'READY' : 'LINE $activeCodeLine',
             cyan,
           ),
+<<<<<<< HEAD
           Container(height: 1, color: Colors.white.withValues(alpha: .05)),
+=======
+          Container(height: 1, color: Colors.white.withValues(alpha: 0.05)),
+>>>>>>> origin/main
           Padding(
             padding: const EdgeInsets.only(top: 10, bottom: 6),
             child: Column(
@@ -1638,6 +1688,7 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: activeCodeLine == 10 || activeCodeLine == 11
+<<<<<<< HEAD
                     ? green.withValues(alpha: .06)
                     : cyan.withValues(alpha: .04),
                 borderRadius: BorderRadius.circular(10),
@@ -1645,6 +1696,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
                   color: activeCodeLine == 10 || activeCodeLine == 11
                       ? green.withValues(alpha: .25)
                       : cyan.withValues(alpha: .12),
+=======
+                    ? green.withValues(alpha: 0.06)
+                    : cyan.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: activeCodeLine == 10 || activeCodeLine == 11
+                      ? green.withValues(alpha: 0.25)
+                      : cyan.withValues(alpha: 0.12),
+>>>>>>> origin/main
                 ),
               ),
               child: Row(
@@ -1684,9 +1744,17 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: active ? color.withValues(alpha: .10) : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
         border: active ? Border.all(color: color.withValues(alpha: .25)) : null,
+=======
+        color: active ? color.withValues(alpha: 0.10) : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        border: active
+            ? Border.all(color: color.withValues(alpha: 0.25))
+            : null,
+>>>>>>> origin/main
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1724,7 +1792,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
 
   Widget _buildExecutionSteps() {
     return _panel(
+<<<<<<< HEAD
       borderColor: cyan.withValues(alpha: .15),
+=======
+      borderColor: cyan.withValues(alpha: 0.15),
+>>>>>>> origin/main
       child: SizedBox(
         height: 500,
         child: Padding(
@@ -1795,7 +1867,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
         children: [
           Icon(
             Icons.play_circle_outline_rounded,
+<<<<<<< HEAD
             color: cyan.withValues(alpha: .25),
+=======
+            color: cyan.withValues(alpha: 0.25),
+>>>>>>> origin/main
             size: 40,
           ),
           const SizedBox(height: 10),
@@ -1824,9 +1900,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: color.withValues(alpha: .045),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: .12)),
+=======
+        color: color.withValues(alpha: 0.045),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.12)),
+>>>>>>> origin/main
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1836,7 +1918,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
             height: 27,
             alignment: Alignment.center,
             decoration: BoxDecoration(
+<<<<<<< HEAD
               color: color.withValues(alpha: .10),
+=======
+              color: color.withValues(alpha: 0.10),
+>>>>>>> origin/main
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -1929,7 +2015,11 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
+<<<<<<< HEAD
             color: Colors.black.withValues(alpha: .15),
+=======
+            color: Colors.black.withValues(alpha: 0.15),
+>>>>>>> origin/main
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -1944,9 +2034,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
       width: 38,
       height: 38,
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: color.withValues(alpha: .07),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: color.withValues(alpha: .15)),
+=======
+        color: color.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+>>>>>>> origin/main
       ),
       child: Icon(icon, color: color, size: 18),
     );
@@ -1995,9 +2091,15 @@ class _DijkstraScreenState extends State<DijkstraScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
+<<<<<<< HEAD
               color: badgeColor.withValues(alpha: .07),
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: badgeColor.withValues(alpha: .18)),
+=======
+              color: badgeColor.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: badgeColor.withValues(alpha: 0.18)),
+>>>>>>> origin/main
             ),
             child: Text(
               badge,
@@ -2047,14 +2149,23 @@ class _DijkstraGraphPainter extends CustomPainter {
   // This fixes cyan/background2/green/pink/purple errors.
   // ============================================================
 
-  static const Color background2 = Color(0xFF07101F);
+  static const Color background2 = AppColors.background2;
 
+<<<<<<< HEAD
   static const Color cyan = Color(0xFF00E5FF);
   static const Color blue = Color(0xFF2979FF);
   static const Color purple = Color(0xFF9C27FF);
   static const Color green = Color(0xFF00E676);
   static const Color orange = Color(0xFFFFB300);
   static const Color pink = Color(0xFFFF4081);
+=======
+  static const Color cyan = AppColors.cyan;
+  static const Color blue = AppColors.blue;
+  static const Color purple = AppColors.purple;
+  static const Color green = AppColors.green;
+  static const Color orange = AppColors.orange;
+  static const Color pink = AppColors.pink;
+>>>>>>> origin/main
 
   final List<GraphNode> nodes;
   final List<GraphEdge> edges;
@@ -2123,7 +2234,11 @@ class _DijkstraGraphPainter extends CustomPainter {
 
   void _drawGrid(Canvas canvas, Size size) {
     final paint = Paint()
+<<<<<<< HEAD
       ..color = Colors.white.withValues(alpha: .025)
+=======
+      ..color = Colors.white.withValues(alpha: 0.025)
+>>>>>>> origin/main
       ..strokeWidth = 1;
 
     const spacing = 35.0;
@@ -2167,7 +2282,11 @@ class _DijkstraGraphPainter extends CustomPainter {
         edgeColor = pink;
         width = 4;
       } else {
+<<<<<<< HEAD
         edgeColor = Colors.white.withValues(alpha: .15);
+=======
+        edgeColor = Colors.white.withValues(alpha: 0.15);
+>>>>>>> origin/main
         width = 2;
       }
 
@@ -2244,7 +2363,11 @@ class _DijkstraGraphPainter extends CustomPainter {
     canvas.drawRRect(rect, bgPaint);
 
     final borderPaint = Paint()
+<<<<<<< HEAD
       ..color = color.withValues(alpha: .35)
+=======
+      ..color = color.withValues(alpha: 0.35)
+>>>>>>> origin/main
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
@@ -2287,14 +2410,22 @@ class _DijkstraGraphPainter extends CustomPainter {
 
       // Glow
       final glowPaint = Paint()
+<<<<<<< HEAD
         ..color = nodeColor.withValues(alpha: .18)
+=======
+        ..color = nodeColor.withValues(alpha: 0.18)
+>>>>>>> origin/main
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
       canvas.drawCircle(position, 30, glowPaint);
 
       // Outer ring
       final outerPaint = Paint()
+<<<<<<< HEAD
         ..color = nodeColor.withValues(alpha: .25)
+=======
+        ..color = nodeColor.withValues(alpha: 0.25)
+>>>>>>> origin/main
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(position, 28, outerPaint);

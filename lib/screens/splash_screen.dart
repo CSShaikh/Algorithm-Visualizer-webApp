@@ -339,7 +339,11 @@ class _MainContent extends StatelessWidget {
                 letterSpacing: -2,
                 shadows: [
                   Shadow(
+<<<<<<< HEAD
                     color: const Color(0xFF00E5FF).withValues(alpha: .20),
+=======
+                    color: const Color(0xFF00E5FF).withValues(alpha: 0.20),
+>>>>>>> origin/main
                     blurRadius: 25,
                   ),
                 ],
@@ -404,7 +408,11 @@ class _MainContent extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
+<<<<<<< HEAD
                       color: const Color(0xFF00E5FF).withValues(alpha: .6),
+=======
+                      color: const Color(0xFF00E5FF).withValues(alpha: 0.6),
+>>>>>>> origin/main
                       blurRadius: 12,
                     ),
                   ],
@@ -468,7 +476,11 @@ class _MainContent extends StatelessWidget {
             'Understand algorithms through interactive\nvisual representations.',
             textAlign: TextAlign.center,
             style: TextStyle(
+<<<<<<< HEAD
               color: Colors.white.withValues(alpha: .55),
+=======
+              color: Colors.white.withValues(alpha: 0.55),
+>>>>>>> origin/main
               fontSize: mobile ? 11.5 : 14,
               height: 1.45,
               letterSpacing: .2,
@@ -498,11 +510,19 @@ class _MainContent extends StatelessWidget {
                       color: const Color(0xFF061126),
                       borderRadius: BorderRadius.circular(30),
                       border: Border.all(
+<<<<<<< HEAD
                         color: const Color(0xFF2979FF).withValues(alpha: .45),
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(0xFF0066FF).withValues(alpha: .15),
+=======
+                        color: const Color(0xFF2979FF).withValues(alpha: 0.45),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0066FF).withValues(alpha: 0.15),
+>>>>>>> origin/main
                           blurRadius: 18,
                         ),
                       ],
@@ -524,9 +544,13 @@ class _MainContent extends StatelessWidget {
                             ),
                             boxShadow: [
                               BoxShadow(
+<<<<<<< HEAD
                                 color: const Color(
                                   0xFF00E5FF,
                                 ).withValues(alpha: .65),
+=======
+                                color: const Color(0xFF00E5FF).withValues(alpha: 0.65),
+>>>>>>> origin/main
                                 blurRadius: 12,
                               ),
                             ],
@@ -554,7 +578,11 @@ class _MainContent extends StatelessWidget {
                       Text(
                         progress < 1 ? 'LOADING...' : 'READY',
                         style: TextStyle(
+<<<<<<< HEAD
                           color: const Color(0xFF00E5FF).withValues(alpha: .65),
+=======
+                          color: const Color(0xFF00E5FF).withValues(alpha: 0.65),
+>>>>>>> origin/main
                           fontSize: 8,
                           letterSpacing: 2,
                         ),
@@ -632,12 +660,20 @@ class _AlgorithmLogo extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
+<<<<<<< HEAD
             color: const Color(0xFF00E5FF).withValues(alpha: .30),
+=======
+            color: const Color(0xFF00E5FF).withValues(alpha: 0.30),
+>>>>>>> origin/main
             blurRadius: 35,
             spreadRadius: 5,
           ),
           BoxShadow(
+<<<<<<< HEAD
             color: const Color(0xFFB52BFF).withValues(alpha: .18),
+=======
+            color: const Color(0xFFB52BFF).withValues(alpha: 0.18),
+>>>>>>> origin/main
             blurRadius: 45,
             spreadRadius: 3,
           ),
@@ -648,7 +684,11 @@ class _AlgorithmLogo extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: const Color(0xFF061126),
+<<<<<<< HEAD
           border: Border.all(color: Colors.white.withValues(alpha: .10)),
+=======
+          border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+>>>>>>> origin/main
         ),
         child: CustomPaint(
           size: Size(size, size),
@@ -676,9 +716,13 @@ class _Dot extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: color,
+<<<<<<< HEAD
           boxShadow: [
             BoxShadow(color: color.withValues(alpha: .7), blurRadius: 8),
           ],
+=======
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.7), blurRadius: 8)],
+>>>>>>> origin/main
         ),
       ),
     );
@@ -711,10 +755,17 @@ class _Feature extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(compact ? 12 : 15),
+<<<<<<< HEAD
             color: color.withValues(alpha: .06),
             border: Border.all(color: color.withValues(alpha: .55)),
             boxShadow: [
               BoxShadow(color: color.withValues(alpha: .14), blurRadius: 15),
+=======
+            color: color.withValues(alpha: 0.06),
+            border: Border.all(color: color.withValues(alpha: 0.55)),
+            boxShadow: [
+              BoxShadow(color: color.withValues(alpha: 0.14), blurRadius: 15),
+>>>>>>> origin/main
             ],
           ),
           child: Icon(icon, size: compact ? 19 : 24, color: color),
@@ -723,7 +774,11 @@ class _Feature extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
+<<<<<<< HEAD
             color: Colors.white.withValues(alpha: .42),
+=======
+            color: Colors.white.withValues(alpha: 0.42),
+>>>>>>> origin/main
             fontSize: compact ? 8.5 : 10,
             fontWeight: FontWeight.w600,
           ),
@@ -757,12 +812,19 @@ class _FloatingBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
+<<<<<<< HEAD
           color: const Color(0xFF071126).withValues(alpha: .78),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: color.withValues(alpha: .65)),
           boxShadow: [
             BoxShadow(color: color.withValues(alpha: .15), blurRadius: 22),
           ],
+=======
+          color: const Color(0xFF071126).withValues(alpha: 0.78),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.65)),
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.15), blurRadius: 22)],
+>>>>>>> origin/main
         ),
         child: Text(
           text,
@@ -789,6 +851,7 @@ class _CodeSymbol extends StatelessWidget {
       width: 110,
       height: 90,
       decoration: BoxDecoration(
+<<<<<<< HEAD
         color: const Color(0xFF071126).withValues(alpha: .65),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
@@ -797,6 +860,14 @@ class _CodeSymbol extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF00E5FF).withValues(alpha: .10),
+=======
+        color: const Color(0xFF071126).withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00E5FF).withValues(alpha: 0.10),
+>>>>>>> origin/main
             blurRadius: 25,
           ),
         ],
@@ -839,11 +910,17 @@ class _FloatingIconCard extends StatelessWidget {
         height: 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
+<<<<<<< HEAD
           color: const Color(0xFF071126).withValues(alpha: .75),
           border: Border.all(color: color.withValues(alpha: .55)),
           boxShadow: [
             BoxShadow(color: color.withValues(alpha: .18), blurRadius: 25),
           ],
+=======
+          color: const Color(0xFF071126).withValues(alpha: 0.75),
+          border: Border.all(color: color.withValues(alpha: 0.55)),
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.18), blurRadius: 25)],
+>>>>>>> origin/main
         ),
         child: Icon(icon, color: color, size: 36),
       ),
@@ -912,7 +989,11 @@ class _GraphPainter extends CustomPainter {
 
     final line = Paint()
       ..strokeWidth = small ? 1 : 1.5
+<<<<<<< HEAD
       ..color = const Color(0xFF2979FF).withValues(alpha: .65);
+=======
+      ..color = const Color(0xFF2979FF).withValues(alpha: 0.65);
+>>>>>>> origin/main
 
     for (final connection in connections) {
       canvas.drawLine(nodes[connection[0]], nodes[connection[1]], line);
@@ -1017,7 +1098,11 @@ class _TreePainter extends CustomPainter {
     ];
 
     final line = Paint()
+<<<<<<< HEAD
       ..color = const Color(0xFFB52BFF).withValues(alpha: .65)
+=======
+      ..color = const Color(0xFFB52BFF).withValues(alpha: 0.65)
+>>>>>>> origin/main
       ..strokeWidth = small ? 1 : 1.5;
 
     for (final connection in connections) {
@@ -1092,8 +1177,13 @@ class _SortingBars extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: index.isEven
+<<<<<<< HEAD
                     ? const Color(0xFF00E5FF).withValues(alpha: .25)
                     : const Color(0xFFB52BFF).withValues(alpha: .25),
+=======
+                    ? const Color(0xFF00E5FF).withValues(alpha: 0.25)
+                    : const Color(0xFFB52BFF).withValues(alpha: 0.25),
+>>>>>>> origin/main
                 blurRadius: 12,
               ),
             ],
@@ -1120,7 +1210,11 @@ class _LogoGraphPainter extends CustomPainter {
     ];
 
     final line = Paint()
+<<<<<<< HEAD
       ..color = const Color(0xFF00E5FF).withValues(alpha: .65)
+=======
+      ..color = const Color(0xFF00E5FF).withValues(alpha: 0.65)
+>>>>>>> origin/main
       ..strokeWidth = 1.4;
 
     canvas.drawLine(nodes[0], nodes[1], line);
@@ -1155,8 +1249,13 @@ class _Glow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
+<<<<<<< HEAD
               color.withValues(alpha: .14),
               color.withValues(alpha: .045),
+=======
+              color.withValues(alpha: 0.14),
+              color.withValues(alpha: 0.045),
+>>>>>>> origin/main
               Colors.transparent,
             ],
           ),
@@ -1179,7 +1278,11 @@ class _AdvancedBackgroundPainter extends CustomPainter {
 
     // GRID
 
+<<<<<<< HEAD
     paint.color = const Color(0xFF173064).withValues(alpha: .18);
+=======
+    paint.color = const Color(0xFF173064).withValues(alpha: 0.18);
+>>>>>>> origin/main
     paint.strokeWidth = .5;
 
     const spacing = 45.0;
@@ -1197,7 +1300,11 @@ class _AdvancedBackgroundPainter extends CustomPainter {
     final circuitPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
+<<<<<<< HEAD
       ..color = const Color(0xFF0066FF).withValues(alpha: .20);
+=======
+      ..color = const Color(0xFF0066FF).withValues(alpha: 0.20);
+>>>>>>> origin/main
 
     for (int i = 0; i < 12; i++) {
       final y = 70.0 + i * 95;
@@ -1224,10 +1331,15 @@ class _AdvancedBackgroundPainter extends CustomPainter {
       final pulse = (math.sin(animation * math.pi * 2 + i) + 1) / 2;
 
       paint.color = i.isEven
+<<<<<<< HEAD
           ? const Color(0xFF00E5FF).withValues(alpha: .04 + pulse * .11)
           : const Color(0xFFB52BFF).withValues(alpha: .03 + pulse * .09);
+=======
+          ? const Color(0xFF00E5FF).withValues(alpha: 0.04 + pulse * 0.11)
+          : const Color(0xFFB52BFF).withValues(alpha: 0.03 + pulse * 0.09);
+>>>>>>> origin/main
 
-      canvas.drawCircle(Offset(x, y), .8 + pulse * 1.4, paint);
+      canvas.drawCircle(Offset(x, y), 0.8 + pulse * 1.4, paint);
     }
 
     // FLOATING CONNECTIONS
@@ -1235,7 +1347,11 @@ class _AdvancedBackgroundPainter extends CustomPainter {
     final nodePaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
+<<<<<<< HEAD
       ..color = const Color(0xFF2979FF).withValues(alpha: .12);
+=======
+      ..color = const Color(0xFF2979FF).withValues(alpha: 0.12);
+>>>>>>> origin/main
 
     final points = [
       Offset(size.width * .08, size.height * .25),
@@ -1272,8 +1388,13 @@ class _AdvancedBackgroundPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1
         ..color = layer.isEven
+<<<<<<< HEAD
             ? const Color(0xFF00E5FF).withValues(alpha: .13)
             : const Color(0xFFB52BFF).withValues(alpha: .11);
+=======
+            ? const Color(0xFF00E5FF).withValues(alpha: 0.13)
+            : const Color(0xFFB52BFF).withValues(alpha: 0.11);
+>>>>>>> origin/main
 
       canvas.drawPath(path, wavePaint);
     }
@@ -1281,7 +1402,11 @@ class _AdvancedBackgroundPainter extends CustomPainter {
     // BINARY DIGITS
 
     final binaryStyle = TextStyle(
+<<<<<<< HEAD
       color: const Color(0xFF2979FF).withValues(alpha: .12),
+=======
+      color: const Color(0xFF2979FF).withValues(alpha: 0.12),
+>>>>>>> origin/main
       fontSize: 16,
       fontWeight: FontWeight.bold,
     );

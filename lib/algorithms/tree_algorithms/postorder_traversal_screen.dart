@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/widgets/algorithm_screen_shell.dart';
 import 'package:flutter/services.dart';
 
 // ============================================================================
@@ -60,16 +62,16 @@ class _PostorderTraversalScreenState extends State<PostorderTraversalScreen> {
   // COLORS
   // --------------------------------------------------------------------------
 
-  static const Color background = Color(0xFF030712);
-  static const Color background2 = Color(0xFF07101F);
-  static const Color cardColor = Color(0xFF0B1428);
+  static const Color background = AppColors.background;
+  static const Color background2 = AppColors.background2;
+  static const Color cardColor = AppColors.card;
 
-  static const Color cyan = Color(0xFF00E5FF);
-  static const Color blue = Color(0xFF2979FF);
-  static const Color purple = Color(0xFF9C27FF);
-  static const Color green = Color(0xFF00E676);
-  static const Color orange = Color(0xFFFFB300);
-  static const Color pink = Color(0xFFFF4081);
+  static const Color cyan = AppColors.cyan;
+  static const Color blue = AppColors.blue;
+  static const Color purple = AppColors.purple;
+  static const Color green = AppColors.green;
+  static const Color orange = AppColors.orange;
+  static const Color pink = AppColors.pink;
 
   // --------------------------------------------------------------------------
   // CONTROLLERS
@@ -744,40 +746,18 @@ void postorder(Node? root) {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
     return Scaffold(
       backgroundColor: background,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-
-            return Column(
-              children: [
-                _buildHeader(width),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: width < 600 ? 14 : 24,
-                      vertical: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildAlgorithmInfo(width),
-                        const SizedBox(height: 16),
-                        _buildInputSection(width),
-                        const SizedBox(height: 16),
-                        _buildMethodSelector(width),
-                        const SizedBox(height: 16),
-                        _buildWorkspace(width),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
+      body: AlgorithmScreenShell(
+        header: _buildHeader(width),
+        algorithmInfo: _buildAlgorithmInfo(width),
+        inputSection: _buildInputSection(width),
+        additionalContent: _buildMethodSelector(width),
+        visualization: _buildVisualizationPanel(width),
+        controls: _buildControls(),
+        sourceCode: _buildCodePanel(),
+        executionSteps: _buildExecutionPanel(),
       ),
     );
   }
@@ -1194,6 +1174,7 @@ void postorder(Node? root) {
   // WORKSPACE
   // ==========================================================================
 
+<<<<<<< HEAD
   Widget _buildWorkspace(double width) {
     if (width < 950) {
       return Column(
@@ -1230,6 +1211,8 @@ void postorder(Node? root) {
     );
   }
 
+=======
+>>>>>>> origin/main
   // ==========================================================================
   // VISUALIZATION
   // ==========================================================================

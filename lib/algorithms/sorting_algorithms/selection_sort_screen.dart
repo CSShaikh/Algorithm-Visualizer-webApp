@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/widgets/algorithm_screen_shell.dart';
 import 'package:flutter/services.dart';
 
 class SelectionSortScreen extends StatefulWidget {
@@ -73,18 +75,18 @@ class _SelectionSortScreenState extends State<SelectionSortScreen> {
   // COLORS
   // ==========================================================================
 
-  static const Color background = Color(0xFF030712);
-  static const Color background2 = Color(0xFF07101F);
-  static const Color cardColor = Color(0xFF0B1428);
-  static const Color visualizationColor = Color(0xFF0A1020);
+  static const Color background = AppColors.background;
+  static const Color background2 = AppColors.background2;
+  static const Color cardColor = AppColors.card;
+  static const Color visualizationColor = AppColors.visualizationBackground;
 
-  static const Color cyan = Color(0xFF00E5FF);
-  static const Color blue = Color(0xFF2979FF);
-  static const Color purple = Color(0xFF9C27FF);
-  static const Color green = Color(0xFF00E676);
-  static const Color orange = Color(0xFFFFB300);
-  static const Color pink = Color(0xFFFF4081);
-  static const Color red = Color(0xFFFF5252);
+  static const Color cyan = AppColors.cyan;
+  static const Color blue = AppColors.blue;
+  static const Color purple = AppColors.purple;
+  static const Color green = AppColors.green;
+  static const Color orange = AppColors.orange;
+  static const Color pink = AppColors.pink;
+  static const Color red = AppColors.error;
 
   // ==========================================================================
   // DATA
@@ -989,6 +991,7 @@ void selectionSort(int[] arr) {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
+<<<<<<< HEAD
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -1015,6 +1018,16 @@ void selectionSort(int[] arr) {
             );
           },
         ),
+=======
+      body: AlgorithmScreenShell(
+        header: _buildHeader(),
+        algorithmInfo: _buildAlgorithmInfo(),
+        inputSection: _buildInputSection(),
+        visualization: _buildVisualization(),
+        controls: _buildControls(),
+        sourceCode: _buildSourceCode(),
+        executionSteps: _buildExecutionSteps(),
+>>>>>>> origin/main
       ),
     );
   }
@@ -1374,6 +1387,7 @@ void selectionSort(int[] arr) {
   // MAIN WORKSPACE
   // ==========================================================================
 
+<<<<<<< HEAD
   Widget _buildMainWorkspace(double width) {
     if (width < 900) {
       return Column(
@@ -1429,6 +1443,8 @@ void selectionSort(int[] arr) {
     );
   }
 
+=======
+>>>>>>> origin/main
   // ==========================================================================
   // VISUALIZATION
   // ==========================================================================
@@ -2127,7 +2143,11 @@ void selectionSort(int[] arr) {
             constraints: const BoxConstraints(minHeight: 280, maxHeight: 500),
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
+<<<<<<< HEAD
               color: const Color(0xFF050A14),
+=======
+              color: AppColors.codeBackground,
+>>>>>>> origin/main
               borderRadius: BorderRadius.circular(11),
               border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
