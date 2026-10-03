@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/theme_controller.dart';
-<<<<<<< HEAD
 import '../models/algorithm.dart';
-=======
->>>>>>> origin/main
 import '../registry/algorithm_registry.dart';
 
 // ================================================================
@@ -62,10 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Color get _sidebarSearchBackground =>
       isDarkMode ? const Color(0xFF030712) : const Color(0xFFF1F5F9);
 
-<<<<<<< HEAD
   Color get _heroText => isDarkMode ? Colors.white : const Color(0xFFF8FAFC);
-=======
->>>>>>> origin/main
 
   Color get _heroSecondaryText =>
       isDarkMode ? Colors.white60 : const Color(0xFFCBD5E1);
@@ -74,7 +68,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ALGORITHMS
   // ==============================================================
 
-<<<<<<< HEAD
   /// Single source of truth comes from AlgorithmRegistry.
   List<Algorithm> get algorithms => AlgorithmRegistry.implemented;
 
@@ -154,30 +147,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Icons.category_rounded;
     }
   }
-=======
-  List<AlgorithmItem> get algorithms {
-    return AlgorithmRegistry.implemented
-        .map(
-          (algorithm) => AlgorithmItem(
-            id: algorithm.id,
-            title: algorithm.title,
-            description: algorithm.description,
-            complexity: algorithm.complexity,
-            category: algorithm.categoryLabel,
-            color: algorithm.color,
-            icon: algorithm.icon,
-            difficulty: algorithm.difficulty,
-          ),
-        )
-        .toList(growable: false);
-  }
-
-  List<AlgorithmItem> _algorithmsForCategory(String category) {
-    return algorithms
-        .where((algorithm) => algorithm.category == category)
-        .toList(growable: false);
-  }
->>>>>>> origin/main
 
   // ==============================================================
   // DISPOSE
@@ -259,22 +228,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // OPEN ALGORITHM
   // ==============================================================
 
-<<<<<<< HEAD
   void _openAlgorithm(Algorithm item) {
     final screen = AlgorithmRegistry.buildScreen(item.id);
 
     if (screen != null) {
       Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
-=======
-  void _openAlgorithm(AlgorithmItem item) {
-    final screen = AlgorithmRegistry.buildScreen(item.id);
-
-    if (screen != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => screen),
-      );
->>>>>>> origin/main
       return;
     }
 
@@ -373,11 +331,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     isSidebarOpen = false;
                   });
                 },
-<<<<<<< HEAD
                 child: Container(color: Colors.black.withValues(alpha: .55)),
-=======
-                child: Container(color: Colors.black.withValues(alpha: 0.55)),
->>>>>>> origin/main
               ),
             ),
           AnimatedPositioned(
@@ -452,17 +406,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 : 28,
           ),
           decoration: BoxDecoration(
-<<<<<<< HEAD
             color: _background.withValues(alpha: .97),
             border: Border(
               bottom: BorderSide(
                 color: AppColors.cyan.withValues(alpha: isDarkMode ? .08 : .18),
-=======
-            color: _background.withValues(alpha: 0.97),
-            border: Border(
-              bottom: BorderSide(
-                color: AppColors.cyan.withValues(alpha: isDarkMode ? 0.08 : 0.18),
->>>>>>> origin/main
               ),
             ),
           ),
@@ -511,11 +458,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           color: _background2,
           borderRadius: BorderRadius.circular(13),
-<<<<<<< HEAD
           border: Border.all(color: AppColors.cyan.withValues(alpha: .18)),
-=======
-          border: Border.all(color: AppColors.cyan.withValues(alpha: 0.18)),
->>>>>>> origin/main
         ),
         child: Icon(
           mobile
@@ -568,11 +511,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: _background2,
         borderRadius: BorderRadius.circular(13),
-<<<<<<< HEAD
         border: Border.all(color: AppColors.cyan.withValues(alpha: .16)),
-=======
-        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.16)),
->>>>>>> origin/main
       ),
       child: TextField(
         onChanged: (value) {
@@ -613,15 +552,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         decoration: BoxDecoration(
           color: _background2,
           borderRadius: BorderRadius.circular(13),
-<<<<<<< HEAD
           border: Border.all(color: AppColors.cyan.withValues(alpha: .14)),
         ),
         child: Icon(icon, color: _primaryText.withValues(alpha: .75), size: 21),
-=======
-          border: Border.all(color: AppColors.cyan.withValues(alpha: 0.14)),
-        ),
-        child: Icon(icon, color: _primaryText.withValues(alpha: 0.75), size: 21),
->>>>>>> origin/main
       ),
     );
   }
@@ -697,7 +630,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Column(
                   children: [
-<<<<<<< HEAD
                     ...categories.map(
                       (category) => _categoryGroup(
                         title: category,
@@ -706,46 +638,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         count: _algorithmsForCategory(category).length,
                         algorithms: _algorithmsForCategory(category),
                       ),
-=======
-                    _categoryGroup(
-                      title: 'Searching',
-                      icon: Icons.search_rounded,
-                      color: AppColors.green,
-                      count: _algorithmsForCategory('Searching').length,
-                      algorithms: _algorithmsForCategory('Searching')
-                          .map((algorithm) => algorithm.title)
-                          .toList(growable: false),
-                    ),
-
-                    _categoryGroup(
-                      title: 'Sorting',
-                      icon: Icons.bar_chart_rounded,
-                      color: AppColors.purple,
-                      count: _algorithmsForCategory('Sorting').length,
-                      algorithms: _algorithmsForCategory('Sorting')
-                          .map((algorithm) => algorithm.title)
-                          .toList(growable: false),
-                    ),
-
-                    _categoryGroup(
-                      title: 'Graphs',
-                      icon: Icons.hub_rounded,
-                      color: AppColors.blue,
-                      count: _algorithmsForCategory('Graphs').length,
-                      algorithms: _algorithmsForCategory('Graphs')
-                          .map((algorithm) => algorithm.title)
-                          .toList(growable: false),
-                    ),
-
-                    _categoryGroup(
-                      title: 'Trees',
-                      icon: Icons.account_tree_rounded,
-                      color: AppColors.orange,
-                      count: _algorithmsForCategory('Trees').length,
-                      algorithms: _algorithmsForCategory('Trees')
-                          .map((algorithm) => algorithm.title)
-                          .toList(growable: false),
->>>>>>> origin/main
                     ),
                   ],
                 ),
@@ -762,13 +654,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 decoration: BoxDecoration(
                   color: _sidebarSearchBackground,
                   borderRadius: BorderRadius.circular(12),
-<<<<<<< HEAD
                   border: Border.all(
                     color: AppColors.cyan.withValues(alpha: .14),
                   ),
-=======
-                  border: Border.all(color: AppColors.cyan.withValues(alpha: 0.14)),
->>>>>>> origin/main
                 ),
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
@@ -807,7 +695,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         decoration: BoxDecoration(
-<<<<<<< HEAD
           color: active
               ? AppColors.cyan.withValues(alpha: .08)
               : Colors.transparent,
@@ -815,13 +702,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           border: Border.all(
             color: active
                 ? AppColors.cyan.withValues(alpha: .22)
-=======
-          color: active ? AppColors.cyan.withValues(alpha: 0.08) : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: active
-                ? AppColors.cyan.withValues(alpha: 0.22)
->>>>>>> origin/main
                 : Colors.transparent,
           ),
         ),
@@ -832,11 +712,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               height: 38,
               decoration: BoxDecoration(
                 color: active
-<<<<<<< HEAD
                     ? AppColors.cyan.withValues(alpha: .10)
-=======
-                    ? AppColors.cyan.withValues(alpha: 0.10)
->>>>>>> origin/main
                     : _sidebarSearchBackground,
                 borderRadius: BorderRadius.circular(11),
               ),
@@ -881,11 +757,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-<<<<<<< HEAD
                       color: AppColors.cyan.withValues(alpha: .35),
-=======
-                      color: AppColors.cyan.withValues(alpha: 0.35),
->>>>>>> origin/main
                       blurRadius: 8,
                     ),
                   ],
@@ -904,11 +776,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: _sidebarSearchBackground,
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-<<<<<<< HEAD
           color: AppColors.cyan.withValues(alpha: isDarkMode ? .12 : .20),
-=======
-          color: AppColors.cyan.withValues(alpha: isDarkMode ? 0.12 : 0.20),
->>>>>>> origin/main
         ),
       ),
       child: TextField(
@@ -954,7 +822,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return Column(
       children: [
-<<<<<<< HEAD
         InkWell(
           onTap: () => _selectCategory(title),
           borderRadius: BorderRadius.circular(14),
@@ -976,24 +843,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(icon, color: color, size: 18),
-=======
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.055),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: color.withValues(alpha: 0.15)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 35,
-                height: 35,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(10),
->>>>>>> origin/main
                 ),
                 const SizedBox(width: 9),
                 Expanded(
@@ -1006,7 +855,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
-<<<<<<< HEAD
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 7,
@@ -1023,22 +871,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       fontSize: 8,
                       fontWeight: FontWeight.w900,
                     ),
-=======
-              ),
-
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 8,
-                    fontWeight: FontWeight.w900,
->>>>>>> origin/main
                   ),
                 ),
               ],
@@ -1064,11 +896,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-<<<<<<< HEAD
                       color: algorithm.color.withValues(alpha: .75),
-=======
-                      color: item.color.withValues(alpha: 0.75),
->>>>>>> origin/main
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -1087,11 +915,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-<<<<<<< HEAD
                     color: _mutedText.withValues(alpha: .55),
-=======
-                    color: _mutedText.withValues(alpha: 0.55),
->>>>>>> origin/main
                     size: 16,
                   ),
                 ],
@@ -1136,37 +960,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-<<<<<<< HEAD
-=======
-
-            const SizedBox(height: 12),
-
-            _collapsedSidebarItem(
-              icon: Icons.bar_chart_rounded,
-              active: selectedCategory == 'Sorting',
-              color: AppColors.purple,
-              onTap: () => _selectCategory('Sorting'),
-            ),
-
-            const SizedBox(height: 12),
-
-            _collapsedSidebarItem(
-              icon: Icons.hub_rounded,
-              active: selectedCategory == 'Graphs',
-              color: AppColors.blue,
-              onTap: () => _selectCategory('Graphs'),
-            ),
-
-            const SizedBox(height: 12),
-
-            _collapsedSidebarItem(
-              icon: Icons.account_tree_rounded,
-              active: selectedCategory == 'Trees',
-              color: AppColors.orange,
-              onTap: () => _selectCategory('Trees'),
-            ),
-
->>>>>>> origin/main
             const Spacer(),
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
@@ -1199,19 +992,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         width: 54,
         height: 54,
         decoration: BoxDecoration(
-<<<<<<< HEAD
           color: active ? itemColor.withValues(alpha: .10) : Colors.transparent,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
             color: active
                 ? itemColor.withValues(alpha: .30)
                 : Colors.transparent,
-=======
-          color: active ? itemColor.withValues(alpha: 0.10) : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: active ? itemColor.withValues(alpha: 0.30) : Colors.transparent,
->>>>>>> origin/main
           ),
         ),
         child: Icon(icon, color: active ? itemColor : _secondaryText, size: 24),
@@ -1233,14 +1019,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           colors: [AppColors.cyan, AppColors.blue],
         ),
         boxShadow: [
-<<<<<<< HEAD
           BoxShadow(
             color: AppColors.cyan.withValues(alpha: .22),
             blurRadius: 25,
           ),
-=======
-          BoxShadow(color: AppColors.cyan.withValues(alpha: 0.22), blurRadius: 25),
->>>>>>> origin/main
         ],
       ),
       child: Icon(
@@ -1407,18 +1189,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               end: Alignment.bottomRight,
               colors: [Color(0xFF071B36), Color(0xFF080F22), Color(0xFF180A2F)],
             ),
-<<<<<<< HEAD
             border: Border.all(color: AppColors.cyan.withValues(alpha: .25)),
             boxShadow: [
               BoxShadow(
                 color: AppColors.cyan.withValues(alpha: .07),
                 blurRadius: 35,
               ),
-=======
-            border: Border.all(color: AppColors.cyan.withValues(alpha: 0.25)),
-            boxShadow: [
-              BoxShadow(color: AppColors.cyan.withValues(alpha: 0.07), blurRadius: 35),
->>>>>>> origin/main
             ],
           ),
           child: Stack(
@@ -1527,15 +1303,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-<<<<<<< HEAD
         color: AppColors.cyan.withValues(alpha: .10),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.cyan.withValues(alpha: .30)),
-=======
-        color: AppColors.cyan.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.30)),
->>>>>>> origin/main
       ),
       child: const Text(
         'WELCOME TO THE LAB',
@@ -1555,7 +1325,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 125,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-<<<<<<< HEAD
         color: AppColors.cyan.withValues(alpha: .06),
         border: Border.all(color: AppColors.cyan.withValues(alpha: .20)),
         boxShadow: [
@@ -1563,12 +1332,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             color: AppColors.cyan.withValues(alpha: .10),
             blurRadius: 35,
           ),
-=======
-        color: AppColors.cyan.withValues(alpha: 0.06),
-        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.20)),
-        boxShadow: [
-          BoxShadow(color: AppColors.cyan.withValues(alpha: 0.10), blurRadius: 35),
->>>>>>> origin/main
         ],
       ),
       child: Stack(
@@ -1579,11 +1342,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 85,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-<<<<<<< HEAD
               border: Border.all(color: AppColors.blue.withValues(alpha: .30)),
-=======
-              border: Border.all(color: AppColors.blue.withValues(alpha: 0.30)),
->>>>>>> origin/main
             ),
           ),
           Container(
@@ -1591,15 +1350,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-<<<<<<< HEAD
               color: AppColors.purple.withValues(alpha: .12),
               border: Border.all(
                 color: AppColors.purple.withValues(alpha: .35),
               ),
-=======
-              color: AppColors.purple.withValues(alpha: 0.12),
-              border: Border.all(color: AppColors.purple.withValues(alpha: 0.35)),
->>>>>>> origin/main
             ),
             child: const Icon(
               Icons.account_tree_rounded,
@@ -1633,15 +1387,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               width: 43,
               height: 43,
               decoration: BoxDecoration(
-<<<<<<< HEAD
                 color: color.withValues(alpha: .08),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: color.withValues(alpha: .20)),
-=======
-                color: color.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withValues(alpha: 0.20)),
->>>>>>> origin/main
               ),
               child: Icon(icon, color: color, size: 21),
             ),
@@ -1676,15 +1424,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final countChip = Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-<<<<<<< HEAD
             color: color.withValues(alpha: .08),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(color: color.withValues(alpha: .30)),
-=======
-            color: color.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: color.withValues(alpha: 0.30)),
->>>>>>> origin/main
           ),
           child: Text(
             '$count ALGORITHMS',
@@ -1777,11 +1519,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: _cardColor,
         borderRadius: BorderRadius.circular(20),
-<<<<<<< HEAD
         border: Border.all(color: AppColors.cyan.withValues(alpha: .16)),
-=======
-        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.16)),
->>>>>>> origin/main
       ),
       child: Column(
         children: [
@@ -1878,35 +1616,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 // ====================================================================
-<<<<<<< HEAD
-=======
-// ALGORITHM MODEL
-// ====================================================================
-
-class AlgorithmItem {
-  final String id;
-  final String title;
-  final String description;
-  final String complexity;
-  final String category;
-  final Color color;
-  final IconData icon;
-  final String difficulty;
-
-  const AlgorithmItem({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.complexity,
-    required this.category,
-    required this.color,
-    required this.icon,
-    required this.difficulty,
-  });
-}
-
-// ====================================================================
->>>>>>> origin/main
 // ALGORITHM CARD
 // ====================================================================
 //
@@ -1974,24 +1683,15 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
             color: cardColor,
             borderRadius: BorderRadius.circular(mobile ? 18 : 20),
             border: Border.all(
-<<<<<<< HEAD
               color: hovered
                   ? color.withValues(alpha: .45)
                   : color.withValues(alpha: .20),
-=======
-              color: hovered ? color.withValues(alpha: 0.45) : color.withValues(alpha: 0.20),
->>>>>>> origin/main
             ),
             boxShadow: [
               BoxShadow(
                 color: widget.isDarkMode
-<<<<<<< HEAD
                     ? color.withValues(alpha: hovered ? .12 : .02)
                     : Colors.black.withValues(alpha: hovered ? .10 : .05),
-=======
-                    ? color.withValues(alpha: hovered ? 0.12 : 0.02)
-                    : Colors.black.withValues(alpha: hovered ? 0.10 : 0.05),
->>>>>>> origin/main
                 blurRadius: hovered ? 24 : 14,
                 offset: const Offset(0, 6),
               ),
@@ -2009,13 +1709,8 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                       height: mobile ? 44 : 47,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(13),
-<<<<<<< HEAD
                         color: color.withValues(alpha: .10),
                         border: Border.all(color: color.withValues(alpha: .18)),
-=======
-                        color: color.withValues(alpha: 0.10),
-                        border: Border.all(color: color.withValues(alpha: 0.18)),
->>>>>>> origin/main
                       ),
                       child: Icon(
                         widget.item.icon,
@@ -2045,11 +1740,7 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                       decoration: BoxDecoration(
                         color: _difficultyColor(
                           widget.item.difficulty,
-<<<<<<< HEAD
                         ).withValues(alpha: .10),
-=======
-                        ).withValues(alpha: 0.10),
->>>>>>> origin/main
                         borderRadius: BorderRadius.circular(18),
                       ),
                       child: Text(
@@ -2085,11 +1776,7 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-<<<<<<< HEAD
                         color: color.withValues(alpha: .09),
-=======
-                        color: color.withValues(alpha: 0.09),
->>>>>>> origin/main
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Row(
@@ -2111,13 +1798,9 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                     const Spacer(),
                     Icon(
                       Icons.arrow_forward_rounded,
-<<<<<<< HEAD
                       color: hovered
                           ? color
                           : secondaryText.withValues(alpha: .60),
-=======
-                      color: hovered ? color : secondaryText.withValues(alpha: 0.60),
->>>>>>> origin/main
                       size: 19,
                     ),
                   ],
@@ -2177,20 +1860,12 @@ class StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(17),
-<<<<<<< HEAD
         border: Border.all(color: color.withValues(alpha: .20)),
-=======
-        border: Border.all(color: color.withValues(alpha: 0.20)),
->>>>>>> origin/main
         boxShadow: isDarkMode
             ? []
             : [
                 BoxShadow(
-<<<<<<< HEAD
                   color: Colors.black.withValues(alpha: .05),
-=======
-                  color: Colors.black.withValues(alpha: 0.05),
->>>>>>> origin/main
                   blurRadius: 14,
                   offset: const Offset(0, 5),
                 ),
@@ -2203,11 +1878,7 @@ class StatCard extends StatelessWidget {
             height: 43,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-<<<<<<< HEAD
               color: color.withValues(alpha: .10),
-=======
-              color: color.withValues(alpha: 0.10),
->>>>>>> origin/main
             ),
             child: Icon(icon, color: color, size: 21),
           ),
@@ -2263,13 +1934,8 @@ class _Glow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-<<<<<<< HEAD
               color.withValues(alpha: .10),
               color.withValues(alpha: .025),
-=======
-              color.withValues(alpha: 0.10),
-              color.withValues(alpha: 0.025),
->>>>>>> origin/main
               Colors.transparent,
             ],
           ),
@@ -2292,13 +1958,8 @@ class DashboardGridPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = isDarkMode
-<<<<<<< HEAD
           ? Colors.white.withValues(alpha: .018)
           : const Color(0xFF94A3B8).withValues(alpha: .16)
-=======
-          ? Colors.white.withValues(alpha: 0.018)
-          : const Color(0xFF94A3B8).withValues(alpha: 0.16)
->>>>>>> origin/main
       ..strokeWidth = .7;
 
     const spacing = 45.0;

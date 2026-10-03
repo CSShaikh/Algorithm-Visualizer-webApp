@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/widgets/algorithm_screen_shell.dart';
+import 'package:flutter/services.dart';
 
 class PreorderTraversalScreen extends StatefulWidget {
   const PreorderTraversalScreen({super.key});
@@ -54,7 +53,6 @@ class PreorderEvent {
 }
 
 class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
-<<<<<<< HEAD
   static const background = Color(0xFF030712);
   static const cardColor = Color(0xFF0B1428);
   static const visualizationColor = Color(0xFF081120);
@@ -64,17 +62,6 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
   static const green = Color(0xFF00E676);
   static const orange = Color(0xFFFFB300);
   static const pink = Color(0xFFFF4081);
-=======
-  static const background = AppColors.background;
-  static const cardColor = AppColors.card;
-  static const visualizationColor = AppColors.visualizationBackground;
-  static const cyan = AppColors.cyan;
-  static const blue = AppColors.blue;
-  static const purple = AppColors.purple;
-  static const green = AppColors.green;
-  static const orange = AppColors.orange;
-  static const pink = AppColors.pink;
->>>>>>> origin/main
 
   final TextEditingController arrayController = TextEditingController(
     text: '1, 2, 3, 4, 5, 6, 7',
@@ -87,7 +74,6 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
 
   Timer? timer;
   int currentStep = 0;
-  int activeCodeLine = 0;
   int currentIndex = -1;
   int exploringIndex = -1;
 
@@ -101,34 +87,6 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
   List<int> traversalResult = [];
   List<int> stackSnapshot = [];
   PreorderMethod method = PreorderMethod.recursive;
-
-  static const String _recursiveSourceCode = r'''void preorder(Node? node) {
-  if (node == null) return;
-
-  visit(node);
-  preorder(node.left);
-  preorder(node.right);
-}''';
-
-  static const String _iterativeSourceCode =
-      r'''void preorderIterative(Node root) {
-  if (root == null) return;
-  final stack = <Node>[root];
-
-  while (stack.isNotEmpty) {
-    final node = stack.removeLast();
-    visit(node);
-    if (node.right != null) {
-      stack.add(node.right!);
-    }
-    if (node.left != null) {
-      stack.add(node.left!);
-    }
-  }
-}''';
-
-  String get sourceCode =>
-      _isRecursive ? _recursiveSourceCode : _iterativeSourceCode;
   bool isRunning = false;
   bool isCompleted = false;
   double speed = 1.0;
@@ -509,7 +467,6 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
       visitedIndexes = Set<int>.from(event.visited);
       stackSnapshot = List<int>.from(event.stack);
       executionMessage = '${event.title}: ${event.description}';
-      activeCodeLine = _codeLineForEvent(event);
 
       if (event.type == PreorderEventType.initialize) {
         currentIndex = tree.isEmpty ? -1 : 0;
@@ -534,53 +491,6 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
         executionMessage = 'Preorder Complete: ${event.result.join(' → ')}';
       }
     });
-  }
-
-  int _codeLineForEvent(PreorderEvent event) {
-    final type = event.type;
-
-    if (_isRecursive) {
-      switch (type) {
-        case PreorderEventType.initialize:
-          return 1;
-        case PreorderEventType.nullChild:
-          return 2;
-        case PreorderEventType.visit:
-          return 4;
-        case PreorderEventType.goLeft:
-          return 5;
-        case PreorderEventType.goRight:
-          return 6;
-        case PreorderEventType.backtrack:
-          return 5;
-        case PreorderEventType.push:
-        case PreorderEventType.pop:
-          return 4;
-        case PreorderEventType.complete:
-          return 7;
-      }
-    }
-
-    switch (type) {
-      case PreorderEventType.initialize:
-        return 3;
-      case PreorderEventType.nullChild:
-        return event.operation.contains('right') ? 8 : 11;
-      case PreorderEventType.visit:
-        return 7;
-      case PreorderEventType.goLeft:
-        return 11;
-      case PreorderEventType.goRight:
-        return 8;
-      case PreorderEventType.backtrack:
-        return 5;
-      case PreorderEventType.push:
-        return event.childIndex == _right(event.nodeIndex) ? 9 : 12;
-      case PreorderEventType.pop:
-        return 6;
-      case PreorderEventType.complete:
-        return 14;
-    }
   }
 
   void _nextStep() {
@@ -786,15 +696,67 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-      body: AlgorithmScreenShell(
-        header: _header(),
-        algorithmInfo: _algorithmInfo(),
-        inputSection: _inputSection(),
-        additionalContent: _traversalMethodSection(),
-        visualization: _visualization(),
-        controls: _controls(),
-        sourceCode: _sourceCode(),
-        executionSteps: _executionSteps(),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1500),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _header(),
+                      const SizedBox(height: 14),
+                      _algorithmInfo(),
+                      const SizedBox(height: 14),
+                      _inputSection(),
+                      const SizedBox(height: 14),
+                      _traversalMethodSection(),
+                      const SizedBox(height: 14),
+                      if (constraints.maxWidth < 950) ...[
+                        _visualization(),
+                        const SizedBox(height: 14),
+                        _controls(),
+                        const SizedBox(height: 14),
+                        _sourceCode(),
+                        const SizedBox(height: 14),
+                        _executionSteps(),
+                      ] else
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  _visualization(),
+                                  const SizedBox(height: 14),
+                                  _controls(),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              flex: 2,
+                              child: Column(
+                                children: [
+                                  _sourceCode(),
+                                  const SizedBox(height: 14),
+                                  _executionSteps(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -810,15 +772,9 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-<<<<<<< HEAD
             color: cyan.withValues(alpha: .10),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: cyan.withValues(alpha: .25)),
-=======
-            color: cyan.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cyan.withValues(alpha: 0.25)),
->>>>>>> origin/main
           ),
           child: const Icon(Icons.account_tree_rounded, color: cyan),
         ),
@@ -857,11 +813,7 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
       decoration: BoxDecoration(
-<<<<<<< HEAD
         color: color.withValues(alpha: .08),
-=======
-        color: color.withValues(alpha: 0.08),
->>>>>>> origin/main
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withValues(alpha: .22)),
       ),
@@ -1235,12 +1187,36 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
   }
 
   Widget _sourceCode() {
-    final lines = sourceCode.split('\n');
+    final code = _isRecursive
+        ? '''void preorder(Node node) {
+  if (node == null) return;
+
+  visit(node);           // Root
+  preorder(node.left);   // Left
+  preorder(node.right);  // Right
+}'''
+        : '''List<int> preorder(Node root) {
+  if (root == null) return [];
+
+  final stack = <Node>[root];
+  final result = <int>[];
+
+  while (stack.isNotEmpty) {
+    final node = stack.removeLast();
+    result.add(node.value);       // Root
+
+    // Push right first; the left child is processed first (LIFO).
+    if (node.right != null) stack.add(node.right!);
+    if (node.left != null) stack.add(node.left!);
+  }
+
+  return result;                  // Root → Left → Right
+}''';
+
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-<<<<<<< HEAD
           Row(
             children: [
               Expanded(
@@ -1267,72 +1243,25 @@ class _PreorderTraversalScreenState extends State<PreorderTraversalScreen> {
                 ),
               ),
             ],
-=======
-          const Text(
-            'Source Code',
-            style: TextStyle(
-              color: AppColors.purple,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
->>>>>>> origin/main
           ),
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(maxHeight: 430),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.codeBackground,
+              color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(10),
             ),
             child: SingleChildScrollView(
-              child: Column(
-                children: List.generate(lines.length, (index) {
-                  final lineNumber = index + 1;
-                  final active = lineNumber == activeCodeLine;
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    color: active
-                        ? AppColors.cyan.withValues(alpha: .10)
-                        : Colors.transparent,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 26,
-                          child: Text(
-                            '$lineNumber',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(
-                              color: active ? AppColors.cyan : Colors.white24,
-                              fontSize: 9,
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            lines[index],
-                            style: TextStyle(
-                              color: active ? Colors.white : Colors.white70,
-                              fontSize: 10,
-                              height: 1.45,
-                              fontFamily: 'monospace',
-                              fontWeight: active
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+              scrollDirection: Axis.horizontal,
+              child: Text(
+                code,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontFamily: 'monospace',
+                  fontSize: 10.5,
+                  height: 1.55,
+                ),
               ),
             ),
           ),

@@ -15,11 +15,6 @@ abstract final class AppColors {
   static const Color background = Color(0xFF030712);
   static const Color background2 = Color(0xFF07101F);
   static const Color card = Color(0xFF0B1428);
-<<<<<<< HEAD
-=======
-  static const Color visualizationBackground = Color(0xFF0A1020);
-  static const Color codeBackground = Color(0xFF050A14);
->>>>>>> origin/main
 
   // ---------------------------------------------------------------------------
   // LIGHT BACKGROUNDS
@@ -75,8 +70,4 @@ abstract final class AppColors {
   static const Color warning = Color(0xFFFFB300);
   static const Color error = Color(0xFFFF5252);
   static const Color info = Color(0xFF29B6F6);
-<<<<<<< HEAD
-=======
-  static const Color neutral = Color(0xFF607D8B);
->>>>>>> origin/main
 }

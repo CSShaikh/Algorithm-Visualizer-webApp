@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/widgets/algorithm_screen_shell.dart';
+import 'package:flutter/services.dart';
 
 class InorderTraversalScreen extends StatefulWidget {
   const InorderTraversalScreen({super.key});
@@ -76,16 +75,16 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   // COLORS
   // ==========================================================================
 
-  static const background = AppColors.background;
-  static const cardColor = AppColors.card;
-  static const visualizationColor = AppColors.visualizationBackground;
+  static const background = Color(0xFF030712);
+  static const cardColor = Color(0xFF0B1428);
+  static const visualizationColor = Color(0xFF081120);
 
-  static const cyan = AppColors.cyan;
-  static const blue = AppColors.blue;
-  static const purple = AppColors.purple;
-  static const green = AppColors.green;
-  static const orange = AppColors.orange;
-  static const pink = AppColors.pink;
+  static const cyan = Color(0xFF00E5FF);
+  static const blue = Color(0xFF2979FF);
+  static const purple = Color(0xFF9C27FF);
+  static const green = Color(0xFF00E676);
+  static const orange = Color(0xFFFFB300);
+  static const pink = Color(0xFFFF4081);
 
   // ==========================================================================
   // INPUT
@@ -114,7 +113,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   // ==========================================================================
 
   int currentStep = 0;
-  int activeCodeLine = 0;
 
   int currentIndex = -1;
 
@@ -145,44 +143,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   String executionMessage = 'Ready to start recursive Inorder Traversal.';
 
   bool get _isRecursive => method == InorderMethod.recursive;
-
-  static const String _recursiveSourceCode = '''void inorder(Node? node) {
-  if (node == null) return;
-  
-  inorder(node.left);
-  visit(node);
-  inorder(node.right);
-  
-  // Continue after the recursive calls.
-  // Left subtree -> Root -> Right subtree.
-  // This is the core inorder traversal order.
-  
-  // Each visited node is added to the result.
-  // The recursion naturally handles backtracking.
-}''';
-
-  static const String _iterativeSourceCode =
-      '''void inorderIterative(Node? root) {
-  if (root == null) return;
-
-  final stack = <Node>[];
-  Node? current = root;
-
-  while (current != null || stack.isNotEmpty) {
-    while (current != null) {
-      stack.add(current);
-      current = current.left;
-    }
-
-    current = stack.removeLast();
-
-    visit(current);
-    current = current.right;
-  }
-}''';
-
-  String get sourceCode =>
-      _isRecursive ? _recursiveSourceCode : _iterativeSourceCode;
 
   // ==========================================================================
   // LIFECYCLE
@@ -671,10 +631,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
       stackSnapshot = List<int>.from(event.stack);
 
       executionMessage = '${event.title}: ${event.description}';
-<<<<<<< HEAD
-=======
-      activeCodeLine = _codeLineForEvent(event.type);
->>>>>>> origin/main
 
       if (event.type == InorderEventType.initialize) {
         currentIndex = tree.isEmpty ? -1 : 0;
@@ -705,51 +661,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   // ==========================================================================
   // NEXT
   // ==========================================================================
-
-  int _codeLineForEvent(InorderEventType type) {
-    if (_isRecursive) {
-      switch (type) {
-        case InorderEventType.initialize:
-          return 1;
-        case InorderEventType.nullChild:
-          return 2;
-        case InorderEventType.goLeft:
-          return 6;
-        case InorderEventType.visit:
-          return 9;
-        case InorderEventType.goRight:
-          return 12;
-        case InorderEventType.backtrack:
-          return 6;
-        case InorderEventType.push:
-        case InorderEventType.pop:
-          return 9;
-        case InorderEventType.complete:
-          return 14;
-      }
-    }
-
-    switch (type) {
-      case InorderEventType.initialize:
-        return 1;
-      case InorderEventType.nullChild:
-        return 2;
-      case InorderEventType.push:
-        return 9;
-      case InorderEventType.goLeft:
-        return 10;
-      case InorderEventType.pop:
-        return 13;
-      case InorderEventType.visit:
-        return 14;
-      case InorderEventType.goRight:
-        return 16;
-      case InorderEventType.backtrack:
-        return 10;
-      case InorderEventType.complete:
-        return 18;
-    }
-  }
 
   void _nextStep() {
     if (currentStep >= events.length) return;
@@ -1041,7 +952,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-<<<<<<< HEAD
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -1119,16 +1029,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
             );
           },
         ),
-=======
-      body: AlgorithmScreenShell(
-        header: _header(),
-        algorithmInfo: _algorithmInfo(),
-        inputSection: _inputSection(),
-        visualization: _visualization(),
-        controls: _controls(),
-        sourceCode: _sourceCode(),
-        executionSteps: _executionSteps(),
->>>>>>> origin/main
       ),
     );
   }
@@ -1724,7 +1624,6 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
   // ==========================================================================
 
   Widget _sourceCode() {
-<<<<<<< HEAD
     const recursiveCode = '''void inorder(Node node) {
   if (node == null) {
     return;
@@ -1764,14 +1663,10 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
 
     final code = _isRecursive ? recursiveCode : iterativeCode;
 
-=======
-    final lines = sourceCode.split('\n');
->>>>>>> origin/main
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-<<<<<<< HEAD
           Row(
             children: [
               Expanded(
@@ -1800,72 +1695,27 @@ class _InorderTraversalScreenState extends State<InorderTraversalScreen> {
                 ),
               ),
             ],
-=======
-          const Text(
-            'Source Code',
-            style: TextStyle(
-              color: AppColors.purple,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
->>>>>>> origin/main
           ),
+
           const SizedBox(height: 8),
+
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(maxHeight: 430),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.codeBackground,
+              color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(10),
             ),
             child: SingleChildScrollView(
-              child: Column(
-                children: List.generate(lines.length, (index) {
-                  final lineNumber = index + 1;
-                  final active = lineNumber == activeCodeLine;
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    color: active
-                        ? AppColors.cyan.withValues(alpha: .10)
-                        : Colors.transparent,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 26,
-                          child: Text(
-                            '$lineNumber',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(
-                              color: active ? AppColors.cyan : Colors.white24,
-                              fontSize: 9,
-                              fontFamily: 'monospace',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            lines[index],
-                            style: TextStyle(
-                              color: active ? Colors.white : Colors.white70,
-                              fontSize: 10,
-                              height: 1.45,
-                              fontFamily: 'monospace',
-                              fontWeight: active
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+              scrollDirection: Axis.horizontal,
+              child: Text(
+                code,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontFamily: 'monospace',
+                  fontSize: 10.5,
+                  height: 1.55,
+                ),
               ),
             ),
           ),

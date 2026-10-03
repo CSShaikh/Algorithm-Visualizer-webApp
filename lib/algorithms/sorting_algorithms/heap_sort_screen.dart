@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/widgets/algorithm_screen_shell.dart';
 import 'package:flutter/services.dart';
 
 class HeapSortScreen extends StatefulWidget {
@@ -66,18 +64,18 @@ class _HeapSortScreenState extends State<HeapSortScreen> {
   // COLORS
   // ==============================================================
 
-  static const Color background = AppColors.background;
-  static const Color background2 = AppColors.background2;
-  static const Color cardColor = AppColors.card;
-  static const Color visualizationColor = AppColors.visualizationBackground;
+  static const Color background = Color(0xFF030712);
+  static const Color background2 = Color(0xFF07101F);
+  static const Color cardColor = Color(0xFF0B1428);
+  static const Color visualizationColor = Color(0xFF0A1020);
 
-  static const Color cyan = AppColors.cyan;
-  static const Color blue = AppColors.blue;
-  static const Color purple = AppColors.purple;
-  static const Color green = AppColors.green;
-  static const Color orange = AppColors.orange;
-  static const Color pink = AppColors.pink;
-  static const Color red = AppColors.error;
+  static const Color cyan = Color(0xFF00E5FF);
+  static const Color blue = Color(0xFF2979FF);
+  static const Color purple = Color(0xFF9C27FF);
+  static const Color green = Color(0xFF00E676);
+  static const Color orange = Color(0xFFFFB300);
+  static const Color pink = Color(0xFFFF4081);
+  static const Color red = Color(0xFFFF5252);
 
   // ==============================================================
   // ARRAY
@@ -739,7 +737,6 @@ void heapify(int[] arr, int n, int i) {
   // MAIN WORKSPACE
   // ==============================================================
 
-<<<<<<< HEAD
   Widget _buildMainWorkspace(double width) {
     final bool mobile = width < 900;
 
@@ -774,8 +771,6 @@ void heapify(int[] arr, int n, int i) {
     );
   }
 
-=======
->>>>>>> origin/main
   // ==============================================================
   // VISUALIZATION PANEL
   // ==============================================================
@@ -1318,6 +1313,16 @@ void heapify(int[] arr, int n, int i) {
   // ==============================================================
   // SOURCE + STEPS
   // ==============================================================
+
+  Widget _buildSourceAndStepsPanel() {
+    return Column(
+      children: [
+        _buildSourceCode(),
+        const SizedBox(height: 16),
+        _buildExecutionSteps(),
+      ],
+    );
+  }
 
   // ==============================================================
   // SOURCE CODE
@@ -1988,7 +1993,6 @@ void heapify(int[] arr, int n, int i) {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-<<<<<<< HEAD
       body: SafeArea(
         child: Column(
           children: [
@@ -2018,16 +2022,6 @@ void heapify(int[] arr, int n, int i) {
             ),
           ],
         ),
-=======
-      body: AlgorithmScreenShell(
-        header: _buildHeader(),
-        algorithmInfo: _buildAlgorithmInfo(),
-        inputSection: _buildInputSection(),
-        visualization: _buildVisualizationPanel(),
-        controls: _buildControls(),
-        sourceCode: _buildSourceCode(),
-        executionSteps: _buildExecutionSteps(),
->>>>>>> origin/main
       ),
     );
   }

@@ -6,7 +6,6 @@ enum AlgorithmCategory {
   sorting,
   trees,
   graphs,
-<<<<<<< HEAD
   arrayAlgorithms,
   linkedListAlgorithms,
   mathematicalAlgorithms,
@@ -16,15 +15,6 @@ enum AlgorithmCategory {
 
 /// Availability state of an algorithm.
 enum AlgorithmStatus { implemented, comingSoon }
-=======
-}
-
-/// Availability state of an algorithm.
-enum AlgorithmStatus {
-  implemented,
-  comingSoon,
-}
->>>>>>> origin/main
 
 /// Immutable definition of an algorithm.
 ///
@@ -58,8 +48,4 @@ class Algorithm {
   bool get isImplemented => status == AlgorithmStatus.implemented;
 
   bool get isComingSoon => status == AlgorithmStatus.comingSoon;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main

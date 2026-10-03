@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/widgets/algorithm_screen_shell.dart';
 import 'package:flutter/services.dart';
 
 class JumpSearchScreen extends StatefulWidget {
@@ -73,7 +71,6 @@ class _JumpSearchScreenState extends State<JumpSearchScreen> {
   // COLORS
   // ==============================================================
 
-<<<<<<< HEAD
   static const Color background = Color(0xFF030712);
 
   static const Color background2 = Color(0xFF07101F);
@@ -95,29 +92,6 @@ class _JumpSearchScreenState extends State<JumpSearchScreen> {
   static const Color pink = Color(0xFFFF4081);
 
   static const Color red = Color(0xFFFF5252);
-=======
-  static const Color background = AppColors.background;
-
-  static const Color background2 = AppColors.background2;
-
-  static const Color cardColor = AppColors.card;
-
-  static const Color visualizationColor = AppColors.visualizationBackground;
-
-  static const Color cyan = AppColors.cyan;
-
-  static const Color blue = AppColors.blue;
-
-  static const Color purple = AppColors.purple;
-
-  static const Color green = AppColors.green;
-
-  static const Color orange = AppColors.orange;
-
-  static const Color pink = AppColors.pink;
-
-  static const Color red = AppColors.error;
->>>>>>> origin/main
 
   // ==============================================================
   // ARRAY
@@ -939,7 +913,6 @@ int jumpSearch(int[] arr, int target) {
   // MAIN WORKSPACE
   // ==============================================================
 
-<<<<<<< HEAD
   Widget _buildMainWorkspace(double width) {
     final bool mobile = width < 900;
 
@@ -974,8 +947,6 @@ int jumpSearch(int[] arr, int target) {
     );
   }
 
-=======
->>>>>>> origin/main
   // ==============================================================
   // VISUALIZATION
   // ==============================================================
@@ -1555,6 +1526,16 @@ int jumpSearch(int[] arr, int target) {
   // ==============================================================
   // SOURCE + STEPS
   // ==============================================================
+
+  Widget _buildSourceAndStepsPanel() {
+    return Column(
+      children: [
+        _buildSourceCode(),
+        const SizedBox(height: 16),
+        _buildExecutionSteps(),
+      ],
+    );
+  }
 
   // ==============================================================
   // SOURCE CODE
@@ -2229,7 +2210,6 @@ int jumpSearch(int[] arr, int target) {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-<<<<<<< HEAD
       body: SafeArea(
         child: Column(
           children: [
@@ -2259,16 +2239,6 @@ int jumpSearch(int[] arr, int target) {
             ),
           ],
         ),
-=======
-      body: AlgorithmScreenShell(
-        header: _buildHeader(),
-        algorithmInfo: _buildAlgorithmInfo(),
-        inputSection: _buildInputSection(),
-        visualization: _buildVisualizationPanel(),
-        controls: _buildControls(),
-        sourceCode: _buildSourceCode(),
-        executionSteps: _buildExecutionSteps(),
->>>>>>> origin/main
       ),
     );
   }

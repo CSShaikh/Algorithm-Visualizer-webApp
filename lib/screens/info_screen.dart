@@ -1,9 +1,5 @@
 import 'package:a_algorithm_visualizer/models/algorithm.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-=======
-import '../core/theme/app_colors.dart';
->>>>>>> origin/main
 import '../registry/algorithm_registry.dart';
 import 'dashboard_screen.dart';
 
@@ -14,34 +10,16 @@ class InfoScreen extends StatelessWidget {
   // COLORS
   // ================================================================
 
-  static const Color background = AppColors.background;
-  static const Color background2 = AppColors.background2;
-  static const Color cardColor = AppColors.card;
+  static const Color background = Color(0xFF030712);
+  static const Color background2 = Color(0xFF07101F);
+  static const Color cardColor = Color(0xFF0B1428);
 
-  static const Color cyan = AppColors.cyan;
-  static const Color blue = AppColors.blue;
-  static const Color purple = AppColors.purple;
-  static const Color green = AppColors.green;
-  static const Color orange = AppColors.orange;
-  static const Color pink = AppColors.pink;
-
-  Widget _buildAlgorithmGrid(AlgorithmCategory category) {
-    final algorithms = AlgorithmRegistry.byCategory(category);
-
-    return _ResponsiveGrid(
-      children: algorithms
-          .map(
-            (algorithm) => _AlgorithmCard(
-              icon: algorithm.icon,
-              title: algorithm.title,
-              description: algorithm.description,
-              complexity: algorithm.complexity,
-              color: algorithm.color,
-            ),
-          )
-          .toList(),
-    );
-  }
+  static const Color cyan = Color(0xFF00E5FF);
+  static const Color blue = Color(0xFF2979FF);
+  static const Color purple = Color(0xFF9C27FF);
+  static const Color green = Color(0xFF00E676);
+  static const Color orange = Color(0xFFFFB300);
+  static const Color pink = Color(0xFFFF4081);
 
   Widget _buildAlgorithmGrid(AlgorithmCategory category) {
     final algorithms = AlgorithmRegistry.byCategory(category);
@@ -587,11 +565,7 @@ class InfoScreen extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-<<<<<<< HEAD
       backgroundColor: background.withValues(alpha: .92),
-=======
-      backgroundColor: background.withValues(alpha: 0.92),
->>>>>>> origin/main
       elevation: 0,
       centerTitle: false,
       titleSpacing: 18,
@@ -604,11 +578,7 @@ class InfoScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(13),
               gradient: const LinearGradient(colors: [cyan, blue, purple]),
               boxShadow: [
-<<<<<<< HEAD
                 BoxShadow(color: cyan.withValues(alpha: .18), blurRadius: 18),
-=======
-                BoxShadow(color: cyan.withValues(alpha: 0.18), blurRadius: 18),
->>>>>>> origin/main
               ],
             ),
             child: const Icon(
@@ -695,20 +665,12 @@ class _HeroSectionState extends State<_HeroSection>
               ),
               boxShadow: [
                 BoxShadow(
-<<<<<<< HEAD
                   color: Colors.cyan.withValues(alpha: .08),
-=======
-                  color: Colors.cyan.withValues(alpha: 0.08),
->>>>>>> origin/main
                   blurRadius: 40,
                   spreadRadius: 3,
                 ),
                 BoxShadow(
-<<<<<<< HEAD
                   color: Colors.purple.withValues(alpha: .06),
-=======
-                  color: Colors.purple.withValues(alpha: 0.06),
->>>>>>> origin/main
                   blurRadius: 45,
                   spreadRadius: 4,
                 ),
@@ -734,7 +696,6 @@ class _HeroSectionState extends State<_HeroSection>
                           height: 65,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-<<<<<<< HEAD
                             color: Colors.cyan.withValues(alpha: .08),
                             border: Border.all(
                               color: Colors.cyan.withValues(alpha: .25),
@@ -742,15 +703,6 @@ class _HeroSectionState extends State<_HeroSection>
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.cyan.withValues(alpha: .15),
-=======
-                            color: Colors.cyan.withValues(alpha: 0.08),
-                            border: Border.all(
-                              color: Colors.cyan.withValues(alpha: 0.25),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.cyan.withValues(alpha: 0.15),
->>>>>>> origin/main
                                 blurRadius: 25,
                               ),
                             ],
@@ -780,11 +732,7 @@ class _HeroSectionState extends State<_HeroSection>
                             backgroundColor: Colors.cyan,
                             foregroundColor: Colors.black,
                             elevation: 10,
-<<<<<<< HEAD
                             shadowColor: Colors.cyan.withValues(alpha: .35),
-=======
-                            shadowColor: Colors.cyan.withValues(alpha: 0.35),
->>>>>>> origin/main
                             padding: const EdgeInsets.symmetric(
                               horizontal: 25,
                               vertical: 15,
@@ -806,15 +754,9 @@ class _HeroSectionState extends State<_HeroSection>
                         height: 65,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-<<<<<<< HEAD
                           color: Colors.cyan.withValues(alpha: .08),
                           border: Border.all(
                             color: Colors.cyan.withValues(alpha: .25),
-=======
-                          color: Colors.cyan.withValues(alpha: 0.08),
-                          border: Border.all(
-                            color: Colors.cyan.withValues(alpha: 0.25),
->>>>>>> origin/main
                           ),
                         ),
                         child: const Icon(
@@ -836,11 +778,7 @@ class _HeroSectionState extends State<_HeroSection>
                         ),
                         boxShadow: [
                           BoxShadow(
-<<<<<<< HEAD
                             color: Colors.cyan.withValues(alpha: .30),
-=======
-                            color: Colors.cyan.withValues(alpha: 0.30),
->>>>>>> origin/main
                             blurRadius: 35,
                             spreadRadius: 2,
                           ),
@@ -1034,15 +972,9 @@ class _HeroTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       decoration: BoxDecoration(
-<<<<<<< HEAD
         color: Colors.white.withValues(alpha: .045),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: Colors.white.withValues(alpha: .10)),
-=======
-        color: Colors.white.withValues(alpha: 0.045),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
->>>>>>> origin/main
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1087,17 +1019,10 @@ class _SectionTitle extends StatelessWidget {
           height: 45,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-<<<<<<< HEAD
             color: color.withValues(alpha: .07),
             border: Border.all(color: color.withValues(alpha: .30)),
             boxShadow: [
               BoxShadow(color: color.withValues(alpha: .06), blurRadius: 15),
-=======
-            color: color.withValues(alpha: 0.07),
-            border: Border.all(color: color.withValues(alpha: 0.30)),
-            boxShadow: [
-              BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 15),
->>>>>>> origin/main
             ],
           ),
           child: Icon(icon, color: color, size: 22),
@@ -1118,13 +1043,9 @@ class _SectionTitle extends StatelessWidget {
           width: 35,
           height: 2,
           decoration: BoxDecoration(
-<<<<<<< HEAD
             gradient: LinearGradient(
               colors: [color, color.withValues(alpha: 0)],
             ),
-=======
-            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0)]),
->>>>>>> origin/main
           ),
         ),
       ],
@@ -1155,21 +1076,12 @@ class _InfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-<<<<<<< HEAD
         color: const Color(0xFF0A1326).withValues(alpha: .92),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: accentColor.withValues(alpha: .13)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: .18),
-=======
-        color: const Color(0xFF0A1326).withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accentColor.withValues(alpha: 0.13)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
->>>>>>> origin/main
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1185,11 +1097,7 @@ class _InfoCard extends StatelessWidget {
                 height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-<<<<<<< HEAD
                   color: accentColor.withValues(alpha: .08),
-=======
-                  color: accentColor.withValues(alpha: 0.08),
->>>>>>> origin/main
                 ),
                 child: Icon(icon, color: accentColor, size: 21),
               ),
@@ -1281,11 +1189,7 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(18),
-<<<<<<< HEAD
         border: Border.all(color: color.withValues(alpha: .14)),
-=======
-        border: Border.all(color: color.withValues(alpha: 0.14)),
->>>>>>> origin/main
       ),
       child: Row(
         children: [
@@ -1294,11 +1198,7 @@ class _StatCard extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-<<<<<<< HEAD
               color: color.withValues(alpha: .08),
-=======
-              color: color.withValues(alpha: 0.08),
->>>>>>> origin/main
             ),
             child: Icon(icon, color: color, size: 23),
           ),
@@ -1354,15 +1254,10 @@ class _FeatureCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-<<<<<<< HEAD
         border: Border.all(color: color.withValues(alpha: .17)),
         boxShadow: [
           BoxShadow(color: color.withValues(alpha: .025), blurRadius: 20),
         ],
-=======
-        border: Border.all(color: color.withValues(alpha: 0.17)),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.025), blurRadius: 20)],
->>>>>>> origin/main
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1372,13 +1267,8 @@ class _FeatureCard extends StatelessWidget {
             height: 47,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-<<<<<<< HEAD
               color: color.withValues(alpha: .08),
               border: Border.all(color: color.withValues(alpha: .12)),
-=======
-              color: color.withValues(alpha: 0.08),
-              border: Border.all(color: color.withValues(alpha: 0.12)),
->>>>>>> origin/main
             ),
             child: Icon(icon, color: color, size: 25),
           ),
@@ -1434,15 +1324,10 @@ class _AlgorithmCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-<<<<<<< HEAD
         border: Border.all(color: color.withValues(alpha: .17)),
         boxShadow: [
           BoxShadow(color: color.withValues(alpha: .025), blurRadius: 18),
         ],
-=======
-        border: Border.all(color: color.withValues(alpha: 0.17)),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.025), blurRadius: 18)],
->>>>>>> origin/main
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1455,14 +1340,10 @@ class _AlgorithmCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(13),
                   gradient: LinearGradient(
-<<<<<<< HEAD
                     colors: [
                       color.withValues(alpha: .15),
                       color.withValues(alpha: .035),
                     ],
-=======
-                    colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.035)],
->>>>>>> origin/main
                   ),
                 ),
                 child: Icon(icon, color: color, size: 22),
@@ -1495,15 +1376,9 @@ class _AlgorithmCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
             decoration: BoxDecoration(
-<<<<<<< HEAD
               color: color.withValues(alpha: .07),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(color: color.withValues(alpha: .10)),
-=======
-              color: color.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: color.withValues(alpha: 0.10)),
->>>>>>> origin/main
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1551,11 +1426,7 @@ class _StepCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-<<<<<<< HEAD
         border: Border.all(color: color.withValues(alpha: .16)),
-=======
-        border: Border.all(color: color.withValues(alpha: 0.16)),
->>>>>>> origin/main
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1618,11 +1489,7 @@ class _RealWorldCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B1428),
         borderRadius: BorderRadius.circular(20),
-<<<<<<< HEAD
         border: Border.all(color: color.withValues(alpha: .16)),
-=======
-        border: Border.all(color: color.withValues(alpha: 0.16)),
->>>>>>> origin/main
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1632,11 +1499,7 @@ class _RealWorldCard extends StatelessWidget {
             height: 47,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-<<<<<<< HEAD
               color: color.withValues(alpha: .08),
-=======
-              color: color.withValues(alpha: 0.08),
->>>>>>> origin/main
             ),
             child: Icon(icon, color: color, size: 24),
           ),
@@ -1724,15 +1587,9 @@ class _ComplexityRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 11),
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-<<<<<<< HEAD
         color: Colors.white.withValues(alpha: .025),
         borderRadius: BorderRadius.circular(13),
         border: Border.all(color: Colors.white.withValues(alpha: .035)),
-=======
-        color: Colors.white.withValues(alpha: 0.025),
-        borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.035)),
->>>>>>> origin/main
       ),
       child: Column(
         children: [
@@ -1763,11 +1620,7 @@ class _ComplexityRow extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               minHeight: 4,
-<<<<<<< HEAD
               backgroundColor: Colors.white.withValues(alpha: .05),
-=======
-              backgroundColor: Colors.white.withValues(alpha: 0.05),
->>>>>>> origin/main
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
@@ -1796,15 +1649,9 @@ class _FinalCTA extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [Color(0xFF06233B), Color(0xFF10133A), Color(0xFF1D0B38)],
         ),
-<<<<<<< HEAD
         border: Border.all(color: Colors.cyan.withValues(alpha: .25)),
         boxShadow: [
           BoxShadow(color: Colors.cyan.withValues(alpha: .06), blurRadius: 35),
-=======
-        border: Border.all(color: Colors.cyan.withValues(alpha: 0.25)),
-        boxShadow: [
-          BoxShadow(color: Colors.cyan.withValues(alpha: 0.06), blurRadius: 35),
->>>>>>> origin/main
         ],
       ),
       child: Column(
@@ -1814,7 +1661,6 @@ class _FinalCTA extends StatelessWidget {
             height: 65,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-<<<<<<< HEAD
               color: Colors.cyan.withValues(alpha: .08),
               border: Border.all(color: Colors.cyan.withValues(alpha: .25)),
               boxShadow: [
@@ -1822,12 +1668,6 @@ class _FinalCTA extends StatelessWidget {
                   color: Colors.cyan.withValues(alpha: .15),
                   blurRadius: 25,
                 ),
-=======
-              color: Colors.cyan.withValues(alpha: 0.08),
-              border: Border.all(color: Colors.cyan.withValues(alpha: 0.25)),
-              boxShadow: [
-                BoxShadow(color: Colors.cyan.withValues(alpha: 0.15), blurRadius: 25),
->>>>>>> origin/main
               ],
             ),
             child: const Icon(
@@ -1872,11 +1712,7 @@ class _FinalCTA extends StatelessWidget {
               backgroundColor: Colors.cyan,
               foregroundColor: Colors.black,
               elevation: 10,
-<<<<<<< HEAD
               shadowColor: Colors.cyan.withValues(alpha: .35),
-=======
-              shadowColor: Colors.cyan.withValues(alpha: 0.35),
->>>>>>> origin/main
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -1909,13 +1745,8 @@ class _Glow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-<<<<<<< HEAD
               color.withValues(alpha: .10),
               color.withValues(alpha: .025),
-=======
-              color.withValues(alpha: 0.10),
-              color.withValues(alpha: 0.025),
->>>>>>> origin/main
               Colors.transparent,
             ],
           ),
@@ -1935,11 +1766,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-<<<<<<< HEAD
       ..color = Colors.white.withValues(alpha: .018)
-=======
-      ..color = Colors.white.withValues(alpha: 0.018)
->>>>>>> origin/main
       ..strokeWidth = .7;
 
     const double spacing = 45;

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import 'package:a_algorithm_visualizer/algorithms/array_algorithms/two_pointer_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_algorithm.dart';
 import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_algorithm.dart';
@@ -12,27 +11,6 @@ import 'package:a_algorithm_visualizer/algorithms/sorting_algorithms/counting_so
 import 'package:flutter/material.dart';
 
 import '../algorithms/graph_algorithms/dijkstra_screen.dart';
-=======
-<<<<<<< HEAD
-=======
-import 'package:a_algorithm_visualizer/algorithms/array_algorithms/two_pointer_screen.dart';
-import 'package:a_algorithm_visualizer/algorithms/dyanamic_programming_algorithms/lcs_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/dyanamic_programming_algorithms/lis_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_adddition_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_transpose_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/sorting_algorithms/counting_sort_screen.dart';
->>>>>>> 4a1b1b5 (Implemented new algorithm)
-import 'package:flutter/material.dart';
-
-import '../algorithms/graph_algorithms/dijkstra_screen.dart';
-import '../algorithms/graph_algorithms/bfs_screen.dart';
-import '../algorithms/graph_algorithms/dfs_screen.dart';
-import '../algorithms/tree_algorithms/level_order_traversal_screen.dart';
-import '../algorithms/tree_algorithms/binary_tree_screen.dart';
-import '../algorithms/tree_algorithms/binary_search_tree_screen.dart';
->>>>>>> origin/main
 import '../algorithms/searching_algorithms/binary_search_screen.dart';
 import '../algorithms/searching_algorithms/interpolation_search_screen.dart';
 import '../algorithms/searching_algorithms/jump_search_screen.dart';
@@ -65,21 +43,10 @@ import '../core/theme/app_colors.dart';
 abstract final class AlgorithmRegistry {
   AlgorithmRegistry._();
 
-<<<<<<< HEAD
-=======
-  // ---------------------------------------------------------------------------
-  // ALL ALGORITHMS
-  // ---------------------------------------------------------------------------
-
->>>>>>> origin/main
   static const List<Algorithm> all = [
     // -------------------------------------------------------------------------
     // SEARCHING
     // -------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'linear-search',
       title: 'Linear Search',
@@ -93,10 +60,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'binary-search',
       title: 'Binary Search',
@@ -110,10 +73,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'jump-search',
       title: 'Jump Search',
@@ -127,10 +86,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'interpolation-search',
       title: 'Interpolation Search',
@@ -148,19 +103,10 @@ abstract final class AlgorithmRegistry {
     // -------------------------------------------------------------------------
     // SORTING
     // -------------------------------------------------------------------------
-<<<<<<< HEAD
     Algorithm(
       id: 'bubble-sort',
       title: 'Bubble Sort',
       description: 'Repeatedly compares adjacent elements and swaps them.',
-=======
-
-    Algorithm(
-      id: 'bubble-sort',
-      title: 'Bubble Sort',
-      description:
-          'Repeatedly compares adjacent elements and swaps them.',
->>>>>>> origin/main
       complexity: 'O(n²)',
       categoryLabel: 'Sorting',
       category: AlgorithmCategory.sorting,
@@ -169,10 +115,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'selection-sort',
       title: 'Selection Sort',
@@ -186,19 +128,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'insertion-sort',
       title: 'Insertion Sort',
       description: 'Builds the final sorted array one item at a time.',
-=======
-
-    Algorithm(
-      id: 'insertion-sort',
-      title: 'Insertion Sort',
-      description:
-          'Builds the final sorted array one item at a time.',
->>>>>>> origin/main
       complexity: 'O(n²)',
       categoryLabel: 'Sorting',
       category: AlgorithmCategory.sorting,
@@ -207,10 +140,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'merge-sort',
       title: 'Merge Sort',
@@ -224,19 +153,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'quick-sort',
       title: 'Quick Sort',
       description: 'Uses a pivot to partition elements into smaller subarrays.',
-=======
-
-    Algorithm(
-      id: 'quick-sort',
-      title: 'Quick Sort',
-      description:
-          'Uses a pivot to partition elements into smaller subarrays.',
->>>>>>> origin/main
       complexity: 'O(n log n)',
       categoryLabel: 'Sorting',
       category: AlgorithmCategory.sorting,
@@ -245,19 +165,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'heap-sort',
       title: 'Heap Sort',
       description: 'Uses a heap data structure to efficiently sort elements.',
-=======
-
-    Algorithm(
-      id: 'heap-sort',
-      title: 'Heap Sort',
-      description:
-          'Uses a heap data structure to efficiently sort elements.',
->>>>>>> origin/main
       complexity: 'O(n log n)',
       categoryLabel: 'Sorting',
       category: AlgorithmCategory.sorting,
@@ -266,7 +177,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Hard',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'counting-sort',
       title: 'Counting Sort',
@@ -280,16 +190,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-=======
->>>>>>> origin/main
 
     // -------------------------------------------------------------------------
     // TREES
     // -------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'preorder-traversal',
       title: 'Preorder Traversal',
@@ -303,19 +207,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'inorder-traversal',
       title: 'Inorder Traversal',
       description: 'Visits the left subtree, root, and then the right subtree.',
-=======
-
-    Algorithm(
-      id: 'inorder-traversal',
-      title: 'Inorder Traversal',
-      description:
-          'Visits the left subtree, root, and then the right subtree.',
->>>>>>> origin/main
       complexity: 'O(n)',
       categoryLabel: 'Trees',
       category: AlgorithmCategory.trees,
@@ -324,10 +219,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'postorder-traversal',
       title: 'Postorder Traversal',
@@ -341,19 +232,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'level-order-traversal',
       title: 'Level Order Traversal',
       description: 'Visits tree nodes level by level using a queue.',
-=======
-
-    Algorithm(
-      id: 'level-order-traversal',
-      title: 'Level Order Traversal',
-      description:
-          'Visits tree nodes level by level using a queue.',
->>>>>>> origin/main
       complexity: 'O(n)',
       categoryLabel: 'Trees',
       category: AlgorithmCategory.trees,
@@ -362,19 +244,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'binary-tree',
       title: 'Binary Tree',
       description: 'Introduces the structure and traversal of a binary tree.',
-=======
-
-    Algorithm(
-      id: 'binary-tree',
-      title: 'Binary Tree',
-      description:
-          'Introduces the structure and traversal of a binary tree.',
->>>>>>> origin/main
       complexity: 'O(n)',
       categoryLabel: 'Trees',
       category: AlgorithmCategory.trees,
@@ -383,10 +256,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'binary-search-tree',
       title: 'Binary Search Tree',
@@ -404,10 +273,6 @@ abstract final class AlgorithmRegistry {
     // -------------------------------------------------------------------------
     // GRAPHS
     // -------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
     Algorithm(
       id: 'dijkstra',
       title: 'Dijkstra',
@@ -421,19 +286,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Hard',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'bfs',
       title: 'Breadth-First Search',
       description: 'Traverses a graph level by level using a queue.',
-=======
-
-    Algorithm(
-      id: 'bfs',
-      title: 'Breadth-First Search',
-      description:
-          'Traverses a graph level by level using a queue.',
->>>>>>> origin/main
       complexity: 'O(V + E)',
       categoryLabel: 'Graphs',
       category: AlgorithmCategory.graphs,
@@ -442,19 +298,10 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'dfs',
       title: 'Depth-First Search',
       description: 'Explores a graph deeply before backtracking.',
-=======
-
-    Algorithm(
-      id: 'dfs',
-      title: 'Depth-First Search',
-      description:
-          'Explores a graph deeply before backtracking.',
->>>>>>> origin/main
       complexity: 'O(V + E)',
       categoryLabel: 'Graphs',
       category: AlgorithmCategory.graphs,
@@ -463,11 +310,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> origin/main
 
     // -------------------------------------------------------------------------
     // ARRAY ALGORITHMS
@@ -603,32 +445,10 @@ abstract final class AlgorithmRegistry {
 
     ///Fibonacci Algorithm///
     Algorithm(
-<<<<<<< HEAD
       id: 'factorial',
       title: 'Factorial Algorithm',
       description:
           'Calculates the factorial of a non-negative integer using iterative multiplication.',
-=======
-      id: 'fibonacci',
-      title: 'Fibonacci Algorithm',
-      description:
-          'Generates Fibonacci numbers step by step using an iterative approach.',
-      complexity: 'O(n)',
-      categoryLabel: 'Mathematical Algorithms',
-      category: AlgorithmCategory.arrayAlgorithms,
-      color: AppColors.cyan,
-      icon: Icons.auto_graph_rounded,
-      difficulty: 'Easy',
-      status: AlgorithmStatus.implemented,
-    ),
-
-    /// Factorial Algorithm ///
-    Algorithm(
-      id: 'factorial',
-      title: 'Factorial Algorithm',
-      description:
-          'Calculate the factorial of a non-negative integer step by step.',
->>>>>>> origin/main
       complexity: 'O(n)',
       categoryLabel: 'Mathematical Algorithms',
       category: AlgorithmCategory.mathematicalAlgorithms,
@@ -637,7 +457,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'fibonacci',
       title: 'Fibonacci Algorithm',
@@ -655,51 +474,19 @@ abstract final class AlgorithmRegistry {
     // -------------------------------------------------------------------------
     // MATRIX ALGORITHMS
     // -------------------------------------------------------------------------
-=======
-
-    /// Matrix Algorithms ///
->>>>>>> origin/main
     Algorithm(
       id: 'matrix-addition',
       title: 'Matrix Addition Algorithm',
       description:
-<<<<<<< HEAD
           'Adds corresponding elements of two matrices to create a result matrix.',
       complexity: 'O(n × m)',
-=======
-          'Adds two matrices element by element when both matrices have the same dimensions.',
-      complexity: 'O(r × c)',
-      categoryLabel: 'Matrix Algorithms',
-      category: AlgorithmCategory.matrixAlgorithms,
-      color: AppColors.cyan,
-      icon: Icons.grid_3x3_rounded,
-      difficulty: 'Easy',
-      status: AlgorithmStatus.implemented,
-    ),
-
-    // Matix Multiplication //
-    Algorithm(
-      id: 'matrix-multiplication',
-      title: 'Matrix Multiplication Algorithm',
-      description:
-          'Multiplies two matrices by computing the dot product of each row and column.',
-      complexity: 'O(n³)',
->>>>>>> origin/main
       categoryLabel: 'Matrix Algorithms',
       category: AlgorithmCategory.matrixAlgorithms,
       color: AppColors.cyan,
       icon: Icons.grid_view_rounded,
-<<<<<<< HEAD
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-=======
-      difficulty: 'Medium',
-      status: AlgorithmStatus.implemented,
-    ),
-
-    // Matrix Trapose
->>>>>>> origin/main
     Algorithm(
       id: 'matrix-transpose',
       title: 'Matrix Transpose Algorithm',
@@ -713,7 +500,6 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
     Algorithm(
       id: 'matrix-multiplication',
       title: 'Matrix Multiplication Algorithm',
@@ -745,17 +531,6 @@ abstract final class AlgorithmRegistry {
       title: 'Longest Common Subsequence (LCS) Algorithm',
       description:
           'Finds the longest sequence shared by two strings using dynamic programming and backtracking.',
-=======
-
-    // Dynamic Programming Algorithms //
-
-    // LCS //
-    Algorithm(
-      id: 'lcs',
-      title: 'Longest Common Subsequence (LCS)',
-      description:
-          'Finds the longest subsequence common to two strings using dynamic programming.',
->>>>>>> origin/main
       complexity: 'O(m × n)',
       categoryLabel: 'Dynamic Programming Algorithms',
       category: AlgorithmCategory.dynamicProgrammingAlgorithms,
@@ -764,91 +539,33 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-<<<<<<< HEAD
   ];
 
-=======
-
-    //LIS //
-    Algorithm(
-      id: 'lis',
-      title: 'Longest Increasing Subsequence (LIS) Algorithm',
-      description:
-          'Finds the longest strictly increasing subsequence of an integer array using dynamic programming and predecessor links.',
-      complexity: 'O(n²)',
-      categoryLabel: 'Dynamic Programming Algorithms',
-      category: AlgorithmCategory.dynamicProgrammingAlgorithms,
-      color: AppColors.purple,
-      icon: Icons.trending_up_rounded,
-      difficulty: 'Medium',
-      status: AlgorithmStatus.implemented,
-    ),
->>>>>>> 4a1b1b5 (Implemented new algorithm)
-  ];
-
-  // ---------------------------------------------------------------------------
-  // IMPLEMENTED ALGORITHMS
-  // ---------------------------------------------------------------------------
-
->>>>>>> origin/main
   static List<Algorithm> get implemented {
     return all.where((algorithm) => algorithm.isImplemented).toList();
   }
 
-<<<<<<< HEAD
-=======
-  // ---------------------------------------------------------------------------
-  // COMING SOON ALGORITHMS
-  // ---------------------------------------------------------------------------
-
->>>>>>> origin/main
   static List<Algorithm> get comingSoon {
     return all.where((algorithm) => algorithm.isComingSoon).toList();
   }
 
-<<<<<<< HEAD
-=======
-  // ---------------------------------------------------------------------------
-  // CATEGORY FILTER
-  // ---------------------------------------------------------------------------
-
->>>>>>> origin/main
   static List<Algorithm> byCategory(AlgorithmCategory category) {
     return all.where((algorithm) => algorithm.category == category).toList();
   }
 
-<<<<<<< HEAD
-=======
-  // ---------------------------------------------------------------------------
-  // LOOKUP
-  // ---------------------------------------------------------------------------
-
->>>>>>> origin/main
   static Algorithm? findById(String id) {
     for (final algorithm in all) {
       if (algorithm.id == id) {
         return algorithm;
       }
     }
-<<<<<<< HEAD
     return null;
   }
 
-=======
-
-    return null;
-  }
-
-  // ---------------------------------------------------------------------------
-  // SCREEN BUILDER
-  // ---------------------------------------------------------------------------
-
->>>>>>> origin/main
   static Widget? buildScreen(String id) {
     switch (id) {
       case 'linear-search':
         return const LinearSearchScreen();
-<<<<<<< HEAD
       case 'binary-search':
         return const BinarySearchScreen();
       case 'jump-search':
@@ -895,91 +612,8 @@ abstract final class AlgorithmRegistry {
         return const FactorialAlgorithmScreen();
       case 'fibonacci':
         return const FibonacciAlgorithmScreen();
-=======
-
-      case 'binary-search':
-        return const BinarySearchScreen();
-
-      case 'jump-search':
-        return const JumpSearchScreen();
-
-      case 'interpolation-search':
-        return const InterpolationSearchScreen();
-
-      case 'bubble-sort':
-        return const BubbleSortScreen();
-
-      case 'selection-sort':
-        return const SelectionSortScreen();
-
-      case 'insertion-sort':
-        return const InsertionSortScreen();
-
-      case 'merge-sort':
-        return const MergeSortScreen();
-
-      case 'quick-sort':
-        return const QuickSortScreen();
-
-      case 'heap-sort':
-        return const HeapSortScreen();
-
-      case 'preorder-traversal':
-        return const PreorderTraversalScreen();
-
-      case 'inorder-traversal':
-        return const InorderTraversalScreen();
-
-      case 'postorder-traversal':
-        return const PostorderTraversalScreen();
-
-      case 'dijkstra':
-        return const DijkstraScreen();
-<<<<<<< HEAD
-
-      case 'bfs':
-        return const BfsScreen();
-
-      case 'dfs':
-        return const DfsScreen();
-
-      case 'level-order-traversal':
-        return const LevelOrderTraversalScreen();
-
-      case 'binary-tree':
-        return const BinaryTreeScreen();
-
-      case 'binary-search-tree':
-        return const BinarySearchTreeScreen();
-
-
-=======
-      case 'two-pointer':
-        return const TwoPointerScreen();
-      case 'euclidean_algorithm':
-        return const EuclideanAlgorithmScreen();
-      case 'fibonacci':
-        return const FibonacciAlgorithmScreen();
-      case 'factorial':
-        return const FactorialAlgorithmScreen();
-      case 'matrix-addition':
-        return const MatrixAdditionAlgorithmScreen();
-      case 'matrix-multiplication':
-        return const MatrixAdditionAlgorithmScreen();
-      case 'matrix-transpose':
-        return const MatrixTransposeAlgorithmScreen();
-      case 'lcs':
-        return const LcsAlgorithmScreen();
-      case 'lis':
-        return const LisAlgorithmScreen();
->>>>>>> 4a1b1b5 (Implemented new algorithm)
->>>>>>> origin/main
       default:
         return null;
     }
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main
