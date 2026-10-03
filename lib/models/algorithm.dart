@@ -9,6 +9,8 @@ enum AlgorithmCategory {
   arrayAlgorithms,
   linkedListAlgorithms,
   mathematicalAlgorithms,
+  matrixAlgorithms,
+  dynamicProgrammingAlgorithms,
 }
 
 /// Availability state of an algorithm.

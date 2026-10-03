@@ -112,6 +112,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       case 'Mathematical Algorithms':
         return AppColors.info;
+      case 'Matrix Algorithms':
+        return AppColors.cyan;
+      case 'Dynamic Programming Algorithms':
+        return AppColors.purple;
       default:
         return AppColors.cyan;
     }
@@ -135,6 +139,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       case 'Mathematical Algorithms':
         return Icons.calculate_rounded;
+      case 'Matrix Algorithms':
+        return Icons.grid_view_rounded;
+      case 'Dynamic Programming Algorithms':
+        return Icons.account_tree_rounded;
       default:
         return Icons.category_rounded;
     }

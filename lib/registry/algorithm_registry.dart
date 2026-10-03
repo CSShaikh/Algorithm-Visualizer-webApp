@@ -1,5 +1,12 @@
 import 'package:a_algorithm_visualizer/algorithms/array_algorithms/two_pointer_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/factorial_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_addition_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_multiplication_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_transpose_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lcs_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lis_algorithm.dart';
 import 'package:a_algorithm_visualizer/algorithms/sorting_algorithms/counting_sort_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -420,6 +427,8 @@ abstract final class AlgorithmRegistry {
     ),
 
     /// Mathematical Algorithms///
+
+    /// Eculidean Algorithm///
     Algorithm(
       id: 'euclidean_algorithm',
       title: 'Euclidean Algorithm',
@@ -431,6 +440,103 @@ abstract final class AlgorithmRegistry {
       category: AlgorithmCategory.mathematicalAlgorithms,
       icon: Icons.calculate_rounded,
       color: AppColors.info,
+      status: AlgorithmStatus.implemented,
+    ),
+
+    ///Fibonacci Algorithm///
+    Algorithm(
+      id: 'factorial',
+      title: 'Factorial Algorithm',
+      description:
+          'Calculates the factorial of a non-negative integer using iterative multiplication.',
+      complexity: 'O(n)',
+      categoryLabel: 'Mathematical Algorithms',
+      category: AlgorithmCategory.mathematicalAlgorithms,
+      color: AppColors.info,
+      icon: Icons.calculate_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+    Algorithm(
+      id: 'fibonacci',
+      title: 'Fibonacci Algorithm',
+      description:
+          'Generates Fibonacci numbers step by step using an iterative approach.',
+      complexity: 'O(n)',
+      categoryLabel: 'Mathematical Algorithms',
+      category: AlgorithmCategory.mathematicalAlgorithms,
+      color: AppColors.info,
+      icon: Icons.auto_graph_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    // -------------------------------------------------------------------------
+    // MATRIX ALGORITHMS
+    // -------------------------------------------------------------------------
+    Algorithm(
+      id: 'matrix-addition',
+      title: 'Matrix Addition Algorithm',
+      description:
+          'Adds corresponding elements of two matrices to create a result matrix.',
+      complexity: 'O(n × m)',
+      categoryLabel: 'Matrix Algorithms',
+      category: AlgorithmCategory.matrixAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.grid_view_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+    Algorithm(
+      id: 'matrix-transpose',
+      title: 'Matrix Transpose Algorithm',
+      description:
+          'Swaps the rows and columns of a matrix to create its transpose.',
+      complexity: 'O(n × m)',
+      categoryLabel: 'Matrix Algorithms',
+      category: AlgorithmCategory.matrixAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.swap_vert_rounded,
+      difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+    Algorithm(
+      id: 'matrix-multiplication',
+      title: 'Matrix Multiplication Algorithm',
+      description:
+          'Multiplies rows of one matrix by columns of another to create a result matrix.',
+      complexity: 'O(n³)',
+      categoryLabel: 'Matrix Algorithms',
+      category: AlgorithmCategory.matrixAlgorithms,
+      color: AppColors.cyan,
+      icon: Icons.close_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+    Algorithm(
+      id: 'lis',
+      title: 'Longest Increasing Subsequence (LIS) Algorithm',
+      description:
+          'Finds the longest strictly increasing subsequence of an integer sequence using dynamic programming and parent tracking.',
+      complexity: 'O(n²)',
+      categoryLabel: 'Dynamic Programming Algorithms',
+      category: AlgorithmCategory.dynamicProgrammingAlgorithms,
+      color: AppColors.purple,
+      icon: Icons.trending_up_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+    Algorithm(
+      id: 'lcs',
+      title: 'Longest Common Subsequence (LCS) Algorithm',
+      description:
+          'Finds the longest sequence shared by two strings using dynamic programming and backtracking.',
+      complexity: 'O(m × n)',
+      categoryLabel: 'Dynamic Programming Algorithms',
+      category: AlgorithmCategory.dynamicProgrammingAlgorithms,
+      color: AppColors.purple,
+      icon: Icons.account_tree_rounded,
+      difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
   ];
@@ -490,8 +596,22 @@ abstract final class AlgorithmRegistry {
         return const DijkstraScreen();
       case 'two-pointer':
         return const TwoPointerScreen();
+      case 'matrix-addition':
+        return const MatrixAdditionAlgorithmScreen();
+      case 'matrix-multiplication':
+        return const MatrixMultiplicationAlgorithmScreen();
+      case 'matrix-transpose':
+        return const MatrixTransposeAlgorithmScreen();
+      case 'lis':
+        return const LisAlgorithmScreen();
+      case 'lcs':
+        return const LcsAlgorithmScreen();
       case 'euclidean_algorithm':
         return const EuclideanAlgorithmScreen();
+      case 'factorial':
+        return const FactorialAlgorithmScreen();
+      case 'fibonacci':
+        return const FibonacciAlgorithmScreen();
       default:
         return null;
     }
