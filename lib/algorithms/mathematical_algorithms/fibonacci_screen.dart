@@ -4,48 +4,42 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MatrixMultiplicationAlgorithmScreen extends StatefulWidget {
-  const MatrixMultiplicationAlgorithmScreen({super.key});
+class FibonacciAlgorithmScreen extends StatefulWidget {
+  const FibonacciAlgorithmScreen({super.key});
 
   @override
-  State<MatrixMultiplicationAlgorithmScreen> createState() =>
-      _MatrixMultiplicationAlgorithmScreenState();
+  State<FibonacciAlgorithmScreen> createState() => _FibonacciAlgorithmScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum MatrixMultiplicationEventType {
-  initialize,
-  calculate,
-  multiply,
-  accumulate,
-  complete,
-}
+enum FibonacciEventType { initialize, calculate, result, complete }
 
 // ============================================================================
 // EVENT MODEL
 // ============================================================================
 
-class MatrixMultiplicationEvent {
-  final MatrixMultiplicationEventType type;
+class FibonacciEvent {
+  final FibonacciEventType type;
+
+  /// Snapshot of the array at this exact event.
   final List<int> array;
+
   final int index;
   final int secondIndex;
+
   final int firstValue;
   final int secondValue;
+
   final int sortedCount;
-  final int row;
-  final int column;
-  final List<List<int>> matrixA;
-  final List<List<int>> matrixB;
-  final List<List<int>> result;
+
   final String title;
   final String description;
   final String operation;
 
-  const MatrixMultiplicationEvent({
+  const FibonacciEvent({
     required this.type,
     required this.array,
     required this.index,
@@ -53,11 +47,6 @@ class MatrixMultiplicationEvent {
     required this.firstValue,
     required this.secondValue,
     required this.sortedCount,
-    required this.row,
-    required this.column,
-    required this.matrixA,
-    required this.matrixB,
-    required this.result,
     required this.title,
     required this.description,
     required this.operation,
@@ -66,11 +55,9 @@ class MatrixMultiplicationEvent {
 
 // ============================================================================
 // STATE
-
 // ============================================================================
 
-class _MatrixMultiplicationAlgorithmScreenState
-    extends State<MatrixMultiplicationAlgorithmScreen> {
+class _FibonacciAlgorithmScreenState extends State<FibonacciAlgorithmScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
@@ -88,450 +75,294 @@ class _MatrixMultiplicationAlgorithmScreenState
   static const Color pink = Color(0xFFFF4081);
   static const Color red = Color(0xFFFF5252);
 
-  // ============================================================================
+  // ==========================================================================
   // DATA
-  // ============================================================================
+  // ==========================================================================
 
-  List<List<int>> matrixA = [
-    [1, 2],
-    [3, 4],
-  ];
+  int fibonacciIndex = 10;
 
-  List<List<int>> matrixB = [
-    [5, 6],
-    [7, 8],
-  ];
+  List<int> array = [0, 1];
 
-  List<List<int>> resultMatrix = [
-    [0, 0],
-    [0, 0],
-  ];
+  /// Original state used by Reset.
+  List<int> originalArray = [0, 1];
 
-  List<List<int>> originalA = [
-    [1, 2],
-    [3, 4],
-  ];
-
-  List<List<int>> originalB = [
-    [5, 6],
-    [7, 8],
-  ];
+  // ==========================================================================
+  // CONTROLLER
+  // ==========================================================================
 
   final TextEditingController arrayController = TextEditingController(
-    text: '1, 2; 3, 4 | 5, 6; 7, 8',
+    text: '10',
   );
 
-  List<MatrixMultiplicationEvent> events = [];
-  List<MatrixMultiplicationEvent> executionHistory = [];
+  // ==========================================================================
+  // EVENTS
+  // ==========================================================================
+
+  List<FibonacciEvent> events = [];
+
+  List<FibonacciEvent> executionHistory = [];
+
+  // ==========================================================================
+  // EXECUTION
+  // ==========================================================================
 
   int currentStep = 0;
+
   bool isRunning = false;
+
   bool isCompleted = false;
+
   double speed = 1.0;
+
   Timer? timer;
 
-  int currentRow = -1;
-  int currentColumn = -1;
-  int activeCell = -1;
+  // ==========================================================================
+  // VISUAL STATE
+  // ==========================================================================
+
+  int comparingIndex = -1;
+
+  int secondComparingIndex = -1;
+
+  int swappingIndex = -1;
+
+  int secondSwappingIndex = -1;
+
   int sortedCount = 0;
+
   Set<int> sortedIndexes = {};
+
   int activeCodeLine = 0;
-  int matrixResultValue = 0;
-  String executionMessage =
-      'Ready to start the Matrix Multiplication Algorithm.';
+
+  String executionMessage = 'Ready to start Fibonacci Algorithm.';
+
+  // ==========================================================================
+  // SOURCE CODE
+  // ==========================================================================
 
   final String sourceCode = '''
-List<List<int>> multiplyMatrices(
-  List<List<int>> a,
-  List<List<int>> b,
-) {
-  final result = List.generate(
-    a.length,
-    (_) => List.filled(b[0].length, 0),
-  );
+int fibonacci(int n) {
+  if (n <= 0) return 0;
+  if (n == 1) return 1;
 
-  for (int i = 0; i < a.length; i++) {
-    for (int j = 0; j < b[0].length; j++) {
-      for (int k = 0; k < b.length; k++) {
-        result[i][j] += a[i][k] * b[k][j];
-      }
-    }
+  int a = 0;
+  int b = 1;
+
+  for (int i = 2; i <= n; i++) {
+    int next = a + b;
+    a = b;
+    b = next;
   }
 
-  return result;
+  return b;
 }
 ''';
+
+  // ==========================================================================
+  // INIT
+  // ==========================================================================
 
   @override
   void initState() {
     super.initState();
+
+    originalArray = [...array];
+
     _generateEvents();
   }
+
+  // ==========================================================================
+  // DISPOSE
+  // ==========================================================================
 
   @override
   void dispose() {
     timer?.cancel();
     arrayController.dispose();
+
     super.dispose();
   }
 
-  List<int> _flatten(List<List<int>> matrix) =>
-      matrix.expand((row) => row).toList();
-
-  List<List<int>> _copyMatrix(List<List<int>> matrix) =>
-      matrix.map((row) => [...row]).toList();
+  // ==========================================================================
+  // GENERATE EVENTS
+  // ==========================================================================
 
   void _generateEvents() {
-    final generated = <MatrixMultiplicationEvent>[];
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+    final n = fibonacciIndex.clamp(0, 30);
+    final generated = <FibonacciEvent>[];
+    final working = <int>[];
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.initialize,
-        array: _flatten(resultMatrix),
+      FibonacciEvent(
+        type: FibonacciEventType.initialize,
+        array: <int>[],
         index: -1,
         secondIndex: -1,
         firstValue: 0,
-        secondValue: 0,
+        secondValue: 1,
         sortedCount: 0,
-        row: -1,
-        column: -1,
-        matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
-        result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Initialized',
-        description:
-            'Start with two 2 × 2 matrices and an empty result matrix.',
-        operation: 'C = A × B',
+        title: 'Fibonacci Initialized',
+        description: 'Start with F[0] = 0 and F[1] = 1.',
+        operation: 'Initialize Fibonacci sequence',
       ),
     );
 
-    int completedCells = 0;
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        int sum = 0;
-        for (int k = 0; k < 2; k++) {
-          final a = matrixA[i][k];
-          final b = matrixB[k][j];
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.calculate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Select Row × Column Elements',
-              description:
-                  'Take A[$i][$k] = $a and B[$k][$j] = $b for C[$i][$j].',
-              operation: 'A[$i][$k] × B[$k][$j]',
-            ),
-          );
+    working.add(0);
+    generated.add(
+      FibonacciEvent(
+        type: FibonacciEventType.result,
+        array: [...working],
+        index: 0,
+        secondIndex: -1,
+        firstValue: 0,
+        secondValue: -1,
+        sortedCount: 1,
+        title: 'F[0] Ready',
+        description: 'The 0th Fibonacci number is 0.',
+        operation: 'F[0] = 0',
+      ),
+    );
 
-          final product = a * b;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.multiply,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Multiply Selected Elements',
-              description: '$a × $b = $product.',
-              operation: '$a × $b = $product',
-            ),
-          );
+    if (n >= 1) {
+      working.add(1);
+      generated.add(
+        FibonacciEvent(
+          type: FibonacciEventType.result,
+          array: [...working],
+          index: 1,
+          secondIndex: -1,
+          firstValue: 1,
+          secondValue: -1,
+          sortedCount: 2,
+          title: 'F[1] Ready',
+          description: 'The 1st Fibonacci number is 1.',
+          operation: 'F[1] = 1',
+        ),
+      );
+    }
 
-          sum += product;
-          resultMatrix[i][j] = sum;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.accumulate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Accumulate Product',
-              description:
-                  'Add the product to C[$i][$j]. Current value = $sum.',
-              operation: 'C[$i][$j] = $sum',
-            ),
-          );
-        }
-        completedCells++;
-      }
+    for (int i = 2; i <= n; i++) {
+      final a = working[i - 2];
+      final b = working[i - 1];
+      final next = a + b;
+
+      generated.add(
+        FibonacciEvent(
+          type: FibonacciEventType.calculate,
+          array: [...working],
+          index: i - 2,
+          secondIndex: i - 1,
+          firstValue: a,
+          secondValue: b,
+          sortedCount: working.length,
+          title: 'Calculate F[$i]',
+          description: 'Add the previous two Fibonacci values.',
+          operation: 'F[$i] = F[${i - 2}] + F[${i - 1}] = $a + $b = $next',
+        ),
+      );
+
+      working.add(next);
+
+      generated.add(
+        FibonacciEvent(
+          type: FibonacciEventType.result,
+          array: [...working],
+          index: i,
+          secondIndex: -1,
+          firstValue: next,
+          secondValue: -1,
+          sortedCount: working.length,
+          title: 'F[$i] Stored',
+          description: 'The new Fibonacci value is added to the sequence.',
+          operation: 'F[$i] = $next',
+        ),
+      );
     }
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.complete,
-        array: _flatten(resultMatrix),
-        index: -1,
+      FibonacciEvent(
+        type: FibonacciEventType.complete,
+        array: [...working],
+        index: n,
         secondIndex: -1,
-        firstValue: 0,
-        secondValue: 0,
-        sortedCount: 4,
-        row: -1,
-        column: -1,
-        matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
-        result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Complete',
-        description:
-            'Every result cell has been calculated using row-by-column multiplication.',
-        operation: 'C = A × B',
+        firstValue: working[n],
+        secondValue: -1,
+        sortedCount: working.length,
+        title: 'Fibonacci Complete',
+        description: 'The requested Fibonacci number has been calculated.',
+        operation: 'F[$n] = ${working[n]}',
       ),
     );
+
     events = generated;
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
   }
 
-  void _applyEvent(MatrixMultiplicationEvent event, {bool updateState = true}) {
-    matrixA = _copyMatrix(event.matrixA);
-    matrixB = _copyMatrix(event.matrixB);
-    resultMatrix = _copyMatrix(event.result);
-    currentRow = event.row;
-    currentColumn = event.column;
-    activeCell = event.index;
-    sortedCount = event.sortedCount;
-    executionMessage = '${event.title}: ${event.description}';
-    activeCodeLine = _codeLineForEvent(event.type);
-
-    if (event.type == MatrixMultiplicationEventType.multiply ||
-        event.type == MatrixMultiplicationEventType.accumulate) {
-      matrixResultValue = event.result[event.row][event.column];
-    }
-    if (event.type == MatrixMultiplicationEventType.accumulate &&
-        event.secondIndex == 1) {
-      sortedIndexes = {...sortedIndexes, event.index};
-    }
-    if (event.type == MatrixMultiplicationEventType.complete) {
-      sortedIndexes = {0, 1, 2, 3};
-      activeCell = -1;
-      currentRow = -1;
-      currentColumn = -1;
-      executionMessage = 'Matrix Multiplication Complete: C = A × B';
-    }
-    if (updateState) setState(() {});
-  }
-
-  void _rebuildVisualState() {
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
-    currentRow = -1;
-    currentColumn = -1;
-    activeCell = -1;
-    sortedCount = 0;
-    sortedIndexes.clear();
-    activeCodeLine = 0;
-    matrixResultValue = 0;
-    executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
-    matrixA = _copyMatrix(originalA);
-    matrixB = _copyMatrix(originalB);
-    for (final event in executionHistory) {
-      _applyEvent(event, updateState: false);
-    }
-  }
-
-  void _reset() {
-    timer?.cancel();
-    setState(() {
-      matrixA = _copyMatrix(originalA);
-      matrixB = _copyMatrix(originalB);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
-      executionHistory.clear();
-      currentStep = 0;
-      isRunning = false;
-      isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
-      activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
-    });
-    _generateEvents();
-  }
-
-  void _setSpeed(double value) {
-    setState(() => speed = value);
-    if (isRunning) _play();
-  }
-
-  int _codeLineForEvent(MatrixMultiplicationEventType type) {
-    switch (type) {
-      case MatrixMultiplicationEventType.initialize:
-        return 1;
-      case MatrixMultiplicationEventType.calculate:
-        return 7;
-      case MatrixMultiplicationEventType.multiply:
-        return 9;
-      case MatrixMultiplicationEventType.accumulate:
-        return 10;
-      case MatrixMultiplicationEventType.complete:
-        return 15;
-    }
-  }
-
-  Color _eventColor(MatrixMultiplicationEventType type) {
-    switch (type) {
-      case MatrixMultiplicationEventType.initialize:
-        return blue;
-      case MatrixMultiplicationEventType.calculate:
-        return cyan;
-      case MatrixMultiplicationEventType.multiply:
-        return orange;
-      case MatrixMultiplicationEventType.accumulate:
-        return green;
-      case MatrixMultiplicationEventType.complete:
-        return green;
-    }
-  }
-
-  IconData _eventIcon(MatrixMultiplicationEventType type) {
-    switch (type) {
-      case MatrixMultiplicationEventType.initialize:
-        return Icons.play_arrow_rounded;
-      case MatrixMultiplicationEventType.calculate:
-        return Icons.grid_view_rounded;
-      case MatrixMultiplicationEventType.multiply:
-        return Icons.close_rounded;
-      case MatrixMultiplicationEventType.accumulate:
-        return Icons.add_circle_outline_rounded;
-      case MatrixMultiplicationEventType.complete:
-        return Icons.check_circle_rounded;
-    }
-  }
-
-  Future<void> _copyCode() async {
-    await Clipboard.setData(ClipboardData(text: sourceCode));
-    _showSnackBar('Source code copied.', cyan);
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: color.withValues(alpha: 0.85),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  List<List<int>>? _parseMatrix(String value) {
-    final rows = value
-        .split(';')
-        .map((row) => row.trim())
-        .where((row) => row.isNotEmpty)
-        .toList();
-    if (rows.length != 2) return null;
-    final matrix = <List<int>>[];
-    for (final row in rows) {
-      final values = row
-          .split(RegExp(r'[,\s]+'))
-          .where((v) => v.isNotEmpty)
-          .map(int.tryParse)
-          .toList();
-      if (values.length != 2 || values.any((v) => v == null)) return null;
-      matrix.add(values.cast<int>());
-    }
-    return matrix;
-  }
+  // ==========================================================================
+  // LOAD ARRAY
+  // ==========================================================================
 
   void _loadArray() {
-    final parts = arrayController.text.split('|');
-    if (parts.length != 2) {
-      _showSnackBar('Enter two 2 × 2 matrices separated by |.', red);
+    final value = int.tryParse(arrayController.text.trim());
+
+    if (value == null || value < 0 || value > 30) {
+      _showSnackBar('Enter a Fibonacci index between 0 and 30.', red);
       return;
     }
-    final a = _parseMatrix(parts[0]);
-    final b = _parseMatrix(parts[1]);
-    if (a == null || b == null) {
-      _showSnackBar('Use format: 1,2;3,4 | 5,6;7,8', red);
-      return;
-    }
+
     timer?.cancel();
+
     setState(() {
-      matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
-      originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      fibonacciIndex = value;
+      array = value == 0 ? [0] : [0, 1];
+      originalArray = [...array];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
       sortedCount = 0;
       sortedIndexes.clear();
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'Matrices loaded. Ready to multiply them.';
+      executionMessage = 'Fibonacci index loaded. Ready to calculate.';
     });
+
     _generateEvents();
-    _showSnackBar('Matrices loaded successfully.', green);
+    _showSnackBar('Fibonacci index loaded successfully.', green);
   }
 
+  // ==========================================================================
+  // GENERATE NUMBERS
+  // ==========================================================================
+
   void _generateNumbers() {
-    final random = Random();
-    List<List<int>> randomMatrix() =>
-        List.generate(2, (_) => List.generate(2, (_) => random.nextInt(9) + 1));
-    final a = randomMatrix();
-    final b = randomMatrix();
-    arrayController.text =
-        '${a[0].join(',')};${a[1].join(',')} | ${b[0].join(',')};${b[1].join(',')}';
+    final value = Random().nextInt(31);
+    arrayController.text = value.toString();
+
     timer?.cancel();
+
     setState(() {
-      matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
-      originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      fibonacciIndex = value;
+      array = value == 0 ? [0] : [0, 1];
+      originalArray = [...array];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
       sortedCount = 0;
       sortedIndexes.clear();
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'New matrices generated. Ready to multiply them.';
+      executionMessage = 'New Fibonacci index generated. Ready to calculate.';
     });
+
     _generateEvents();
-    _showSnackBar('New matrices generated.', purple);
+    _showSnackBar('New Fibonacci index generated.', purple);
   }
 
   // ==========================================================================
@@ -657,6 +488,201 @@ List<List<int>> multiplyMatrices(
   }
 
   // ==========================================================================
+  // REBUILD VISUAL STATE
+  // ==========================================================================
+
+  void _rebuildVisualState() {
+    // Restore the original array first.
+    array = [...originalArray];
+
+    comparingIndex = -1;
+
+    secondComparingIndex = -1;
+
+    swappingIndex = -1;
+
+    secondSwappingIndex = -1;
+
+    sortedCount = 0;
+
+    sortedIndexes.clear();
+
+    activeCodeLine = 0;
+
+    executionMessage = 'Ready to start Fibonacci Algorithm.';
+
+    // Replay all previous events.
+    for (final event in executionHistory) {
+      _applyEvent(event, updateState: false);
+    }
+  }
+
+  // ==========================================================================
+  // APPLY EVENT
+  // ==========================================================================
+
+  void _applyEvent(FibonacciEvent event, {bool updateState = true}) {
+    // Always apply the event snapshot so previous/next/playback never shows
+    // stale Fibonacci values.
+    array = [...event.array];
+
+    comparingIndex = -1;
+    secondComparingIndex = -1;
+    swappingIndex = -1;
+    secondSwappingIndex = -1;
+
+    sortedCount = event.sortedCount;
+    executionMessage = '${event.title}: ${event.description}';
+    activeCodeLine = _codeLineForEvent(event.type);
+
+    if (event.type == FibonacciEventType.calculate) {
+      comparingIndex = event.index;
+      secondComparingIndex = event.secondIndex;
+    }
+
+    if (event.type == FibonacciEventType.result && event.index >= 0) {
+      sortedIndexes.add(event.index);
+    }
+
+    if (event.type == FibonacciEventType.complete) {
+      sortedIndexes = Set<int>.from(
+        List.generate(array.length, (index) => index),
+      );
+      sortedCount = array.length;
+      executionMessage =
+          'Fibonacci Complete: F[$fibonacciIndex] = ${array[fibonacciIndex]}.';
+    }
+
+    if (updateState) {
+      setState(() {});
+    }
+  }
+
+  // ==========================================================================
+  // RESET
+  // ==========================================================================
+
+  void _reset() {
+    timer?.cancel();
+
+    setState(() {
+      array = fibonacciIndex == 0 ? [0] : [0, 1];
+      originalArray = [...array];
+      executionHistory.clear();
+      currentStep = 0;
+      isRunning = false;
+      isCompleted = false;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
+      sortedCount = 0;
+      sortedIndexes.clear();
+      activeCodeLine = 0;
+      executionMessage = 'Ready to start Fibonacci.';
+    });
+
+    _generateEvents();
+  }
+
+  // ==========================================================================
+  // SPEED
+  // ==========================================================================
+
+  void _setSpeed(double value) {
+    setState(() {
+      speed = value;
+    });
+
+    if (isRunning) {
+      _play();
+    }
+  }
+
+  // ==========================================================================
+  // CODE LINE
+  // ==========================================================================
+
+  int _codeLineForEvent(FibonacciEventType type) {
+    switch (type) {
+      case FibonacciEventType.initialize:
+        return 2;
+      case FibonacciEventType.calculate:
+        return 9;
+      case FibonacciEventType.result:
+        return 10;
+      case FibonacciEventType.complete:
+        return 14;
+    }
+  }
+
+  // ==========================================================================
+  // EVENT COLOR
+  // ==========================================================================
+
+  Color _eventColor(FibonacciEventType type) {
+    switch (type) {
+      case FibonacciEventType.initialize:
+        return blue;
+      case FibonacciEventType.calculate:
+        return orange;
+      case FibonacciEventType.result:
+        return cyan;
+      case FibonacciEventType.complete:
+        return green;
+    }
+  }
+
+  // ==========================================================================
+  // EVENT ICON
+  // ==========================================================================
+
+  IconData _eventIcon(FibonacciEventType type) {
+    switch (type) {
+      case FibonacciEventType.initialize:
+        return Icons.play_arrow_rounded;
+      case FibonacciEventType.calculate:
+        return Icons.calculate_rounded;
+      case FibonacciEventType.result:
+        return Icons.add_circle_outline_rounded;
+      case FibonacciEventType.complete:
+        return Icons.check_circle_rounded;
+    }
+  }
+
+  // ==========================================================================
+  // COPY
+  // ==========================================================================
+
+  Future<void> _copyCode() async {
+    await Clipboard.setData(ClipboardData(text: sourceCode));
+
+    _showSnackBar('Source code copied.', cyan);
+  }
+
+  // ==========================================================================
+  // SNACKBAR
+  // ==========================================================================
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: color.withValues(alpha: 0.85),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  // ==========================================================================
   // BUILD
   // ==========================================================================
 
@@ -704,7 +730,7 @@ List<List<int>> multiplyMatrices(
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cyan.withValues(alpha: 0.16)),
+        border: Border.all(color: orange.withValues(alpha: 0.16)),
       ),
       child: Row(
         children: [
@@ -739,7 +765,7 @@ List<List<int>> multiplyMatrices(
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
-              Icons.calculate_rounded,
+              Icons.auto_graph_rounded,
               color: Colors.white,
               size: 23,
             ),
@@ -752,7 +778,7 @@ List<List<int>> multiplyMatrices(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Matrix Multiplication Algorithm',
+                  'Fibonacci Algorithm',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -763,7 +789,7 @@ List<List<int>> multiplyMatrices(
                 const SizedBox(height: 3),
 
                 Text(
-                  'Add row and column elements of two matrices step by step',
+                  'Calculate Fibonacci numbers step by step',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
@@ -793,7 +819,7 @@ List<List<int>> multiplyMatrices(
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'Matrix Multiplication READY';
+      text = 'COMPLETE';
     }
 
     return Container(
@@ -846,7 +872,9 @@ List<List<int>> multiplyMatrices(
           const SizedBox(height: 14),
 
           Text(
-            'The Matrix Multiplication Algorithm multiplies rows of Matrix A by columns of Matrix B to produce a result matrix.',
+            'The Fibonacci sequence is generated by adding the previous two '
+            'values. Each step calculates the next number and appends it to '
+            'the sequence.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
@@ -860,12 +888,12 @@ List<List<int>> multiplyMatrices(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox('Time', 'O(n × m)', orange),
-              _infoBox('Space', 'O(n × m)', blue),
+              _infoBox('Time', 'O(n)', orange),
+              _infoBox('Space', 'O(1)', blue),
               _infoBox('Type', 'Mathematical', purple),
-              _infoBox('Method', 'Element-wise Addition', green),
-              _infoBox('Matrices', '2 × 2', red),
-              _infoBox('Result', 'C = A × B', cyan),
+              _infoBox('Best', 'O(n)', green),
+              _infoBox('Worst', 'O(n)', red),
+              _infoBox('Method', 'Iterative', cyan),
             ],
           ),
         ],
@@ -939,7 +967,7 @@ List<List<int>> multiplyMatrices(
 
               Expanded(
                 child: Text(
-                  'Enter two 2 × 2 matrices: A | B, using ; between rows.',
+                  'Enter a Fibonacci index from 0 to 30 and calculate it step by step.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
@@ -963,8 +991,8 @@ List<List<int>> multiplyMatrices(
       style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
-        labelText: 'Enter Matrices',
-        hintText: '1,2;3,4 | 5,6;7,8',
+        labelText: 'Enter Fibonacci Index',
+        hintText: 'Example: 10',
         labelStyle: TextStyle(
           color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
@@ -974,7 +1002,7 @@ List<List<int>> multiplyMatrices(
           fontSize: 12,
         ),
         prefixIcon: Icon(
-          Icons.grid_view_rounded,
+          Icons.tag_rounded,
           color: cyan.withValues(alpha: 0.8),
           size: 19,
         ),
@@ -1005,7 +1033,7 @@ List<List<int>> multiplyMatrices(
       onPressed: _generateNumbers,
       icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
-        'Generate Matrices',
+        'Random Index',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1027,7 +1055,7 @@ List<List<int>> multiplyMatrices(
       onPressed: _loadArray,
       icon: const Icon(Icons.download_rounded, size: 17),
       label: const Text(
-        'LOAD ARRAY',
+        'LOAD INDEX',
         style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1108,160 +1136,316 @@ List<List<int>> multiplyMatrices(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.grid_view_rounded, 'Matrix Visualization', cyan),
-          const SizedBox(height: 14),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _matrixPanel('Matrix A', matrixA, blue),
-                _operator('×', orange),
-                _matrixPanel('Matrix B', matrixB, purple),
-                _operator('=', green),
-                _matrixPanel('Result C', resultMatrix, green, result: true),
-              ],
+          _sectionTitle(Icons.bar_chart_rounded, 'Visualization', cyan),
+
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              _miniBadge(
+                'CALCULATE',
+                comparingIndex >= 0 ? '$comparingIndex' : '-',
+                cyan,
+              ),
+
+              const SizedBox(width: 8),
+
+              _miniBadge(
+                'SECOND',
+                secondComparingIndex >= 0 ? '$secondComparingIndex' : '-',
+                blue,
+              ),
+
+              const SizedBox(width: 8),
+
+              _miniBadge('COMPLETE', sortedIndexes.length.toString(), green),
+
+              const SizedBox(width: 8),
+
+              _miniBadge('STEPS', executionHistory.length.toString(), purple),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+            decoration: BoxDecoration(
+              color: visualizationColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  array.length,
+                  (index) => _buildArrayItem(index),
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+
+          const SizedBox(height: 12),
+
           _buildLegend(),
+
           const SizedBox(height: 12),
+
           _buildCurrentInfo(),
+
           const SizedBox(height: 12),
+
           _buildStatusCard(),
         ],
       ),
     );
   }
 
-  Widget _operator(String text, Color color) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 12),
-    child: Text(
-      text,
-      style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.w800),
-    ),
-  );
+  // ==========================================================================
+  // ARRAY ITEM
+  // ==========================================================================
 
-  Widget _matrixPanel(
-    String title,
-    List<List<int>> matrix,
-    Color color, {
-    bool result = false,
-  }) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: visualizationColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withValues(alpha: .25)),
-          ),
-          child: Column(
-            children: List.generate(
-              2,
-              (r) => Row(
-                children: List.generate(2, (c) {
-                  final idx = r * 2 + c;
-                  final active = result && idx == activeCell;
-                  final done = result && sortedIndexes.contains(idx);
-                  final sourceActive =
-                      !result &&
-                      ((title == 'Matrix A' && r == currentRow) ||
-                          (title == 'Matrix B' && c == currentColumn));
-                  return Container(
-                    width: 64,
-                    height: 64,
-                    margin: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: active
-                          ? cyan.withValues(alpha: .18)
-                          : done
-                          ? green.withValues(alpha: .10)
-                          : sourceActive
-                          ? orange.withValues(alpha: .12)
-                          : cardColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: active
-                            ? cyan
-                            : done
-                            ? green.withValues(alpha: .45)
-                            : sourceActive
-                            ? orange
-                            : Colors.white.withValues(alpha: .08),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${matrix[r][c]}',
-                        style: TextStyle(
-                          color: active
-                              ? cyan
-                              : sourceActive
-                              ? orange
-                              : Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+  Widget _buildArrayItem(int index) {
+    final value = array[index];
+
+    final bool isComparing =
+        index == comparingIndex || index == secondComparingIndex;
+
+    final bool isSwapping =
+        index == swappingIndex || index == secondSwappingIndex;
+
+    final bool isSorted = sortedIndexes.contains(index);
+
+    Color itemColor = Colors.white.withValues(alpha: 0.08);
+
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
+
+    Color textColor = Colors.white;
+
+    String label = '';
+
+    // ------------------------------------------------------------------------
+    // SORTED
+    // ------------------------------------------------------------------------
+
+    if (isSorted) {
+      itemColor = green.withValues(alpha: 0.18);
+      borderColor = green;
+      textColor = green;
+      label = 'COMPLETE';
+    }
+
+    // ------------------------------------------------------------------------
+    // COMPARE
+    // ------------------------------------------------------------------------
+
+    if (isComparing) {
+      itemColor = cyan.withValues(alpha: 0.18);
+      borderColor = cyan;
+      textColor = cyan;
+      label = 'COMPARE';
+    }
+
+    // ------------------------------------------------------------------------
+    // SWAP
+    // ------------------------------------------------------------------------
+
+    if (isSwapping) {
+      itemColor = orange.withValues(alpha: 0.20);
+      borderColor = orange;
+      textColor = orange;
+      label = 'CALCULATE';
+    }
+
+    return Container(
+      width: 70,
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 19,
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSwapping
+                      ? orange
+                      : isComparing
+                      ? cyan
+                      : green,
+                  fontSize: 7.5,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ),
+
+          Container(
+            height: 58,
+            width: 58,
+            decoration: BoxDecoration(
+              color: itemColor,
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: borderColor,
+                width: isComparing || isSwapping || isSorted ? 1.6 : 1,
+              ),
+              boxShadow: isComparing || isSwapping || isSorted
+                  ? [
+                      BoxShadow(
+                        color: borderColor.withValues(alpha: 0.18),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: Text(
+                value.toString(),
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            '[$index]',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.4),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================================
+  // LEGEND
+  // ==========================================================================
+
+  Widget _buildLegend() {
+    return Wrap(
+      spacing: 14,
+      runSpacing: 8,
+      children: [
+        _legendItem('Ready', Colors.white),
+        _legendItem('Calculate', orange),
+        _legendItem('Result', green),
+      ],
+    );
+  }
+
+  Widget _legendItem(String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+
+        const SizedBox(width: 6),
+
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildLegend() {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 8,
-      children: [
-        _legendItem('Current Cell', cyan),
-        _legendItem('Completed Cell', green),
-        _legendItem('Current Row / Column', orange),
-        _legendItem('Matrix A', blue),
-        _legendItem('Matrix B', purple),
-      ],
-    );
-  }
+  // ==========================================================================
+  // CURRENT INFO
+  // ==========================================================================
 
   Widget _buildCurrentInfo() {
-    final message = currentRow >= 0 && currentColumn >= 0
-        ? 'C[$currentRow][$currentColumn] = row $currentRow of A × column $currentColumn of B'
-        : isCompleted
-        ? 'All result cells have been calculated.'
-        : 'Select a matrix cell to begin.';
+    String message = 'Waiting for execution';
+
+    if (comparingIndex >= 0 &&
+        secondComparingIndex >= 0 &&
+        comparingIndex < array.length &&
+        secondComparingIndex < array.length) {
+      message =
+          'Calculating: ${array[comparingIndex]} + ${array[secondComparingIndex]}';
+    }
+
+    if (isCompleted && fibonacciIndex < array.length) {
+      message = 'F[$fibonacciIndex] = ${array[fibonacciIndex]}';
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: visualizationColor,
+        color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withValues(alpha: .12)),
+        border: Border.all(color: cyan.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: cyan, size: 17),
-          const SizedBox(width: 8),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cyan.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.calculate_rounded, color: cyan, size: 18),
+          ),
+          const SizedBox(width: 10),
           Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Current Operation',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.42),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            decoration: BoxDecoration(
+              color: green.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(7),
+            ),
             child: Text(
-              message,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: .72),
-                fontSize: 12,
+              '$sortedCount values',
+              style: const TextStyle(
+                color: green,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -1269,6 +1453,10 @@ List<List<int>> multiplyMatrices(
       ),
     );
   }
+
+  // ==========================================================================
+  // STATUS CARD
+  // ==========================================================================
 
   Widget _buildStatusCard() {
     Color color = cyan;
@@ -1724,7 +1912,7 @@ List<List<int>> multiplyMatrices(
   // EXECUTION ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(int index, MatrixMultiplicationEvent event) {
+  Widget _executionStepItem(int index, FibonacciEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
@@ -1906,28 +2094,41 @@ List<List<int>> multiplyMatrices(
   // MINI BADGE
   // ==========================================================================
 
-  Widget _legendItem(String title, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-          ),
+  Widget _miniBadge(String title, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(9),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
-        const SizedBox(width: 6),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.7,
+              ),
+            ),
+
+            const SizedBox(height: 3),
+
+            Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

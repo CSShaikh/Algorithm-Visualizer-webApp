@@ -4,32 +4,26 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MatrixMultiplicationAlgorithmScreen extends StatefulWidget {
-  const MatrixMultiplicationAlgorithmScreen({super.key});
+class MatrixAdditionAlgorithmScreen extends StatefulWidget {
+  const MatrixAdditionAlgorithmScreen({super.key});
 
   @override
-  State<MatrixMultiplicationAlgorithmScreen> createState() =>
-      _MatrixMultiplicationAlgorithmScreenState();
+  State<MatrixAdditionAlgorithmScreen> createState() =>
+      _MatrixAdditionAlgorithmScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum MatrixMultiplicationEventType {
-  initialize,
-  calculate,
-  multiply,
-  accumulate,
-  complete,
-}
+enum MatrixAdditionEventType { initialize, calculate, add, complete }
 
 // ============================================================================
 // EVENT MODEL
 // ============================================================================
 
-class MatrixMultiplicationEvent {
-  final MatrixMultiplicationEventType type;
+class MatrixAdditionEvent {
+  final MatrixAdditionEventType type;
   final List<int> array;
   final int index;
   final int secondIndex;
@@ -45,7 +39,7 @@ class MatrixMultiplicationEvent {
   final String description;
   final String operation;
 
-  const MatrixMultiplicationEvent({
+  const MatrixAdditionEvent({
     required this.type,
     required this.array,
     required this.index,
@@ -69,8 +63,8 @@ class MatrixMultiplicationEvent {
 
 // ============================================================================
 
-class _MatrixMultiplicationAlgorithmScreenState
-    extends State<MatrixMultiplicationAlgorithmScreen> {
+class _MatrixAdditionAlgorithmScreenState
+    extends State<MatrixAdditionAlgorithmScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
@@ -121,8 +115,8 @@ class _MatrixMultiplicationAlgorithmScreenState
     text: '1, 2; 3, 4 | 5, 6; 7, 8',
   );
 
-  List<MatrixMultiplicationEvent> events = [];
-  List<MatrixMultiplicationEvent> executionHistory = [];
+  List<MatrixAdditionEvent> events = [];
+  List<MatrixAdditionEvent> executionHistory = [];
 
   int currentStep = 0;
   bool isRunning = false;
@@ -137,11 +131,10 @@ class _MatrixMultiplicationAlgorithmScreenState
   Set<int> sortedIndexes = {};
   int activeCodeLine = 0;
   int matrixResultValue = 0;
-  String executionMessage =
-      'Ready to start the Matrix Multiplication Algorithm.';
+  String executionMessage = 'Ready to start the Matrix Addition Algorithm.';
 
   final String sourceCode = '''
-List<List<int>> multiplyMatrices(
+List<List<int>> addMatrices(
   List<List<int>> a,
   List<List<int>> b,
 ) {
@@ -151,10 +144,8 @@ List<List<int>> multiplyMatrices(
   );
 
   for (int i = 0; i < a.length; i++) {
-    for (int j = 0; j < b[0].length; j++) {
-      for (int k = 0; k < b.length; k++) {
-        result[i][j] += a[i][k] * b[k][j];
-      }
+    for (int j = 0; j < a[0].length; j++) {
+      result[i][j] = a[i][j] + b[i][j];
     }
   }
 
@@ -182,12 +173,12 @@ List<List<int>> multiplyMatrices(
       matrix.map((row) => [...row]).toList();
 
   void _generateEvents() {
-    final generated = <MatrixMultiplicationEvent>[];
+    final generated = <MatrixAdditionEvent>[];
     resultMatrix = List.generate(2, (_) => List.filled(2, 0));
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.initialize,
+      MatrixAdditionEvent(
+        type: MatrixAdditionEventType.initialize,
         array: _flatten(resultMatrix),
         index: -1,
         secondIndex: -1,
@@ -199,92 +190,67 @@ List<List<int>> multiplyMatrices(
         matrixA: _copyMatrix(matrixA),
         matrixB: _copyMatrix(matrixB),
         result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Initialized',
+        title: 'Matrix Addition Initialized',
         description:
             'Start with two 2 × 2 matrices and an empty result matrix.',
-        operation: 'C = A × B',
+        operation: 'C = A + B',
       ),
     );
 
-    int completedCells = 0;
+    int step = 0;
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        int sum = 0;
-        for (int k = 0; k < 2; k++) {
-          final a = matrixA[i][k];
-          final b = matrixB[k][j];
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.calculate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Select Row × Column Elements',
-              description:
-                  'Take A[$i][$k] = $a and B[$k][$j] = $b for C[$i][$j].',
-              operation: 'A[$i][$k] × B[$k][$j]',
-            ),
-          );
+        final a = matrixA[i][j];
+        final b = matrixB[i][j];
+        step++;
+        generated.add(
+          MatrixAdditionEvent(
+            type: MatrixAdditionEventType.calculate,
+            array: _flatten(resultMatrix),
+            index: i * 2 + j,
+            secondIndex: -1,
+            firstValue: a,
+            secondValue: b,
+            sortedCount: step - 1,
+            row: i,
+            column: j,
+            matrixA: _copyMatrix(matrixA),
+            matrixB: _copyMatrix(matrixB),
+            result: _copyMatrix(resultMatrix),
+            title: 'Select Matrix Elements',
+            description:
+                'Select A[$i][$j] = $a and B[$i][$j] = $b for addition.',
+            operation: 'C[$i][$j] = $a + $b',
+          ),
+        );
 
-          final product = a * b;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.multiply,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Multiply Selected Elements',
-              description: '$a × $b = $product.',
-              operation: '$a × $b = $product',
-            ),
-          );
-
-          sum += product;
-          resultMatrix[i][j] = sum;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.accumulate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Accumulate Product',
-              description:
-                  'Add the product to C[$i][$j]. Current value = $sum.',
-              operation: 'C[$i][$j] = $sum',
-            ),
-          );
-        }
-        completedCells++;
+        resultMatrix[i][j] = a + b;
+        generated.add(
+          MatrixAdditionEvent(
+            type: MatrixAdditionEventType.add,
+            array: _flatten(resultMatrix),
+            index: i * 2 + j,
+            secondIndex: -1,
+            firstValue: a,
+            secondValue: b,
+            sortedCount: step,
+            row: i,
+            column: j,
+            matrixA: _copyMatrix(matrixA),
+            matrixB: _copyMatrix(matrixB),
+            result: _copyMatrix(resultMatrix),
+            title: 'Add Matrix Elements',
+            description:
+                '$a + $b = ${resultMatrix[i][j]}. Store the sum in C[$i][$j].',
+            operation: 'C[$i][$j] = ${resultMatrix[i][j]}',
+          ),
+        );
       }
     }
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.complete,
+      MatrixAdditionEvent(
+        type: MatrixAdditionEventType.complete,
         array: _flatten(resultMatrix),
         index: -1,
         secondIndex: -1,
@@ -296,17 +262,17 @@ List<List<int>> multiplyMatrices(
         matrixA: _copyMatrix(matrixA),
         matrixB: _copyMatrix(matrixB),
         result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Complete',
+        title: 'Matrix Addition Complete',
         description:
-            'Every result cell has been calculated using row-by-column multiplication.',
-        operation: 'C = A × B',
+            'Every corresponding pair has been added to form the result matrix.',
+        operation: 'C = A + B',
       ),
     );
     events = generated;
     resultMatrix = List.generate(2, (_) => List.filled(2, 0));
   }
 
-  void _applyEvent(MatrixMultiplicationEvent event, {bool updateState = true}) {
+  void _applyEvent(MatrixAdditionEvent event, {bool updateState = true}) {
     matrixA = _copyMatrix(event.matrixA);
     matrixB = _copyMatrix(event.matrixB);
     resultMatrix = _copyMatrix(event.result);
@@ -317,20 +283,16 @@ List<List<int>> multiplyMatrices(
     executionMessage = '${event.title}: ${event.description}';
     activeCodeLine = _codeLineForEvent(event.type);
 
-    if (event.type == MatrixMultiplicationEventType.multiply ||
-        event.type == MatrixMultiplicationEventType.accumulate) {
+    if (event.type == MatrixAdditionEventType.add) {
+      sortedIndexes = Set<int>.from(List.generate(event.sortedCount, (i) => i));
       matrixResultValue = event.result[event.row][event.column];
     }
-    if (event.type == MatrixMultiplicationEventType.accumulate &&
-        event.secondIndex == 1) {
-      sortedIndexes = {...sortedIndexes, event.index};
-    }
-    if (event.type == MatrixMultiplicationEventType.complete) {
+    if (event.type == MatrixAdditionEventType.complete) {
       sortedIndexes = {0, 1, 2, 3};
       activeCell = -1;
       currentRow = -1;
       currentColumn = -1;
-      executionMessage = 'Matrix Multiplication Complete: C = A × B';
+      executionMessage = 'Matrix Addition Complete: C = A + B';
     }
     if (updateState) setState(() {});
   }
@@ -344,7 +306,7 @@ List<List<int>> multiplyMatrices(
     sortedIndexes.clear();
     activeCodeLine = 0;
     matrixResultValue = 0;
-    executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
+    executionMessage = 'Ready to start the Matrix Addition Algorithm.';
     matrixA = _copyMatrix(originalA);
     matrixB = _copyMatrix(originalB);
     for (final event in executionHistory) {
@@ -369,7 +331,7 @@ List<List<int>> multiplyMatrices(
       sortedIndexes.clear();
       activeCodeLine = 0;
       matrixResultValue = 0;
-      executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
+      executionMessage = 'Ready to start the Matrix Addition Algorithm.';
     });
     _generateEvents();
   }
@@ -379,47 +341,41 @@ List<List<int>> multiplyMatrices(
     if (isRunning) _play();
   }
 
-  int _codeLineForEvent(MatrixMultiplicationEventType type) {
+  int _codeLineForEvent(MatrixAdditionEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case MatrixAdditionEventType.initialize:
         return 1;
-      case MatrixMultiplicationEventType.calculate:
+      case MatrixAdditionEventType.calculate:
         return 7;
-      case MatrixMultiplicationEventType.multiply:
-        return 9;
-      case MatrixMultiplicationEventType.accumulate:
-        return 10;
-      case MatrixMultiplicationEventType.complete:
-        return 15;
+      case MatrixAdditionEventType.add:
+        return 8;
+      case MatrixAdditionEventType.complete:
+        return 12;
     }
   }
 
-  Color _eventColor(MatrixMultiplicationEventType type) {
+  Color _eventColor(MatrixAdditionEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case MatrixAdditionEventType.initialize:
         return blue;
-      case MatrixMultiplicationEventType.calculate:
+      case MatrixAdditionEventType.calculate:
         return cyan;
-      case MatrixMultiplicationEventType.multiply:
+      case MatrixAdditionEventType.add:
         return orange;
-      case MatrixMultiplicationEventType.accumulate:
-        return green;
-      case MatrixMultiplicationEventType.complete:
+      case MatrixAdditionEventType.complete:
         return green;
     }
   }
 
-  IconData _eventIcon(MatrixMultiplicationEventType type) {
+  IconData _eventIcon(MatrixAdditionEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case MatrixAdditionEventType.initialize:
         return Icons.play_arrow_rounded;
-      case MatrixMultiplicationEventType.calculate:
+      case MatrixAdditionEventType.calculate:
         return Icons.grid_view_rounded;
-      case MatrixMultiplicationEventType.multiply:
-        return Icons.close_rounded;
-      case MatrixMultiplicationEventType.accumulate:
+      case MatrixAdditionEventType.add:
         return Icons.add_circle_outline_rounded;
-      case MatrixMultiplicationEventType.complete:
+      case MatrixAdditionEventType.complete:
         return Icons.check_circle_rounded;
     }
   }
@@ -496,7 +452,7 @@ List<List<int>> multiplyMatrices(
       sortedIndexes.clear();
       activeCodeLine = 0;
       matrixResultValue = 0;
-      executionMessage = 'Matrices loaded. Ready to multiply them.';
+      executionMessage = 'Matrices loaded. Ready to add them.';
     });
     _generateEvents();
     _showSnackBar('Matrices loaded successfully.', green);
@@ -528,7 +484,7 @@ List<List<int>> multiplyMatrices(
       sortedIndexes.clear();
       activeCodeLine = 0;
       matrixResultValue = 0;
-      executionMessage = 'New matrices generated. Ready to multiply them.';
+      executionMessage = 'New matrices generated. Ready to add them.';
     });
     _generateEvents();
     _showSnackBar('New matrices generated.', purple);
@@ -752,7 +708,7 @@ List<List<int>> multiplyMatrices(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Matrix Multiplication Algorithm',
+                  'Matrix Addition Algorithm',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -763,7 +719,7 @@ List<List<int>> multiplyMatrices(
                 const SizedBox(height: 3),
 
                 Text(
-                  'Add row and column elements of two matrices step by step',
+                  'Add corresponding elements of two matrices step by step',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
@@ -793,7 +749,7 @@ List<List<int>> multiplyMatrices(
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'Matrix Multiplication READY';
+      text = 'Matrix Addition READY';
     }
 
     return Container(
@@ -846,7 +802,7 @@ List<List<int>> multiplyMatrices(
           const SizedBox(height: 14),
 
           Text(
-            'The Matrix Multiplication Algorithm multiplies rows of Matrix A by columns of Matrix B to produce a result matrix.',
+            'The Matrix Addition Algorithm adds corresponding elements of two matrices to produce a result matrix.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
@@ -865,7 +821,7 @@ List<List<int>> multiplyMatrices(
               _infoBox('Type', 'Mathematical', purple),
               _infoBox('Method', 'Element-wise Addition', green),
               _infoBox('Matrices', '2 × 2', red),
-              _infoBox('Result', 'C = A × B', cyan),
+              _infoBox('Result', 'C = A + B', cyan),
             ],
           ),
         ],
@@ -1005,7 +961,7 @@ List<List<int>> multiplyMatrices(
       onPressed: _generateNumbers,
       icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
-        'Generate Matrices',
+        'Generate Numbers',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1116,7 +1072,7 @@ List<List<int>> multiplyMatrices(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _matrixPanel('Matrix A', matrixA, blue),
-                _operator('×', orange),
+                _operator('+', orange),
                 _matrixPanel('Matrix B', matrixB, purple),
                 _operator('=', green),
                 _matrixPanel('Result C', resultMatrix, green, result: true),
@@ -1174,10 +1130,6 @@ List<List<int>> multiplyMatrices(
                   final idx = r * 2 + c;
                   final active = result && idx == activeCell;
                   final done = result && sortedIndexes.contains(idx);
-                  final sourceActive =
-                      !result &&
-                      ((title == 'Matrix A' && r == currentRow) ||
-                          (title == 'Matrix B' && c == currentColumn));
                   return Container(
                     width: 64,
                     height: 64,
@@ -1187,8 +1139,6 @@ List<List<int>> multiplyMatrices(
                           ? cyan.withValues(alpha: .18)
                           : done
                           ? green.withValues(alpha: .10)
-                          : sourceActive
-                          ? orange.withValues(alpha: .12)
                           : cardColor,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
@@ -1196,8 +1146,6 @@ List<List<int>> multiplyMatrices(
                             ? cyan
                             : done
                             ? green.withValues(alpha: .45)
-                            : sourceActive
-                            ? orange
                             : Colors.white.withValues(alpha: .08),
                       ),
                     ),
@@ -1205,11 +1153,7 @@ List<List<int>> multiplyMatrices(
                       child: Text(
                         '${matrix[r][c]}',
                         style: TextStyle(
-                          color: active
-                              ? cyan
-                              : sourceActive
-                              ? orange
-                              : Colors.white,
+                          color: active ? cyan : Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
@@ -1232,7 +1176,6 @@ List<List<int>> multiplyMatrices(
       children: [
         _legendItem('Current Cell', cyan),
         _legendItem('Completed Cell', green),
-        _legendItem('Current Row / Column', orange),
         _legendItem('Matrix A', blue),
         _legendItem('Matrix B', purple),
       ],
@@ -1241,9 +1184,9 @@ List<List<int>> multiplyMatrices(
 
   Widget _buildCurrentInfo() {
     final message = currentRow >= 0 && currentColumn >= 0
-        ? 'C[$currentRow][$currentColumn] = row $currentRow of A × column $currentColumn of B'
+        ? 'C[$currentRow][$currentColumn] = ${matrixA[currentRow][currentColumn]} + ${matrixB[currentRow][currentColumn]}'
         : isCompleted
-        ? 'All result cells have been calculated.'
+        ? 'All corresponding matrix elements have been added.'
         : 'Select a matrix cell to begin.';
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1492,6 +1435,35 @@ List<List<int>> multiplyMatrices(
   }
 
   // ==========================================================================
+  // LEGEND ITEM
+  // ==========================================================================
+
+  Widget _legendItem(String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================================================
   // SOURCE CODE
   // ==========================================================================
 
@@ -1724,7 +1696,7 @@ List<List<int>> multiplyMatrices(
   // EXECUTION ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(int index, MatrixMultiplicationEvent event) {
+  Widget _executionStepItem(int index, MatrixAdditionEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
@@ -1905,29 +1877,4 @@ List<List<int>> multiplyMatrices(
   // ==========================================================================
   // MINI BADGE
   // ==========================================================================
-
-  Widget _legendItem(String title, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
 }

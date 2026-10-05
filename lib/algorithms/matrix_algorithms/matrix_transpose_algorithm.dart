@@ -406,6 +406,7 @@ List<List<int>> transposeMatrix(List<List<int>> matrix) {
       return;
     }
     timer?.cancel();
+    final _ = List.generate(2, (r) => List.generate(2, (c) => a[c][r]));
     setState(() {
       matrixA = _copyMatrix(a);
       originalA = _copyMatrix(a);
@@ -435,6 +436,7 @@ List<List<int>> transposeMatrix(List<List<int>> matrix) {
     );
     arrayController.text = '${a[0].join(',')};${a[1].join(',')}';
     timer?.cancel();
+    final _ = List.generate(2, (r) => List.generate(2, (c) => a[c][r]));
     setState(() {
       matrixA = _copyMatrix(a);
       originalA = _copyMatrix(a);

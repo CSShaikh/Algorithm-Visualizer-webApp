@@ -11,6 +11,7 @@ enum AlgorithmCategory {
   mathematicalAlgorithms,
   matrixAlgorithms,
   dynamicProgrammingAlgorithms,
+  supervisedLearningAlgorithms,
 }
 
 /// Availability state of an algorithm.

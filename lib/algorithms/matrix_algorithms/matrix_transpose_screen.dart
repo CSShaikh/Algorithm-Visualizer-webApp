@@ -4,32 +4,26 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MatrixMultiplicationAlgorithmScreen extends StatefulWidget {
-  const MatrixMultiplicationAlgorithmScreen({super.key});
+class MatrixTransposeAlgorithmScreen extends StatefulWidget {
+  const MatrixTransposeAlgorithmScreen({super.key});
 
   @override
-  State<MatrixMultiplicationAlgorithmScreen> createState() =>
-      _MatrixMultiplicationAlgorithmScreenState();
+  State<MatrixTransposeAlgorithmScreen> createState() =>
+      _MatrixTransposeAlgorithmScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum MatrixMultiplicationEventType {
-  initialize,
-  calculate,
-  multiply,
-  accumulate,
-  complete,
-}
+enum MatrixTransposeEventType { initialize, select, transpose, complete }
 
 // ============================================================================
 // EVENT MODEL
 // ============================================================================
 
-class MatrixMultiplicationEvent {
-  final MatrixMultiplicationEventType type;
+class MatrixTransposeEvent {
+  final MatrixTransposeEventType type;
   final List<int> array;
   final int index;
   final int secondIndex;
@@ -39,13 +33,12 @@ class MatrixMultiplicationEvent {
   final int row;
   final int column;
   final List<List<int>> matrixA;
-  final List<List<int>> matrixB;
   final List<List<int>> result;
   final String title;
   final String description;
   final String operation;
 
-  const MatrixMultiplicationEvent({
+  const MatrixTransposeEvent({
     required this.type,
     required this.array,
     required this.index,
@@ -56,7 +49,6 @@ class MatrixMultiplicationEvent {
     required this.row,
     required this.column,
     required this.matrixA,
-    required this.matrixB,
     required this.result,
     required this.title,
     required this.description,
@@ -69,8 +61,8 @@ class MatrixMultiplicationEvent {
 
 // ============================================================================
 
-class _MatrixMultiplicationAlgorithmScreenState
-    extends State<MatrixMultiplicationAlgorithmScreen> {
+class _MatrixTransposeAlgorithmScreenState
+    extends State<MatrixTransposeAlgorithmScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
@@ -97,11 +89,6 @@ class _MatrixMultiplicationAlgorithmScreenState
     [3, 4],
   ];
 
-  List<List<int>> matrixB = [
-    [5, 6],
-    [7, 8],
-  ];
-
   List<List<int>> resultMatrix = [
     [0, 0],
     [0, 0],
@@ -112,17 +99,12 @@ class _MatrixMultiplicationAlgorithmScreenState
     [3, 4],
   ];
 
-  List<List<int>> originalB = [
-    [5, 6],
-    [7, 8],
-  ];
-
   final TextEditingController arrayController = TextEditingController(
-    text: '1, 2; 3, 4 | 5, 6; 7, 8',
+    text: '1, 2; 3, 4',
   );
 
-  List<MatrixMultiplicationEvent> events = [];
-  List<MatrixMultiplicationEvent> executionHistory = [];
+  List<MatrixTransposeEvent> events = [];
+  List<MatrixTransposeEvent> executionHistory = [];
 
   int currentStep = 0;
   bool isRunning = false;
@@ -137,24 +119,18 @@ class _MatrixMultiplicationAlgorithmScreenState
   Set<int> sortedIndexes = {};
   int activeCodeLine = 0;
   int matrixResultValue = 0;
-  String executionMessage =
-      'Ready to start the Matrix Multiplication Algorithm.';
+  String executionMessage = 'Ready to start the Matrix Transpose Algorithm.';
 
   final String sourceCode = '''
-List<List<int>> multiplyMatrices(
-  List<List<int>> a,
-  List<List<int>> b,
-) {
+List<List<int>> transposeMatrix(List<List<int>> matrix) {
   final result = List.generate(
-    a.length,
-    (_) => List.filled(b[0].length, 0),
+    matrix[0].length,
+    (_) => List.filled(matrix.length, 0),
   );
 
-  for (int i = 0; i < a.length; i++) {
-    for (int j = 0; j < b[0].length; j++) {
-      for (int k = 0; k < b.length; k++) {
-        result[i][j] += a[i][k] * b[k][j];
-      }
+  for (int row = 0; row < matrix.length; row++) {
+    for (int column = 0; column < matrix[0].length; column++) {
+      result[column][row] = matrix[row][column];
     }
   }
 
@@ -182,12 +158,12 @@ List<List<int>> multiplyMatrices(
       matrix.map((row) => [...row]).toList();
 
   void _generateEvents() {
-    final generated = <MatrixMultiplicationEvent>[];
+    final generated = <MatrixTransposeEvent>[];
     resultMatrix = List.generate(2, (_) => List.filled(2, 0));
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.initialize,
+      MatrixTransposeEvent(
+        type: MatrixTransposeEventType.initialize,
         array: _flatten(resultMatrix),
         index: -1,
         secondIndex: -1,
@@ -197,94 +173,65 @@ List<List<int>> multiplyMatrices(
         row: -1,
         column: -1,
         matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
         result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Initialized',
+        title: 'Matrix Transpose Initialized',
         description:
-            'Start with two 2 × 2 matrices and an empty result matrix.',
-        operation: 'C = A × B',
+            'Start with the original matrix and an empty transposed matrix.',
+        operation: 'A → Aᵀ',
       ),
     );
 
     int completedCells = 0;
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        int sum = 0;
-        for (int k = 0; k < 2; k++) {
-          final a = matrixA[i][k];
-          final b = matrixB[k][j];
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.calculate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Select Row × Column Elements',
-              description:
-                  'Take A[$i][$k] = $a and B[$k][$j] = $b for C[$i][$j].',
-              operation: 'A[$i][$k] × B[$k][$j]',
-            ),
-          );
+    for (int row = 0; row < 2; row++) {
+      for (int column = 0; column < 2; column++) {
+        final value = matrixA[row][column];
+        generated.add(
+          MatrixTransposeEvent(
+            type: MatrixTransposeEventType.select,
+            array: _flatten(resultMatrix),
+            index: column * 2 + row,
+            secondIndex: -1,
+            firstValue: value,
+            secondValue: 0,
+            sortedCount: completedCells,
+            row: row,
+            column: column,
+            matrixA: _copyMatrix(matrixA),
+            result: _copyMatrix(resultMatrix),
+            title: 'Select Matrix Element',
+            description:
+                'Select A[$row][$column] = $value. It moves to Aᵀ[$column][$row].',
+            operation: 'A[$row][$column] → Aᵀ[$column][$row]',
+          ),
+        );
 
-          final product = a * b;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.multiply,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Multiply Selected Elements',
-              description: '$a × $b = $product.',
-              operation: '$a × $b = $product',
-            ),
-          );
-
-          sum += product;
-          resultMatrix[i][j] = sum;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.accumulate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Accumulate Product',
-              description:
-                  'Add the product to C[$i][$j]. Current value = $sum.',
-              operation: 'C[$i][$j] = $sum',
-            ),
-          );
-        }
+        resultMatrix[column][row] = value;
+        generated.add(
+          MatrixTransposeEvent(
+            type: MatrixTransposeEventType.transpose,
+            array: _flatten(resultMatrix),
+            index: column * 2 + row,
+            secondIndex: -1,
+            firstValue: value,
+            secondValue: 0,
+            sortedCount: completedCells + 1,
+            row: row,
+            column: column,
+            matrixA: _copyMatrix(matrixA),
+            result: _copyMatrix(resultMatrix),
+            title: 'Place Transposed Element',
+            description:
+                'Move $value from A[$row][$column] to Aᵀ[$column][$row].',
+            operation: 'Aᵀ[$column][$row] = $value',
+          ),
+        );
         completedCells++;
       }
     }
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.complete,
+      MatrixTransposeEvent(
+        type: MatrixTransposeEventType.complete,
         array: _flatten(resultMatrix),
         index: -1,
         secondIndex: -1,
@@ -294,21 +241,19 @@ List<List<int>> multiplyMatrices(
         row: -1,
         column: -1,
         matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
         result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Complete',
+        title: 'Matrix Transpose Complete',
         description:
-            'Every result cell has been calculated using row-by-column multiplication.',
-        operation: 'C = A × B',
+            'Every element has been moved to its transposed row and column position.',
+        operation: 'Aᵀ = transpose(A)',
       ),
     );
     events = generated;
     resultMatrix = List.generate(2, (_) => List.filled(2, 0));
   }
 
-  void _applyEvent(MatrixMultiplicationEvent event, {bool updateState = true}) {
+  void _applyEvent(MatrixTransposeEvent event, {bool updateState = true}) {
     matrixA = _copyMatrix(event.matrixA);
-    matrixB = _copyMatrix(event.matrixB);
     resultMatrix = _copyMatrix(event.result);
     currentRow = event.row;
     currentColumn = event.column;
@@ -317,20 +262,16 @@ List<List<int>> multiplyMatrices(
     executionMessage = '${event.title}: ${event.description}';
     activeCodeLine = _codeLineForEvent(event.type);
 
-    if (event.type == MatrixMultiplicationEventType.multiply ||
-        event.type == MatrixMultiplicationEventType.accumulate) {
-      matrixResultValue = event.result[event.row][event.column];
-    }
-    if (event.type == MatrixMultiplicationEventType.accumulate &&
-        event.secondIndex == 1) {
+    if (event.type == MatrixTransposeEventType.transpose) {
+      matrixResultValue = event.firstValue;
       sortedIndexes = {...sortedIndexes, event.index};
     }
-    if (event.type == MatrixMultiplicationEventType.complete) {
+    if (event.type == MatrixTransposeEventType.complete) {
       sortedIndexes = {0, 1, 2, 3};
       activeCell = -1;
       currentRow = -1;
       currentColumn = -1;
-      executionMessage = 'Matrix Multiplication Complete: C = A × B';
+      executionMessage = 'Matrix Transpose Complete: Aᵀ = transpose(A)';
     }
     if (updateState) setState(() {});
   }
@@ -344,9 +285,8 @@ List<List<int>> multiplyMatrices(
     sortedIndexes.clear();
     activeCodeLine = 0;
     matrixResultValue = 0;
-    executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
+    executionMessage = 'Ready to start the Matrix Transpose Algorithm.';
     matrixA = _copyMatrix(originalA);
-    matrixB = _copyMatrix(originalB);
     for (final event in executionHistory) {
       _applyEvent(event, updateState: false);
     }
@@ -356,7 +296,6 @@ List<List<int>> multiplyMatrices(
     timer?.cancel();
     setState(() {
       matrixA = _copyMatrix(originalA);
-      matrixB = _copyMatrix(originalB);
       resultMatrix = List.generate(2, (_) => List.filled(2, 0));
       executionHistory.clear();
       currentStep = 0;
@@ -369,7 +308,7 @@ List<List<int>> multiplyMatrices(
       sortedIndexes.clear();
       activeCodeLine = 0;
       matrixResultValue = 0;
-      executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
+      executionMessage = 'Ready to start the Matrix Transpose Algorithm.';
     });
     _generateEvents();
   }
@@ -379,47 +318,41 @@ List<List<int>> multiplyMatrices(
     if (isRunning) _play();
   }
 
-  int _codeLineForEvent(MatrixMultiplicationEventType type) {
+  int _codeLineForEvent(MatrixTransposeEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case MatrixTransposeEventType.initialize:
         return 1;
-      case MatrixMultiplicationEventType.calculate:
+      case MatrixTransposeEventType.select:
         return 7;
-      case MatrixMultiplicationEventType.multiply:
-        return 9;
-      case MatrixMultiplicationEventType.accumulate:
-        return 10;
-      case MatrixMultiplicationEventType.complete:
-        return 15;
+      case MatrixTransposeEventType.transpose:
+        return 8;
+      case MatrixTransposeEventType.complete:
+        return 13;
     }
   }
 
-  Color _eventColor(MatrixMultiplicationEventType type) {
+  Color _eventColor(MatrixTransposeEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case MatrixTransposeEventType.initialize:
         return blue;
-      case MatrixMultiplicationEventType.calculate:
-        return cyan;
-      case MatrixMultiplicationEventType.multiply:
+      case MatrixTransposeEventType.select:
         return orange;
-      case MatrixMultiplicationEventType.accumulate:
-        return green;
-      case MatrixMultiplicationEventType.complete:
+      case MatrixTransposeEventType.transpose:
+        return cyan;
+      case MatrixTransposeEventType.complete:
         return green;
     }
   }
 
-  IconData _eventIcon(MatrixMultiplicationEventType type) {
+  IconData _eventIcon(MatrixTransposeEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case MatrixTransposeEventType.initialize:
         return Icons.play_arrow_rounded;
-      case MatrixMultiplicationEventType.calculate:
-        return Icons.grid_view_rounded;
-      case MatrixMultiplicationEventType.multiply:
-        return Icons.close_rounded;
-      case MatrixMultiplicationEventType.accumulate:
-        return Icons.add_circle_outline_rounded;
-      case MatrixMultiplicationEventType.complete:
+      case MatrixTransposeEventType.select:
+        return Icons.touch_app_rounded;
+      case MatrixTransposeEventType.transpose:
+        return Icons.swap_vert_rounded;
+      case MatrixTransposeEventType.complete:
         return Icons.check_circle_rounded;
     }
   }
@@ -467,23 +400,15 @@ List<List<int>> multiplyMatrices(
   }
 
   void _loadArray() {
-    final parts = arrayController.text.split('|');
-    if (parts.length != 2) {
-      _showSnackBar('Enter two 2 × 2 matrices separated by |.', red);
-      return;
-    }
-    final a = _parseMatrix(parts[0]);
-    final b = _parseMatrix(parts[1]);
-    if (a == null || b == null) {
-      _showSnackBar('Use format: 1,2;3,4 | 5,6;7,8', red);
+    final a = _parseMatrix(arrayController.text);
+    if (a == null) {
+      _showSnackBar('Use format: 1,2;3,4', red);
       return;
     }
     timer?.cancel();
     setState(() {
       matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
       originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
       resultMatrix = List.generate(2, (_) => List.filled(2, 0));
       executionHistory.clear();
       currentStep = 0;
@@ -496,26 +421,23 @@ List<List<int>> multiplyMatrices(
       sortedIndexes.clear();
       activeCodeLine = 0;
       matrixResultValue = 0;
-      executionMessage = 'Matrices loaded. Ready to multiply them.';
+      executionMessage = 'Matrix loaded. Ready to transpose it.';
     });
     _generateEvents();
-    _showSnackBar('Matrices loaded successfully.', green);
+    _showSnackBar('Matrix loaded successfully.', green);
   }
 
   void _generateNumbers() {
     final random = Random();
-    List<List<int>> randomMatrix() =>
-        List.generate(2, (_) => List.generate(2, (_) => random.nextInt(9) + 1));
-    final a = randomMatrix();
-    final b = randomMatrix();
-    arrayController.text =
-        '${a[0].join(',')};${a[1].join(',')} | ${b[0].join(',')};${b[1].join(',')}';
+    final a = List.generate(
+      2,
+      (_) => List.generate(2, (_) => random.nextInt(9) + 1),
+    );
+    arrayController.text = '${a[0].join(',')};${a[1].join(',')}';
     timer?.cancel();
     setState(() {
       matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
       originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
       resultMatrix = List.generate(2, (_) => List.filled(2, 0));
       executionHistory.clear();
       currentStep = 0;
@@ -528,10 +450,10 @@ List<List<int>> multiplyMatrices(
       sortedIndexes.clear();
       activeCodeLine = 0;
       matrixResultValue = 0;
-      executionMessage = 'New matrices generated. Ready to multiply them.';
+      executionMessage = 'New matrix generated. Ready to transpose it.';
     });
     _generateEvents();
-    _showSnackBar('New matrices generated.', purple);
+    _showSnackBar('New matrix generated.', purple);
   }
 
   // ==========================================================================
@@ -752,7 +674,7 @@ List<List<int>> multiplyMatrices(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Matrix Multiplication Algorithm',
+                  'Matrix Transpose Algorithm',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -793,7 +715,7 @@ List<List<int>> multiplyMatrices(
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'Matrix Multiplication READY';
+      text = 'Matrix Transpose READY';
     }
 
     return Container(
@@ -846,7 +768,7 @@ List<List<int>> multiplyMatrices(
           const SizedBox(height: 14),
 
           Text(
-            'The Matrix Multiplication Algorithm multiplies rows of Matrix A by columns of Matrix B to produce a result matrix.',
+            'The Matrix Transpose Algorithm swaps the rows and columns of a matrix to create its transpose.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
@@ -863,9 +785,9 @@ List<List<int>> multiplyMatrices(
               _infoBox('Time', 'O(n × m)', orange),
               _infoBox('Space', 'O(n × m)', blue),
               _infoBox('Type', 'Mathematical', purple),
-              _infoBox('Method', 'Element-wise Addition', green),
-              _infoBox('Matrices', '2 × 2', red),
-              _infoBox('Result', 'C = A × B', cyan),
+              _infoBox('Method', 'Row ↔ Column Swap', green),
+              _infoBox('Matrix', '2 × 2', red),
+              _infoBox('Result', 'Aᵀ = transpose(A)', cyan),
             ],
           ),
         ],
@@ -939,7 +861,7 @@ List<List<int>> multiplyMatrices(
 
               Expanded(
                 child: Text(
-                  'Enter two 2 × 2 matrices: A | B, using ; between rows.',
+                  'Enter one 2 × 2 matrix, using ; between rows.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
@@ -963,8 +885,8 @@ List<List<int>> multiplyMatrices(
       style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
-        labelText: 'Enter Matrices',
-        hintText: '1,2;3,4 | 5,6;7,8',
+        labelText: 'Enter Matrix',
+        hintText: '1,2;3,4',
         labelStyle: TextStyle(
           color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
@@ -1005,7 +927,7 @@ List<List<int>> multiplyMatrices(
       onPressed: _generateNumbers,
       icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
-        'Generate Matrices',
+        'Generate Matrix',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1108,18 +1030,16 @@ List<List<int>> multiplyMatrices(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.grid_view_rounded, 'Matrix Visualization', cyan),
+          _sectionTitle(Icons.swap_vert_rounded, 'Matrix Visualization', cyan),
           const SizedBox(height: 14),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _matrixPanel('Matrix A', matrixA, blue),
-                _operator('×', orange),
-                _matrixPanel('Matrix B', matrixB, purple),
-                _operator('=', green),
-                _matrixPanel('Result C', resultMatrix, green, result: true),
+                _matrixPanel('Original Matrix A', matrixA, blue),
+                _operator('→', orange),
+                _matrixPanel('Transpose Aᵀ', resultMatrix, green, result: true),
               ],
             ),
           ),
@@ -1135,10 +1055,10 @@ List<List<int>> multiplyMatrices(
   }
 
   Widget _operator(String text, Color color) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 18),
     child: Text(
       text,
-      style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.w800),
+      style: TextStyle(color: color, fontSize: 30, fontWeight: FontWeight.w800),
     ),
   );
 
@@ -1175,9 +1095,7 @@ List<List<int>> multiplyMatrices(
                   final active = result && idx == activeCell;
                   final done = result && sortedIndexes.contains(idx);
                   final sourceActive =
-                      !result &&
-                      ((title == 'Matrix A' && r == currentRow) ||
-                          (title == 'Matrix B' && c == currentColumn));
+                      !result && currentRow == r && currentColumn == c;
                   return Container(
                     width: 64,
                     height: 64,
@@ -1232,18 +1150,43 @@ List<List<int>> multiplyMatrices(
       children: [
         _legendItem('Current Cell', cyan),
         _legendItem('Completed Cell', green),
-        _legendItem('Current Row / Column', orange),
-        _legendItem('Matrix A', blue),
-        _legendItem('Matrix B', purple),
+        _legendItem('Selected Element', orange),
+        _legendItem('Original Matrix', blue),
+        _legendItem('Transpose', green),
+      ],
+    );
+  }
+
+  Widget _legendItem(String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildCurrentInfo() {
     final message = currentRow >= 0 && currentColumn >= 0
-        ? 'C[$currentRow][$currentColumn] = row $currentRow of A × column $currentColumn of B'
+        ? 'A[$currentRow][$currentColumn] = ${matrixA[currentRow][currentColumn]} → Aᵀ[$currentColumn][$currentRow]'
         : isCompleted
-        ? 'All result cells have been calculated.'
+        ? 'All elements have been transposed.'
         : 'Select a matrix cell to begin.';
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1724,7 +1667,7 @@ List<List<int>> multiplyMatrices(
   // EXECUTION ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(int index, MatrixMultiplicationEvent event) {
+  Widget _executionStepItem(int index, MatrixTransposeEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
@@ -1905,29 +1848,4 @@ List<List<int>> multiplyMatrices(
   // ==========================================================================
   // MINI BADGE
   // ==========================================================================
-
-  Widget _legendItem(String title, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
 }

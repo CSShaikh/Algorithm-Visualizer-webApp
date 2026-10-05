@@ -116,6 +116,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return AppColors.cyan;
       case 'Dynamic Programming Algorithms':
         return AppColors.purple;
+      case 'Supervised Learning Algorithms':
+        return AppColors.green;
       default:
         return AppColors.cyan;
     }
@@ -143,6 +145,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return Icons.grid_view_rounded;
       case 'Dynamic Programming Algorithms':
         return Icons.account_tree_rounded;
+      case 'Supervised Learning Algorithms':
+        return Icons.school_rounded;
+
       default:
         return Icons.category_rounded;
     }
@@ -941,26 +946,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
+
+            // Logo
             _buildLogo(size: 50),
+
             const SizedBox(height: 28),
+
+            // Dashboard
             _collapsedSidebarItem(
               icon: Icons.dashboard_rounded,
               active: selectedIndex == 0,
               onTap: _goToDashboard,
             ),
+
             const SizedBox(height: 14),
-            ...categories.map(
-              (category) => Padding(
+
+            // Scrollable categories
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 12),
-                child: _collapsedSidebarItem(
-                  icon: _categoryIcon(category),
-                  active: selectedCategory == category && selectedIndex == 1,
-                  color: _categoryColor(category),
-                  onTap: () => _selectCategory(category),
+                child: Column(
+                  children: [
+                    ...categories.map(
+                      (category) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _collapsedSidebarItem(
+                          icon: _categoryIcon(category),
+                          active:
+                              selectedCategory == category &&
+                              selectedIndex == 1,
+                          color: _categoryColor(category),
+                          onTap: () => _selectCategory(category),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const Spacer(),
+
+            // Expand sidebar button
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
               child: _collapsedSidebarItem(
@@ -1770,32 +1796,41 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: .09),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.speed_rounded, color: color, size: 13),
-                          const SizedBox(width: 5),
-                          Text(
-                            widget.item.complexity,
-                            style: TextStyle(
-                              color: color,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w900,
+                    Flexible(
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: .09),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.speed_rounded, color: color, size: 13),
+                            const SizedBox(width: 5),
+                            Flexible(
+                              child: Text(
+                                widget.item.complexity,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: color,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                    const Spacer(),
+
+                    const SizedBox(width: 8),
+
                     Icon(
                       Icons.arrow_forward_rounded,
                       color: hovered

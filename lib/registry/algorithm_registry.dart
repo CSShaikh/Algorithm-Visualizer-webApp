@@ -1,13 +1,14 @@
 import 'package:a_algorithm_visualizer/algorithms/array_algorithms/two_pointer_screen.dart';
-import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/factorial_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_addition_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_multiplication_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_transpose_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lcs_algorithm.dart';
-import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lis_algorithm.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/factorial_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_addition_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_multiplication_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/matrix_algorithms/matrix_transpose_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lcs_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lis_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/sorting_algorithms/counting_sort_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/supervised_learning_algorithms/linear_regression_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../algorithms/graph_algorithms/dijkstra_screen.dart';
@@ -513,6 +514,8 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
+
+    // Dynamic Programming Algorithms //
     Algorithm(
       id: 'lis',
       title: 'Longest Increasing Subsequence (LIS) Algorithm',
@@ -537,6 +540,21 @@ abstract final class AlgorithmRegistry {
       color: AppColors.purple,
       icon: Icons.account_tree_rounded,
       difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+    // Supervised Learning Algorithms //
+
+    Algorithm(
+      id: 'linear-regression',
+      title: 'Linear Regression',
+      description:
+          'Fits a straight line to data points using the least squares method.',
+      complexity: 'O(n)',
+      categoryLabel: 'Supervised Learning Algorithms',
+      category: AlgorithmCategory.supervisedLearningAlgorithms,
+      color: AppColors.green,
+      icon: Icons.show_chart_rounded,
+      difficulty: 'Easy',
       status: AlgorithmStatus.implemented,
     ),
   ];
@@ -612,6 +630,8 @@ abstract final class AlgorithmRegistry {
         return const FactorialAlgorithmScreen();
       case 'fibonacci':
         return const FibonacciAlgorithmScreen();
+      case 'linear-regression':
+        return const LinearRegressionScreen();
       default:
         return null;
     }

@@ -4,48 +4,43 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MatrixMultiplicationAlgorithmScreen extends StatefulWidget {
-  const MatrixMultiplicationAlgorithmScreen({super.key});
+class EuclideanAlgorithmScreen extends StatefulWidget {
+  const EuclideanAlgorithmScreen({super.key});
 
   @override
-  State<MatrixMultiplicationAlgorithmScreen> createState() =>
-      _MatrixMultiplicationAlgorithmScreenState();
+  State<EuclideanAlgorithmScreen> createState() =>
+      _EuclideanAlgorithmScreenState();
 }
 
 // ============================================================================
 // EVENT TYPES
 // ============================================================================
 
-enum MatrixMultiplicationEventType {
-  initialize,
-  calculate,
-  multiply,
-  accumulate,
-  complete,
-}
+enum EuclideanEventType { initialize, calculate, remainder, complete }
 
 // ============================================================================
 // EVENT MODEL
 // ============================================================================
 
-class MatrixMultiplicationEvent {
-  final MatrixMultiplicationEventType type;
+class EuclideanEvent {
+  final EuclideanEventType type;
+
+  /// Snapshot of the array at this exact event.
   final List<int> array;
+
   final int index;
   final int secondIndex;
+
   final int firstValue;
   final int secondValue;
+
   final int sortedCount;
-  final int row;
-  final int column;
-  final List<List<int>> matrixA;
-  final List<List<int>> matrixB;
-  final List<List<int>> result;
+
   final String title;
   final String description;
   final String operation;
 
-  const MatrixMultiplicationEvent({
+  const EuclideanEvent({
     required this.type,
     required this.array,
     required this.index,
@@ -53,11 +48,6 @@ class MatrixMultiplicationEvent {
     required this.firstValue,
     required this.secondValue,
     required this.sortedCount,
-    required this.row,
-    required this.column,
-    required this.matrixA,
-    required this.matrixB,
-    required this.result,
     required this.title,
     required this.description,
     required this.operation,
@@ -66,11 +56,9 @@ class MatrixMultiplicationEvent {
 
 // ============================================================================
 // STATE
-
 // ============================================================================
 
-class _MatrixMultiplicationAlgorithmScreenState
-    extends State<MatrixMultiplicationAlgorithmScreen> {
+class _EuclideanAlgorithmScreenState extends State<EuclideanAlgorithmScreen> {
   // ==========================================================================
   // COLORS
   // ==========================================================================
@@ -88,83 +76,78 @@ class _MatrixMultiplicationAlgorithmScreenState
   static const Color pink = Color(0xFFFF4081);
   static const Color red = Color(0xFFFF5252);
 
-  // ============================================================================
+  // ==========================================================================
   // DATA
-  // ============================================================================
+  // ==========================================================================
 
-  List<List<int>> matrixA = [
-    [1, 2],
-    [3, 4],
-  ];
+  List<int> array = [48, 18];
 
-  List<List<int>> matrixB = [
-    [5, 6],
-    [7, 8],
-  ];
+  /// Original state used by Reset.
+  List<int> originalArray = [48, 18];
 
-  List<List<int>> resultMatrix = [
-    [0, 0],
-    [0, 0],
-  ];
-
-  List<List<int>> originalA = [
-    [1, 2],
-    [3, 4],
-  ];
-
-  List<List<int>> originalB = [
-    [5, 6],
-    [7, 8],
-  ];
+  // ==========================================================================
+  // CONTROLLER
+  // ==========================================================================
 
   final TextEditingController arrayController = TextEditingController(
-    text: '1, 2; 3, 4 | 5, 6; 7, 8',
+    text: '48, 18',
   );
 
-  List<MatrixMultiplicationEvent> events = [];
-  List<MatrixMultiplicationEvent> executionHistory = [];
+  // ==========================================================================
+  // EVENTS
+  // ==========================================================================
+
+  List<EuclideanEvent> events = [];
+
+  List<EuclideanEvent> executionHistory = [];
+
+  // ==========================================================================
+  // EXECUTION
+  // ==========================================================================
 
   int currentStep = 0;
+
   bool isRunning = false;
+
   bool isCompleted = false;
+
   double speed = 1.0;
+
   Timer? timer;
 
-  int currentRow = -1;
-  int currentColumn = -1;
-  int activeCell = -1;
+  // ==========================================================================
+  // VISUAL STATE
+  // ==========================================================================
+
+  int comparingIndex = -1;
+  int secondComparingIndex = -1;
+  int swappingIndex = -1;
+  int secondSwappingIndex = -1;
   int sortedCount = 0;
   Set<int> sortedIndexes = {};
   int activeCodeLine = 0;
-  int matrixResultValue = 0;
-  String executionMessage =
-      'Ready to start the Matrix Multiplication Algorithm.';
+  int gcdResult = 0;
+  String executionMessage = 'Ready to start Euclidean Algorithm.';
 
   final String sourceCode = '''
-List<List<int>> multiplyMatrices(
-  List<List<int>> a,
-  List<List<int>> b,
-) {
-  final result = List.generate(
-    a.length,
-    (_) => List.filled(b[0].length, 0),
-  );
+int gcd(int a, int b) {
+  a = a.abs();
+  b = b.abs();
 
-  for (int i = 0; i < a.length; i++) {
-    for (int j = 0; j < b[0].length; j++) {
-      for (int k = 0; k < b.length; k++) {
-        result[i][j] += a[i][k] * b[k][j];
-      }
-    }
+  while (b != 0) {
+    int remainder = a % b;
+    a = b;
+    b = remainder;
   }
 
-  return result;
+  return a;
 }
 ''';
 
   @override
   void initState() {
     super.initState();
+    originalArray = [...array];
     _generateEvents();
   }
 
@@ -175,178 +158,126 @@ List<List<int>> multiplyMatrices(
     super.dispose();
   }
 
-  List<int> _flatten(List<List<int>> matrix) =>
-      matrix.expand((row) => row).toList();
-
-  List<List<int>> _copyMatrix(List<List<int>> matrix) =>
-      matrix.map((row) => [...row]).toList();
-
   void _generateEvents() {
-    final generated = <MatrixMultiplicationEvent>[];
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+    final generated = <EuclideanEvent>[];
+    if (array.length < 2) {
+      events = generated;
+      return;
+    }
+    int a = array[0].abs();
+    int b = array[1].abs();
+    int step = 0;
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.initialize,
-        array: _flatten(resultMatrix),
-        index: -1,
-        secondIndex: -1,
-        firstValue: 0,
-        secondValue: 0,
+      EuclideanEvent(
+        type: EuclideanEventType.initialize,
+        array: [a, b],
+        index: 0,
+        secondIndex: 1,
+        firstValue: a,
+        secondValue: b,
         sortedCount: 0,
-        row: -1,
-        column: -1,
-        matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
-        result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Initialized',
+        title: 'Euclidean Algorithm Initialized',
         description:
-            'Start with two 2 × 2 matrices and an empty result matrix.',
-        operation: 'C = A × B',
+            'Start with $a and $b and repeatedly calculate the remainder.',
+        operation: 'gcd($a, $b)',
       ),
     );
 
-    int completedCells = 0;
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        int sum = 0;
-        for (int k = 0; k < 2; k++) {
-          final a = matrixA[i][k];
-          final b = matrixB[k][j];
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.calculate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Select Row × Column Elements',
-              description:
-                  'Take A[$i][$k] = $a and B[$k][$j] = $b for C[$i][$j].',
-              operation: 'A[$i][$k] × B[$k][$j]',
-            ),
-          );
-
-          final product = a * b;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.multiply,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Multiply Selected Elements',
-              description: '$a × $b = $product.',
-              operation: '$a × $b = $product',
-            ),
-          );
-
-          sum += product;
-          resultMatrix[i][j] = sum;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.accumulate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Accumulate Product',
-              description:
-                  'Add the product to C[$i][$j]. Current value = $sum.',
-              operation: 'C[$i][$j] = $sum',
-            ),
-          );
-        }
-        completedCells++;
+    while (b != 0) {
+      step++;
+      final remainder = a % b;
+      generated.add(
+        EuclideanEvent(
+          type: EuclideanEventType.calculate,
+          array: [a, b],
+          index: 0,
+          secondIndex: 1,
+          firstValue: a,
+          secondValue: b,
+          sortedCount: step,
+          title: 'Calculate Remainder',
+          description: '$a % $b = $remainder.',
+          operation: 'remainder = $a % $b = $remainder',
+        ),
+      );
+      if (remainder != 0) {
+        a = b;
+        b = remainder;
+        generated.add(
+          EuclideanEvent(
+            type: EuclideanEventType.remainder,
+            array: [a, b],
+            index: 0,
+            secondIndex: 1,
+            firstValue: a,
+            secondValue: b,
+            sortedCount: step,
+            title: 'Update Values',
+            description: 'Set a = previous b and b = remainder $remainder.',
+            operation: 'a = b; b = remainder',
+          ),
+        );
+      } else {
+        a = b;
+        b = 0;
       }
     }
-
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.complete,
-        array: _flatten(resultMatrix),
-        index: -1,
-        secondIndex: -1,
-        firstValue: 0,
-        secondValue: 0,
-        sortedCount: 4,
-        row: -1,
-        column: -1,
-        matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
-        result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Complete',
+      EuclideanEvent(
+        type: EuclideanEventType.complete,
+        array: [a, b],
+        index: 0,
+        secondIndex: 1,
+        firstValue: a,
+        secondValue: b,
+        sortedCount: step,
+        title: 'Euclidean Algorithm Complete',
         description:
-            'Every result cell has been calculated using row-by-column multiplication.',
-        operation: 'C = A × B',
+            'The second value is 0, so the first value $a is the Greatest Common Divisor (GCD).',
+        operation: 'GCD = $a',
       ),
     );
     events = generated;
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
   }
 
-  void _applyEvent(MatrixMultiplicationEvent event, {bool updateState = true}) {
-    matrixA = _copyMatrix(event.matrixA);
-    matrixB = _copyMatrix(event.matrixB);
-    resultMatrix = _copyMatrix(event.result);
-    currentRow = event.row;
-    currentColumn = event.column;
-    activeCell = event.index;
+  void _applyEvent(EuclideanEvent event, {bool updateState = true}) {
+    array = [...event.array];
+    comparingIndex = -1;
+    secondComparingIndex = -1;
+    swappingIndex = -1;
+    secondSwappingIndex = -1;
     sortedCount = event.sortedCount;
     executionMessage = '${event.title}: ${event.description}';
     activeCodeLine = _codeLineForEvent(event.type);
-
-    if (event.type == MatrixMultiplicationEventType.multiply ||
-        event.type == MatrixMultiplicationEventType.accumulate) {
-      matrixResultValue = event.result[event.row][event.column];
+    if (event.type == EuclideanEventType.calculate) {
+      comparingIndex = 0;
+      secondComparingIndex = 1;
     }
-    if (event.type == MatrixMultiplicationEventType.accumulate &&
-        event.secondIndex == 1) {
-      sortedIndexes = {...sortedIndexes, event.index};
+    if (event.type == EuclideanEventType.remainder) {
+      swappingIndex = 0;
+      secondSwappingIndex = 1;
     }
-    if (event.type == MatrixMultiplicationEventType.complete) {
-      sortedIndexes = {0, 1, 2, 3};
-      activeCell = -1;
-      currentRow = -1;
-      currentColumn = -1;
-      executionMessage = 'Matrix Multiplication Complete: C = A × B';
+    if (event.type == EuclideanEventType.complete) {
+      gcdResult = event.firstValue;
+      sortedIndexes = {0};
+      executionMessage =
+          'Euclidean Algorithm Complete: GCD = ${event.firstValue}';
     }
     if (updateState) setState(() {});
   }
 
   void _rebuildVisualState() {
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
-    currentRow = -1;
-    currentColumn = -1;
-    activeCell = -1;
+    array = [...originalArray];
+    comparingIndex = -1;
+    secondComparingIndex = -1;
+    swappingIndex = -1;
+    secondSwappingIndex = -1;
     sortedCount = 0;
     sortedIndexes.clear();
     activeCodeLine = 0;
-    matrixResultValue = 0;
-    executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
-    matrixA = _copyMatrix(originalA);
-    matrixB = _copyMatrix(originalB);
+    gcdResult = 0;
+    executionMessage = 'Ready to start Euclidean Algorithm.';
     for (final event in executionHistory) {
       _applyEvent(event, updateState: false);
     }
@@ -355,21 +286,20 @@ List<List<int>> multiplyMatrices(
   void _reset() {
     timer?.cancel();
     setState(() {
-      matrixA = _copyMatrix(originalA);
-      matrixB = _copyMatrix(originalB);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      array = [...originalArray];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
       sortedCount = 0;
       sortedIndexes.clear();
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
+      gcdResult = 0;
+      executionMessage = 'Ready to start Euclidean Algorithm.';
     });
     _generateEvents();
   }
@@ -379,47 +309,41 @@ List<List<int>> multiplyMatrices(
     if (isRunning) _play();
   }
 
-  int _codeLineForEvent(MatrixMultiplicationEventType type) {
+  int _codeLineForEvent(EuclideanEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case EuclideanEventType.initialize:
         return 1;
-      case MatrixMultiplicationEventType.calculate:
+      case EuclideanEventType.calculate:
+        return 6;
+      case EuclideanEventType.remainder:
         return 7;
-      case MatrixMultiplicationEventType.multiply:
-        return 9;
-      case MatrixMultiplicationEventType.accumulate:
-        return 10;
-      case MatrixMultiplicationEventType.complete:
-        return 15;
+      case EuclideanEventType.complete:
+        return 11;
     }
   }
 
-  Color _eventColor(MatrixMultiplicationEventType type) {
+  Color _eventColor(EuclideanEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case EuclideanEventType.initialize:
         return blue;
-      case MatrixMultiplicationEventType.calculate:
+      case EuclideanEventType.calculate:
         return cyan;
-      case MatrixMultiplicationEventType.multiply:
+      case EuclideanEventType.remainder:
         return orange;
-      case MatrixMultiplicationEventType.accumulate:
-        return green;
-      case MatrixMultiplicationEventType.complete:
+      case EuclideanEventType.complete:
         return green;
     }
   }
 
-  IconData _eventIcon(MatrixMultiplicationEventType type) {
+  IconData _eventIcon(EuclideanEventType type) {
     switch (type) {
-      case MatrixMultiplicationEventType.initialize:
+      case EuclideanEventType.initialize:
         return Icons.play_arrow_rounded;
-      case MatrixMultiplicationEventType.calculate:
-        return Icons.grid_view_rounded;
-      case MatrixMultiplicationEventType.multiply:
-        return Icons.close_rounded;
-      case MatrixMultiplicationEventType.accumulate:
-        return Icons.add_circle_outline_rounded;
-      case MatrixMultiplicationEventType.complete:
+      case EuclideanEventType.calculate:
+        return Icons.calculate_rounded;
+      case EuclideanEventType.remainder:
+        return Icons.swap_horiz_rounded;
+      case EuclideanEventType.complete:
         return Icons.check_circle_rounded;
     }
   }
@@ -446,92 +370,70 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  List<List<int>>? _parseMatrix(String value) {
-    final rows = value
-        .split(';')
-        .map((row) => row.trim())
-        .where((row) => row.isNotEmpty)
-        .toList();
-    if (rows.length != 2) return null;
-    final matrix = <List<int>>[];
-    for (final row in rows) {
-      final values = row
-          .split(RegExp(r'[,\s]+'))
-          .where((v) => v.isNotEmpty)
-          .map(int.tryParse)
-          .toList();
-      if (values.length != 2 || values.any((v) => v == null)) return null;
-      matrix.add(values.cast<int>());
-    }
-    return matrix;
-  }
+  // ==========================================================================
+  // LOAD INPUT
+  // ==========================================================================
 
   void _loadArray() {
-    final parts = arrayController.text.split('|');
-    if (parts.length != 2) {
-      _showSnackBar('Enter two 2 × 2 matrices separated by |.', red);
+    final text = arrayController.text.trim();
+    final parts = text.split(RegExp(r'[\s,]+'));
+    final values = <int>[];
+    for (final part in parts) {
+      final v = int.tryParse(part);
+      if (v != null) values.add(v);
+    }
+    if (values.length < 2) {
+      _showSnackBar('Please enter two valid numbers.', red);
       return;
     }
-    final a = _parseMatrix(parts[0]);
-    final b = _parseMatrix(parts[1]);
-    if (a == null || b == null) {
-      _showSnackBar('Use format: 1,2;3,4 | 5,6;7,8', red);
-      return;
-    }
+    final pair = [values[0], values[1]];
     timer?.cancel();
     setState(() {
-      matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
-      originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      array = [...pair];
+      originalArray = [...pair];
+      arrayController.text = pair.join(', ');
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
       sortedCount = 0;
       sortedIndexes.clear();
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'Matrices loaded. Ready to multiply them.';
+      gcdResult = 0;
+      executionMessage = 'Numbers loaded. Ready to find the GCD.';
     });
     _generateEvents();
-    _showSnackBar('Matrices loaded successfully.', green);
+    _showSnackBar('Numbers loaded successfully.', green);
   }
 
   void _generateNumbers() {
     final random = Random();
-    List<List<int>> randomMatrix() =>
-        List.generate(2, (_) => List.generate(2, (_) => random.nextInt(9) + 1));
-    final a = randomMatrix();
-    final b = randomMatrix();
-    arrayController.text =
-        '${a[0].join(',')};${a[1].join(',')} | ${b[0].join(',')};${b[1].join(',')}';
+    final generated = [random.nextInt(90) + 10, random.nextInt(90) + 10];
+    arrayController.text = generated.join(', ');
     timer?.cancel();
     setState(() {
-      matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
-      originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      array = [...generated];
+      originalArray = [...generated];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
+      comparingIndex = -1;
+      secondComparingIndex = -1;
+      swappingIndex = -1;
+      secondSwappingIndex = -1;
       sortedCount = 0;
       sortedIndexes.clear();
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'New matrices generated. Ready to multiply them.';
+      gcdResult = 0;
+      executionMessage = 'New numbers generated. Ready to find the GCD.';
     });
     _generateEvents();
-    _showSnackBar('New matrices generated.', purple);
+    _showSnackBar('New numbers generated.', purple);
   }
 
   // ==========================================================================
@@ -752,7 +654,7 @@ List<List<int>> multiplyMatrices(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Matrix Multiplication Algorithm',
+                  'Euclidean Algorithm',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -763,7 +665,7 @@ List<List<int>> multiplyMatrices(
                 const SizedBox(height: 3),
 
                 Text(
-                  'Add row and column elements of two matrices step by step',
+                  'Find the Greatest Common Divisor using remainders',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
@@ -793,7 +695,7 @@ List<List<int>> multiplyMatrices(
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'Matrix Multiplication READY';
+      text = 'GCD READY';
     }
 
     return Container(
@@ -846,7 +748,7 @@ List<List<int>> multiplyMatrices(
           const SizedBox(height: 14),
 
           Text(
-            'The Matrix Multiplication Algorithm multiplies rows of Matrix A by columns of Matrix B to produce a result matrix.',
+            'The Euclidean Algorithm finds the Greatest Common Divisor (GCD) by repeatedly dividing the larger value by the smaller value and using the remainder as the next value.',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
@@ -860,12 +762,12 @@ List<List<int>> multiplyMatrices(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox('Time', 'O(n × m)', orange),
-              _infoBox('Space', 'O(n × m)', blue),
+              _infoBox('Time', 'O(log min(a,b))', orange),
+              _infoBox('Space', 'O(1)', blue),
               _infoBox('Type', 'Mathematical', purple),
-              _infoBox('Method', 'Element-wise Addition', green),
-              _infoBox('Matrices', '2 × 2', red),
-              _infoBox('Result', 'C = A × B', cyan),
+              _infoBox('GCD', 'Remainder Method', green),
+              _infoBox('Worst', 'O(log min(a,b))', red),
+              _infoBox('Result', 'a when b = 0', cyan),
             ],
           ),
         ],
@@ -939,7 +841,7 @@ List<List<int>> multiplyMatrices(
 
               Expanded(
                 child: Text(
-                  'Enter two 2 × 2 matrices: A | B, using ; between rows.',
+                  'Enter two integers to calculate their Greatest Common Divisor.',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
@@ -963,8 +865,8 @@ List<List<int>> multiplyMatrices(
       style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
-        labelText: 'Enter Matrices',
-        hintText: '1,2;3,4 | 5,6;7,8',
+        labelText: 'Enter Numbers',
+        hintText: '48, 18',
         labelStyle: TextStyle(
           color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
@@ -974,7 +876,7 @@ List<List<int>> multiplyMatrices(
           fontSize: 12,
         ),
         prefixIcon: Icon(
-          Icons.grid_view_rounded,
+          Icons.data_array_rounded,
           color: cyan.withValues(alpha: 0.8),
           size: 19,
         ),
@@ -1005,7 +907,7 @@ List<List<int>> multiplyMatrices(
       onPressed: _generateNumbers,
       icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
-        'Generate Matrices',
+        'Generate Numbers',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1108,160 +1010,331 @@ List<List<int>> multiplyMatrices(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.grid_view_rounded, 'Matrix Visualization', cyan),
-          const SizedBox(height: 14),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _matrixPanel('Matrix A', matrixA, blue),
-                _operator('×', orange),
-                _matrixPanel('Matrix B', matrixB, purple),
-                _operator('=', green),
-                _matrixPanel('Result C', resultMatrix, green, result: true),
-              ],
+          _sectionTitle(Icons.bar_chart_rounded, 'Visualization', cyan),
+
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              _miniBadge(
+                'COMPARE',
+                comparingIndex >= 0 ? '$comparingIndex' : '-',
+                cyan,
+              ),
+
+              const SizedBox(width: 8),
+
+              _miniBadge(
+                'SECOND',
+                secondComparingIndex >= 0 ? '$secondComparingIndex' : '-',
+                blue,
+              ),
+
+              const SizedBox(width: 8),
+
+              _miniBadge('GCD', gcdResult > 0 ? '$gcdResult' : '-', green),
+
+              const SizedBox(width: 8),
+
+              _miniBadge('STEPS', executionHistory.length.toString(), purple),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+            decoration: BoxDecoration(
+              color: visualizationColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  array.length,
+                  (index) => _buildArrayItem(index),
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+
+          const SizedBox(height: 12),
+
           _buildLegend(),
+
           const SizedBox(height: 12),
+
           _buildCurrentInfo(),
+
           const SizedBox(height: 12),
+
           _buildStatusCard(),
         ],
       ),
     );
   }
 
-  Widget _operator(String text, Color color) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 12),
-    child: Text(
-      text,
-      style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.w800),
-    ),
-  );
+  // ==========================================================================
+  // ARRAY ITEM
+  // ==========================================================================
 
-  Widget _matrixPanel(
-    String title,
-    List<List<int>> matrix,
-    Color color, {
-    bool result = false,
-  }) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: visualizationColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withValues(alpha: .25)),
-          ),
-          child: Column(
-            children: List.generate(
-              2,
-              (r) => Row(
-                children: List.generate(2, (c) {
-                  final idx = r * 2 + c;
-                  final active = result && idx == activeCell;
-                  final done = result && sortedIndexes.contains(idx);
-                  final sourceActive =
-                      !result &&
-                      ((title == 'Matrix A' && r == currentRow) ||
-                          (title == 'Matrix B' && c == currentColumn));
-                  return Container(
-                    width: 64,
-                    height: 64,
-                    margin: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: active
-                          ? cyan.withValues(alpha: .18)
-                          : done
-                          ? green.withValues(alpha: .10)
-                          : sourceActive
-                          ? orange.withValues(alpha: .12)
-                          : cardColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: active
-                            ? cyan
-                            : done
-                            ? green.withValues(alpha: .45)
-                            : sourceActive
-                            ? orange
-                            : Colors.white.withValues(alpha: .08),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${matrix[r][c]}',
-                        style: TextStyle(
-                          color: active
-                              ? cyan
-                              : sourceActive
-                              ? orange
-                              : Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+  Widget _buildArrayItem(int index) {
+    final value = array[index];
+
+    final bool isComparing =
+        index == comparingIndex || index == secondComparingIndex;
+
+    final bool isSwapping =
+        index == swappingIndex || index == secondSwappingIndex;
+
+    final bool isSorted = sortedIndexes.contains(index);
+
+    Color itemColor = Colors.white.withValues(alpha: 0.08);
+
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
+
+    Color textColor = Colors.white;
+
+    String label = '';
+
+    // ------------------------------------------------------------------------
+    // SORTED
+    // ------------------------------------------------------------------------
+
+    if (isSorted) {
+      itemColor = green.withValues(alpha: 0.18);
+      borderColor = green;
+      textColor = green;
+      label = 'GCD';
+    }
+
+    // ------------------------------------------------------------------------
+    // COMPARE
+    // ------------------------------------------------------------------------
+
+    if (isComparing) {
+      itemColor = cyan.withValues(alpha: 0.18);
+      borderColor = cyan;
+      textColor = cyan;
+      label = 'COMPARE';
+    }
+
+    // ------------------------------------------------------------------------
+    // SWAP
+    // ------------------------------------------------------------------------
+
+    if (isSwapping) {
+      itemColor = pink.withValues(alpha: 0.20);
+      borderColor = pink;
+      textColor = pink;
+      label = 'SWAP';
+    }
+
+    return Container(
+      width: 70,
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 19,
+            child: Center(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: isSwapping
+                      ? pink
+                      : isComparing
+                      ? cyan
+                      : green,
+                  fontSize: 7.5,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ),
+
+          Container(
+            height: 58,
+            width: 58,
+            decoration: BoxDecoration(
+              color: itemColor,
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(
+                color: borderColor,
+                width: isComparing || isSwapping || isSorted ? 1.6 : 1,
+              ),
+              boxShadow: isComparing || isSwapping || isSorted
+                  ? [
+                      BoxShadow(
+                        color: borderColor.withValues(alpha: 0.18),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: Text(
+                value.toString(),
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Text(
+            '[$index]',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.4),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================================================
+  // LEGEND
+  // ==========================================================================
+
+  Widget _buildLegend() {
+    return Wrap(
+      spacing: 14,
+      runSpacing: 8,
+      children: [
+        _legendItem('Ready', Colors.white),
+        _legendItem('Calculate', cyan),
+        _legendItem('Update', orange),
+        _legendItem('GCD', green),
+      ],
+    );
+  }
+
+  Widget _legendItem(String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+
+        const SizedBox(width: 6),
+
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildLegend() {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 8,
-      children: [
-        _legendItem('Current Cell', cyan),
-        _legendItem('Completed Cell', green),
-        _legendItem('Current Row / Column', orange),
-        _legendItem('Matrix A', blue),
-        _legendItem('Matrix B', purple),
-      ],
-    );
-  }
+  // ==========================================================================
+  // CURRENT INFO
+  // ==========================================================================
 
   Widget _buildCurrentInfo() {
-    final message = currentRow >= 0 && currentColumn >= 0
-        ? 'C[$currentRow][$currentColumn] = row $currentRow of A × column $currentColumn of B'
-        : isCompleted
-        ? 'All result cells have been calculated.'
-        : 'Select a matrix cell to begin.';
+    String message = 'Waiting for execution';
+
+    if (comparingIndex >= 0 &&
+        secondComparingIndex >= 0 &&
+        comparingIndex < array.length &&
+        secondComparingIndex < array.length) {
+      message =
+          'Calculating ${array[comparingIndex]} % ${array[secondComparingIndex]}';
+    }
+
+    if (swappingIndex >= 0 &&
+        secondSwappingIndex >= 0 &&
+        swappingIndex < array.length &&
+        secondSwappingIndex < array.length) {
+      message = 'Updating values using the remainder';
+    }
+
+    if (isCompleted) {
+      message = gcdResult > 0
+          ? 'Greatest Common Divisor = $gcdResult'
+          : 'Calculating GCD';
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: visualizationColor,
+        color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withValues(alpha: .12)),
+        border: Border.all(color: cyan.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: cyan, size: 17),
-          const SizedBox(width: 8),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cyan.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.calculate_rounded, color: cyan, size: 18),
+          ),
+
+          const SizedBox(width: 10),
+
           Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Current Operation',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.42),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            decoration: BoxDecoration(
+              color: green.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(7),
+            ),
             child: Text(
-              message,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: .72),
-                fontSize: 12,
+              '$sortedCount steps',
+              style: const TextStyle(
+                color: green,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -1269,6 +1342,10 @@ List<List<int>> multiplyMatrices(
       ),
     );
   }
+
+  // ==========================================================================
+  // STATUS CARD
+  // ==========================================================================
 
   Widget _buildStatusCard() {
     Color color = cyan;
@@ -1724,7 +1801,7 @@ List<List<int>> multiplyMatrices(
   // EXECUTION ITEM
   // ==========================================================================
 
-  Widget _executionStepItem(int index, MatrixMultiplicationEvent event) {
+  Widget _executionStepItem(int index, EuclideanEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
@@ -1906,28 +1983,41 @@ List<List<int>> multiplyMatrices(
   // MINI BADGE
   // ==========================================================================
 
-  Widget _legendItem(String title, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-          ),
+  Widget _miniBadge(String title, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(9),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
-        const SizedBox(width: 6),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.7,
+              ),
+            ),
+
+            const SizedBox(height: 3),
+
+            Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
