@@ -46,8 +46,7 @@ class FloydEvent {
   });
 }
 
-class _FloydCycleDetectionScreenState
-    extends State<FloydCycleDetectionScreen> {
+class _FloydCycleDetectionScreenState extends State<FloydCycleDetectionScreen> {
   static const Color background = Color(0xFF030712);
   static const Color background2 = Color(0xFF07101F);
   static const Color cardColor = Color(0xFF0B1428);
@@ -130,9 +129,7 @@ bool hasCycle(Node? head) {
   int _nextIndex(int index) {
     if (index < 0 || linkedList.isEmpty) return -1;
     if (index + 1 < linkedList.length) return index + 1;
-    return cycleStart >= 0 && cycleStart < linkedList.length
-        ? cycleStart
-        : -1;
+    return cycleStart >= 0 && cycleStart < linkedList.length ? cycleStart : -1;
   }
 
   int _movePointer(int index, int steps) {
@@ -218,8 +215,7 @@ bool hasCycle(Node? head) {
             fastIndex: nextFast,
             cycleStart: cycleStart,
             title: 'No Cycle Detected',
-            description:
-                'Fast reached NULL before slow and fast could meet.',
+            description: 'Fast reached NULL before slow and fast could meet.',
             operation: 'return false',
             iteration: step,
           ),
@@ -250,8 +246,7 @@ bool hasCycle(Node? head) {
           fastIndex: nextFast,
           cycleStart: cycleStart,
           title: 'Fast Pointer Moves',
-          description:
-              'Fast moves two nodes and reaches index $nextFast.',
+          description: 'Fast moves two nodes and reaches index $nextFast.',
           operation: 'fast = fast.next.next',
           iteration: step,
         ),
@@ -374,8 +369,7 @@ bool hasCycle(Node? head) {
       fastIndex = -1;
       activeCodeLine = 0;
       iteration = 0;
-      executionMessage =
-          'Linked list loaded. Ready to detect a cycle.';
+      executionMessage = 'Linked list loaded. Ready to detect a cycle.';
     });
 
     _generateEvents();
@@ -405,8 +399,7 @@ bool hasCycle(Node? head) {
       fastIndex = -1;
       activeCodeLine = 0;
       iteration = 0;
-      executionMessage =
-          'New linked list generated. Ready to detect a cycle.';
+      executionMessage = 'New linked list generated. Ready to detect a cycle.';
     });
 
     _generateEvents();
@@ -424,28 +417,25 @@ bool hasCycle(Node? head) {
 
     final milliseconds = (900 / speed).round().clamp(100, 2000);
 
-    timer = Timer.periodic(
-      Duration(milliseconds: milliseconds),
-      (_) {
-        if (!mounted) {
-          timer?.cancel();
-          return;
-        }
+    timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
+      if (!mounted) {
+        timer?.cancel();
+        return;
+      }
 
-        if (currentStep >= events.length) {
-          timer?.cancel();
+      if (currentStep >= events.length) {
+        timer?.cancel();
 
-          setState(() {
-            isRunning = false;
-            isCompleted = true;
-          });
+        setState(() {
+          isRunning = false;
+          isCompleted = true;
+        });
 
-          return;
-        }
+        return;
+      }
 
-        _nextStepInternal();
-      },
-    );
+      _nextStepInternal();
+    });
   }
 
   void _pause() {
@@ -513,18 +503,14 @@ bool hasCycle(Node? head) {
     fastIndex = -1;
     activeCodeLine = 0;
     iteration = 0;
-    executionMessage =
-        'Ready to detect a cycle using slow and fast pointers.';
+    executionMessage = 'Ready to detect a cycle using slow and fast pointers.';
 
     for (final event in executionHistory) {
       _applyEvent(event, updateState: false);
     }
   }
 
-  void _applyEvent(
-    FloydEvent event, {
-    bool updateState = true,
-  }) {
+  void _applyEvent(FloydEvent event, {bool updateState = true}) {
     linkedList = [...event.list];
     cycleStart = event.cycleStart;
     slowIndex = event.slowIndex;
@@ -539,8 +525,7 @@ bool hasCycle(Node? head) {
     }
 
     if (event.type == FloydEventType.noCycle) {
-      executionMessage =
-          'No Cycle Detected: Fast pointer reached NULL.';
+      executionMessage = 'No Cycle Detected: Fast pointer reached NULL.';
     }
 
     if (updateState) {
@@ -635,9 +620,7 @@ bool hasCycle(Node? head) {
   }
 
   Future<void> _copyCode() async {
-    await Clipboard.setData(
-      ClipboardData(text: sourceCode),
-    );
+    await Clipboard.setData(ClipboardData(text: sourceCode));
 
     _showSnackBar('Source code copied.', cyan);
   }
@@ -654,7 +637,7 @@ bool hasCycle(Node? head) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withOpacity(0.85),
+        backgroundColor: color.withValues(alpha: 0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -694,7 +677,7 @@ bool hasCycle(Node? head) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: orange.withOpacity(0.16)),
+        border: Border.all(color: orange.withValues(alpha: 0.16)),
       ),
       child: Row(
         children: [
@@ -707,10 +690,13 @@ bool hasCycle(Node? head) {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white.withOpacity(0.08)),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
-              child: const Icon(Icons.arrow_back_rounded,
-                  color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -721,7 +707,11 @@ bool hasCycle(Node? head) {
               gradient: const LinearGradient(colors: [orange, pink]),
               borderRadius: BorderRadius.circular(11),
             ),
-            child: const Icon(Icons.loop_rounded, color: Colors.white, size: 23),
+            child: const Icon(
+              Icons.loop_rounded,
+              color: Colors.white,
+              size: 23,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -730,14 +720,19 @@ bool hasCycle(Node? head) {
               children: [
                 const Text(
                   "Floyd's Cycle Detection",
-                  style: TextStyle(color: Colors.white, fontSize: 20,
-                      fontWeight: FontWeight.w800),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   'Detect a linked-list cycle using slow and fast pointers',
-                  style: TextStyle(color: Colors.white.withOpacity(0.55),
-                      fontSize: 12),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.55),
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -764,18 +759,28 @@ bool hasCycle(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 7, height: 7,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 7),
-          Text(text, style: TextStyle(color: color, fontSize: 10,
-              fontWeight: FontWeight.w800, letterSpacing: 0.6)),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+            ),
+          ),
         ],
       ),
     );
@@ -786,14 +791,21 @@ bool hasCycle(Node? head) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.info_outline_rounded, 'Algorithm Information', cyan),
+          _sectionTitle(
+            Icons.info_outline_rounded,
+            'Algorithm Information',
+            cyan,
+          ),
           const SizedBox(height: 14),
           Text(
             'Floyd’s Cycle Detection Algorithm uses two pointers. The slow pointer '
             'moves one node at a time while the fast pointer moves two nodes at a time. '
             'If they meet, a cycle exists. If fast reaches NULL, there is no cycle.',
-            style: TextStyle(color: Colors.white.withOpacity(0.64),
-                height: 1.5, fontSize: 12.5),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.64),
+              height: 1.5,
+              fontSize: 12.5,
+            ),
           ),
           const SizedBox(height: 14),
           Wrap(
@@ -852,14 +864,19 @@ bool hasCycle(Node? head) {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(Icons.lightbulb_outline_rounded,
-                  color: orange.withOpacity(0.85), size: 15),
+              Icon(
+                Icons.lightbulb_outline_rounded,
+                color: orange.withValues(alpha: 0.85),
+                size: 15,
+              ),
               const SizedBox(width: 7),
               Expanded(
                 child: Text(
                   'Use "cycle:2" to connect the last node back to index 2. Omit it for no cycle.',
-                  style: TextStyle(color: Colors.white.withOpacity(0.45),
-                      fontSize: 11),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.45),
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ],
@@ -877,19 +894,32 @@ bool hasCycle(Node? head) {
       decoration: InputDecoration(
         labelText: 'Enter Linked List Values + Optional Cycle',
         hintText: '10, 20, 30, 40, 50 | cycle:2',
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 12),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 12),
-        prefixIcon: Icon(Icons.link_rounded, color: cyan.withOpacity(0.8), size: 19),
+        labelStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.58),
+          fontSize: 12,
+        ),
+        hintStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.25),
+          fontSize: 12,
+        ),
+        prefixIcon: Icon(
+          Icons.link_rounded,
+          color: cyan.withValues(alpha: 0.8),
+          size: 19,
+        ),
         filled: true,
         fillColor: visualizationColor,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 13,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: cyan.withOpacity(0.55)),
+          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
         ),
       ),
     );
@@ -906,10 +936,17 @@ bool hasCycle(Node? head) {
             children: [
               _miniBadge('SLOW', slowIndex >= 0 ? '$slowIndex' : 'NULL', cyan),
               const SizedBox(width: 8),
-              _miniBadge('FAST', fastIndex >= 0 ? '$fastIndex' : 'NULL', orange),
+              _miniBadge(
+                'FAST',
+                fastIndex >= 0 ? '$fastIndex' : 'NULL',
+                orange,
+              ),
               const SizedBox(width: 8),
-              _miniBadge('CYCLE',
-                  cycleStart >= 0 ? 'INDEX $cycleStart' : 'NONE', green),
+              _miniBadge(
+                'CYCLE',
+                cycleStart >= 0 ? 'INDEX $cycleStart' : 'NONE',
+                green,
+              ),
               const SizedBox(width: 8),
               _miniBadge('STEPS', executionHistory.length.toString(), purple),
             ],
@@ -921,14 +958,16 @@ bool hasCycle(Node? head) {
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: List.generate(linkedList.length, (index) =>
-                    _buildListNode(index)),
+                children: List.generate(
+                  linkedList.length,
+                  (index) => _buildListNode(index),
+                ),
               ),
             ),
           ),
@@ -950,31 +989,31 @@ bool hasCycle(Node? head) {
     final bool isMeeting = isSlow && isFast;
     final bool isCycleStart = index == cycleStart;
 
-    Color itemColor = Colors.white.withOpacity(0.08);
-    Color borderColor = Colors.white.withOpacity(0.08);
+    Color itemColor = Colors.white.withValues(alpha: 0.08);
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
     Color textColor = Colors.white;
     String label = '';
 
     if (isCycleStart) {
-      itemColor = green.withOpacity(0.10);
-      borderColor = green.withOpacity(0.70);
+      itemColor = green.withValues(alpha: 0.10);
+      borderColor = green.withValues(alpha: 0.70);
       textColor = green;
       label = 'CYCLE START';
     }
     if (isSlow) {
-      itemColor = cyan.withOpacity(0.18);
+      itemColor = cyan.withValues(alpha: 0.18);
       borderColor = cyan;
       textColor = cyan;
       label = 'SLOW';
     }
     if (isFast) {
-      itemColor = orange.withOpacity(0.18);
+      itemColor = orange.withValues(alpha: 0.18);
       borderColor = orange;
       textColor = orange;
       label = 'FAST';
     }
     if (isMeeting) {
-      itemColor = green.withOpacity(0.20);
+      itemColor = green.withValues(alpha: 0.20);
       borderColor = green;
       textColor = green;
       label = 'SLOW + FAST';
@@ -990,15 +1029,23 @@ bool hasCycle(Node? head) {
               SizedBox(
                 height: 20,
                 child: Center(
-                  child: Text(label, textAlign: TextAlign.center,
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isMeeting ? green :
-                          isFast ? orange :
-                          isSlow ? cyan :
-                          isCycleStart ? green :
-                          Colors.white.withOpacity(0.25),
-                      fontSize: 7.2, fontWeight: FontWeight.w900,
-                    )),
+                      color: isMeeting
+                          ? green
+                          : isFast
+                          ? orange
+                          : isSlow
+                          ? cyan
+                          : isCycleStart
+                          ? green
+                          : Colors.white.withValues(alpha: 0.25),
+                      fontSize: 7.2,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               ),
               Container(
@@ -1009,23 +1056,40 @@ bool hasCycle(Node? head) {
                   borderRadius: BorderRadius.circular(11),
                   border: Border.all(
                     color: borderColor,
-                    width: isSlow || isFast || isMeeting || isCycleStart ? 1.7 : 1,
+                    width: isSlow || isFast || isMeeting || isCycleStart
+                        ? 1.7
+                        : 1,
                   ),
-                  boxShadow: isSlow || isFast || isMeeting ? [
-                    BoxShadow(color: borderColor.withOpacity(0.18),
-                        blurRadius: 12, spreadRadius: 1),
-                  ] : null,
+                  boxShadow: isSlow || isFast || isMeeting
+                      ? [
+                          BoxShadow(
+                            color: borderColor.withValues(alpha: 0.18),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Center(
-                  child: Text(value.toString(),
-                    style: TextStyle(color: textColor, fontSize: 16,
-                        fontWeight: FontWeight.w800)),
+                  child: Text(
+                    value.toString(),
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 5),
-              Text('[$index]',
-                style: TextStyle(color: Colors.white.withOpacity(0.4),
-                    fontSize: 10, fontWeight: FontWeight.w600)),
+              Text(
+                '[$index]',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
@@ -1034,11 +1098,18 @@ bool hasCycle(Node? head) {
             padding: const EdgeInsets.only(top: 16, left: 1, right: 1),
             child: Column(
               children: [
-                Icon(Icons.arrow_forward_rounded,
-                    color: Colors.white.withOpacity(0.35), size: 19),
-                Text('next',
-                    style: TextStyle(color: Colors.white.withOpacity(0.22),
-                        fontSize: 7)),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white.withValues(alpha: 0.35),
+                  size: 19,
+                ),
+                Text(
+                  'next',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.22),
+                    fontSize: 7,
+                  ),
+                ),
               ],
             ),
           )
@@ -1047,20 +1118,25 @@ bool hasCycle(Node? head) {
             padding: const EdgeInsets.only(top: 16, left: 3),
             child: Column(
               children: [
-                Icon(cycleStart >= 0
-                        ? Icons.subdirectory_arrow_left_rounded
-                        : Icons.arrow_forward_rounded,
+                Icon(
+                  cycleStart >= 0
+                      ? Icons.subdirectory_arrow_left_rounded
+                      : Icons.arrow_forward_rounded,
+                  color: cycleStart >= 0
+                      ? green.withValues(alpha: 0.80)
+                      : Colors.white.withValues(alpha: 0.20),
+                  size: 19,
+                ),
+                Text(
+                  cycleStart >= 0 ? '→ [$cycleStart]' : 'null',
+                  style: TextStyle(
                     color: cycleStart >= 0
-                        ? green.withOpacity(0.80)
-                        : Colors.white.withOpacity(0.20),
-                    size: 19),
-                Text(cycleStart >= 0 ? '→ [$cycleStart]' : 'null',
-                    style: TextStyle(
-                      color: cycleStart >= 0
-                          ? green.withOpacity(0.65)
-                          : red.withOpacity(0.55),
-                      fontSize: 7, fontWeight: FontWeight.w700,
-                    )),
+                        ? green.withValues(alpha: 0.65)
+                        : red.withValues(alpha: 0.55),
+                    fontSize: 7,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1085,12 +1161,23 @@ bool hasCycle(Node? head) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 9, height: 9,
-            decoration: BoxDecoration(color: color,
-                borderRadius: BorderRadius.circular(3))),
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
         const SizedBox(width: 6),
-        Text(title, style: TextStyle(color: Colors.white.withOpacity(0.58),
-            fontSize: 10, fontWeight: FontWeight.w600)),
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -1098,11 +1185,14 @@ bool hasCycle(Node? head) {
   Widget _buildCurrentInfo() {
     String message = 'Waiting for execution';
 
-    if (slowIndex >= 0 && slowIndex < linkedList.length &&
-        fastIndex >= 0 && fastIndex < linkedList.length) {
+    if (slowIndex >= 0 &&
+        slowIndex < linkedList.length &&
+        fastIndex >= 0 &&
+        fastIndex < linkedList.length) {
       message =
           'Slow → ${linkedList[slowIndex]}    •    Fast → ${linkedList[fastIndex]}';
-    } else if (fastIndex == -1 && slowIndex >= 0 &&
+    } else if (fastIndex == -1 &&
+        slowIndex >= 0 &&
         slowIndex < linkedList.length) {
       message = 'Slow → ${linkedList[slowIndex]}    •    Fast → NULL';
     }
@@ -1112,40 +1202,63 @@ bool hasCycle(Node? head) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withOpacity(0.14)),
+        border: Border.all(color: cyan.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
           Container(
-            width: 34, height: 34,
-            decoration: BoxDecoration(color: cyan.withOpacity(0.09),
-                borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.compare_arrows_rounded,
-                color: cyan, size: 18),
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cyan.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.compare_arrows_rounded,
+              color: cyan,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Current Operation',
-                    style: TextStyle(color: Colors.white.withOpacity(0.42),
-                        fontSize: 9, fontWeight: FontWeight.w700)),
+                Text(
+                  'Current Operation',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.42),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(message,
-                    style: const TextStyle(color: Colors.white,
-                        fontSize: 12, fontWeight: FontWeight.w800)),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
           ),
           if (cycleStart >= 0)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-              decoration: BoxDecoration(color: green.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(7)),
-              child: Text('Cycle → [$cycleStart]',
-                  style: const TextStyle(color: green,
-                      fontSize: 10, fontWeight: FontWeight.w800)),
+              decoration: BoxDecoration(
+                color: green.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                'Cycle → [$cycleStart]',
+                style: const TextStyle(
+                  color: green,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
         ],
       ),
@@ -1171,9 +1284,9 @@ bool hasCycle(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1181,9 +1294,14 @@ bool hasCycle(Node? head) {
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 9),
           Expanded(
-            child: Text(executionMessage,
-                style: TextStyle(color: Colors.white.withOpacity(0.72),
-                    fontSize: 11, height: 1.45)),
+            child: Text(
+              executionMessage,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                fontSize: 11,
+                height: 1.45,
+              ),
+            ),
           ),
         ],
       ),
@@ -1193,28 +1311,17 @@ bool hasCycle(Node? head) {
   Widget _generateButton() {
     return ElevatedButton.icon(
       onPressed: _generateNumbers,
-      icon: const Icon(
-        Icons.auto_awesome_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
         'Generate List',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: purple,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1222,28 +1329,17 @@ bool hasCycle(Node? head) {
   Widget _loadButton() {
     return ElevatedButton.icon(
       onPressed: _loadList,
-      icon: const Icon(
-        Icons.download_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.download_rounded, size: 17),
       label: const Text(
         'LOAD LIST',
-        style: TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
         foregroundColor: background,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1300,9 +1396,7 @@ bool hasCycle(Node? head) {
               _controlButton(
                 icon: Icons.skip_previous_rounded,
                 label: 'Previous',
-                onPressed: executionHistory.isEmpty
-                    ? null
-                    : _previousStep,
+                onPressed: executionHistory.isEmpty ? null : _previousStep,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1311,9 +1405,7 @@ bool hasCycle(Node? head) {
                       ? Icons.pause_rounded
                       : Icons.play_arrow_rounded,
                   label: isRunning ? 'Pause' : 'Play',
-                  onPressed: isCompleted
-                      ? null
-                      : _togglePlayPause,
+                  onPressed: isCompleted ? null : _togglePlayPause,
                   primary: true,
                 ),
               ),
@@ -1321,9 +1413,7 @@ bool hasCycle(Node? head) {
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next Step',
-                onPressed: currentStep >= events.length
-                    ? null
-                    : _nextStep,
+                onPressed: currentStep >= events.length ? null : _nextStep,
               ),
               const SizedBox(width: 8),
               _controlButton(
@@ -1336,16 +1426,12 @@ bool hasCycle(Node? head) {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: cyan,
-                size: 17,
-              ),
+              const Icon(Icons.speed_rounded, color: cyan, size: 17),
               const SizedBox(width: 8),
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withOpacity( 0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1357,8 +1443,7 @@ bool hasCycle(Node? head) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor:
-                      Colors.white.withOpacity( 0.08),
+                  inactiveColor: Colors.white.withValues(alpha: 0.08),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -1380,14 +1465,10 @@ bool hasCycle(Node? head) {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: events.isEmpty
-                  ? 0
-                  : currentStep / events.length,
+              value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor:
-                  Colors.white.withOpacity( 0.06),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(cyan),
+              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
           const SizedBox(height: 6),
@@ -1397,7 +1478,7 @@ bool hasCycle(Node? head) {
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity( 0.45),
+                  color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 10,
                 ),
               ),
@@ -1405,16 +1486,16 @@ bool hasCycle(Node? head) {
                 isCompleted
                     ? 'Execution Finished'
                     : isRunning
-                        ? 'Running...'
-                        : currentStep == 0
-                            ? 'Ready'
-                            : 'Paused',
+                    ? 'Running...'
+                    : currentStep == 0
+                    ? 'Ready'
+                    : 'Paused',
                 style: TextStyle(
                   color: isCompleted
                       ? green
                       : isRunning
-                          ? orange
-                          : Colors.white.withOpacity( 0.4),
+                      ? orange
+                      : Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1439,26 +1520,19 @@ bool hasCycle(Node? head) {
         icon: Icon(icon, size: 17),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor:
-              Colors.white.withOpacity( 0.04),
-          disabledForegroundColor:
-              Colors.white.withOpacity( 0.20),
+          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary
-                  ? cyan
-                  : Colors.white.withOpacity( 0.08),
+              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
             ),
           ),
         ),
@@ -1475,11 +1549,7 @@ bool hasCycle(Node? head) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.code_rounded,
-                'Source Code',
-                purple,
-              ),
+              _sectionTitle(Icons.code_rounded, 'Source Code', purple),
               const Spacer(),
               InkWell(
                 onTap: _copyCode,
@@ -1490,20 +1560,14 @@ bool hasCycle(Node? head) {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withOpacity( 0.08),
+                    color: purple.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: purple.withOpacity( 0.20),
-                    ),
+                    border: Border.all(color: purple.withValues(alpha: 0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.copy_rounded,
-                        color: purple,
-                        size: 14,
-                      ),
+                      Icon(Icons.copy_rounded, color: purple, size: 14),
                       SizedBox(width: 5),
                       Text(
                         'Copy',
@@ -1522,75 +1586,66 @@ bool hasCycle(Node? head) {
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(
-              minHeight: 280,
-              maxHeight: 500,
-            ),
+            constraints: const BoxConstraints(minHeight: 280, maxHeight: 500),
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(
-                color: Colors.white.withOpacity( 0.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
-                children: List.generate(
-                  lines.length,
-                  (index) {
-                    final lineNumber = index + 1;
-                    final active = lineNumber == activeCodeLine;
+                children: List.generate(lines.length, (index) {
+                  final lineNumber = index + 1;
+                  final active = lineNumber == activeCodeLine;
 
-                    return Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      color: active
-                          ? cyan.withOpacity( 0.09)
-                          : Colors.transparent,
-                      child: Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 25,
-                            child: Text(
-                              '$lineNumber',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: active
-                                    ? cyan
-                                    : Colors.white.withOpacity(0.20),
-                                fontSize: 9,
-                                fontFamily: 'monospace',
-                              ),
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    color: active
+                        ? cyan.withValues(alpha: 0.09)
+                        : Colors.transparent,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 25,
+                          child: Text(
+                            '$lineNumber',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: active
+                                  ? cyan
+                                  : Colors.white.withValues(alpha: 0.20),
+                              fontSize: 9,
+                              fontFamily: 'monospace',
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              lines[index],
-                              style: TextStyle(
-                                color: active
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.65),
-                                fontSize: 10,
-                                height: 1.45,
-                                fontFamily: 'monospace',
-                                fontWeight: active
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                              ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            lines[index],
+                            style: TextStyle(
+                              color: active
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.65),
+                              fontSize: 10,
+                              height: 1.45,
+                              fontFamily: 'monospace',
+                              fontWeight: active
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ),
           ),
@@ -1606,23 +1661,14 @@ bool hasCycle(Node? head) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.history_rounded,
-                'Execution Steps',
-                cyan,
-              ),
+              _sectionTitle(Icons.history_rounded, 'Execution Steps', cyan),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withOpacity( 0.07),
+                  color: cyan.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(
-                    color: cyan.withOpacity( 0.14),
-                  ),
+                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -1645,10 +1691,7 @@ bool hasCycle(Node? head) {
                 shrinkWrap: true,
                 itemCount: executionHistory.length,
                 itemBuilder: (context, index) {
-                  return _executionStepItem(
-                    index,
-                    executionHistory[index],
-                  );
+                  return _executionStepItem(index, executionHistory[index]);
                 },
               ),
             ),
@@ -1660,29 +1703,24 @@ bool hasCycle(Node? head) {
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 35,
-        horizontal: 15,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.white.withOpacity( 0.06),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withOpacity( 0.20),
+            color: Colors.white.withValues(alpha: 0.20),
             size: 32,
           ),
           const SizedBox(height: 10),
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -1691,7 +1729,7 @@ bool hasCycle(Node? head) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.30),
+              color: Colors.white.withValues(alpha: 0.30),
               fontSize: 10,
             ),
           ),
@@ -1700,27 +1738,27 @@ bool hasCycle(Node? head) {
     );
   }
 
-  Widget _executionStepItem(
-    int index,
-    FloydEvent event,
-  ) {
+  Widget _executionStepItem(int index, FloydEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.045),
+        color: color.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withOpacity(0.14)),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 27, height: 27,
-            decoration: BoxDecoration(color: color.withOpacity(0.10),
-                borderRadius: BorderRadius.circular(7)),
+            width: 27,
+            height: 27,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(7),
+            ),
             child: Icon(_eventIcon(event.type), color: color, size: 15),
           ),
           const SizedBox(width: 9),
@@ -1731,23 +1769,43 @@ bool hasCycle(Node? head) {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(event.title,
-                          style: TextStyle(color: color, fontSize: 10.5,
-                              fontWeight: FontWeight.w800)),
+                      child: Text(
+                        event.title,
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
-                    Text('#${index + 1}',
-                        style: TextStyle(color: Colors.white.withOpacity(0.22),
-                            fontSize: 9, fontWeight: FontWeight.w700)),
+                    Text(
+                      '#${index + 1}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(event.description,
-                    style: TextStyle(color: Colors.white.withOpacity(0.53),
-                        fontSize: 9.5, height: 1.35)),
+                Text(
+                  event.description,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.53),
+                    fontSize: 9.5,
+                    height: 1.35,
+                  ),
+                ),
                 const SizedBox(height: 5),
-                Text(event.operation,
-                    style: TextStyle(color: Colors.white.withOpacity(0.30),
-                        fontSize: 8.5, fontFamily: 'monospace')),
+                Text(
+                  event.operation,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.30),
+                    fontSize: 8.5,
+                    fontFamily: 'monospace',
+                  ),
+                ),
               ],
             ),
           ),
@@ -1763,12 +1821,10 @@ bool hasCycle(Node? head) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity( 0.065),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity( 0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -1778,11 +1834,7 @@ bool hasCycle(Node? head) {
     );
   }
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1790,14 +1842,10 @@ bool hasCycle(Node? head) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withOpacity( 0.09),
+            color: color.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 17,
-          ),
+          child: Icon(icon, color: color, size: 17),
         ),
         const SizedBox(width: 9),
         Text(
@@ -1812,22 +1860,13 @@ bool hasCycle(Node? head) {
     );
   }
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity( 0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity( 0.16),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1835,7 +1874,7 @@ bool hasCycle(Node? head) {
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity( 0.8),
+              color: color.withValues(alpha: 0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
@@ -1854,23 +1893,14 @@ bool hasCycle(Node? head) {
     );
   }
 
-  Widget _miniBadge(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity( 0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: color.withOpacity( 0.18),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           children: [

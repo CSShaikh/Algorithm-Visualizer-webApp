@@ -161,18 +161,20 @@ TreeNode? convertListToTree(Node? head) {
       int active = -1,
     }) {
       step++;
-      generated.add(TreeEvent(
-        type: type,
-        list: [...values],
-        tree: [...tree],
-        listIndex: source,
-        parentIndex: parent,
-        activeIndex: active,
-        title: title,
-        description: description,
-        operation: operation,
-        iteration: step,
-      ));
+      generated.add(
+        TreeEvent(
+          type: type,
+          list: [...values],
+          tree: [...tree],
+          listIndex: source,
+          parentIndex: parent,
+          activeIndex: active,
+          title: title,
+          description: description,
+          operation: operation,
+          iteration: step,
+        ),
+      );
     }
 
     if (values.isEmpty) {
@@ -308,8 +310,7 @@ TreeNode? convertListToTree(Node? head) {
       activeIndex = -1;
       activeCodeLine = 0;
       iteration = 0;
-      executionMessage =
-          'Linked list loaded. Ready to build the binary tree.';
+      executionMessage = 'Linked list loaded. Ready to build the binary tree.';
     });
 
     _generateEvents();
@@ -379,8 +380,7 @@ TreeNode? convertListToTree(Node? head) {
       activeIndex = -1;
       activeCodeLine = 0;
       iteration = 0;
-      executionMessage =
-          'Ready to convert the linked list into a binary tree.';
+      executionMessage = 'Ready to convert the linked list into a binary tree.';
     });
   }
 
@@ -566,7 +566,7 @@ TreeNode? convertListToTree(Node? head) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withOpacity(0.85),
+        backgroundColor: color.withValues(alpha: 0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -607,14 +607,22 @@ TreeNode? convertListToTree(Node? head) {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [background2, const Color(0xFF0A1326), phaseColor.withOpacity(0.055)],
+          colors: [
+            background2,
+            const Color(0xFF0A1326),
+            phaseColor.withValues(alpha: 0.055),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: phaseColor.withOpacity(0.20)),
+        border: Border.all(color: phaseColor.withValues(alpha: 0.20)),
         boxShadow: [
-          BoxShadow(color: phaseColor.withOpacity(0.055), blurRadius: 28, spreadRadius: 2),
+          BoxShadow(
+            color: phaseColor.withValues(alpha: 0.055),
+            blurRadius: 28,
+            spreadRadius: 2,
+          ),
         ],
       ),
       child: Column(
@@ -630,9 +638,15 @@ TreeNode? convertListToTree(Node? head) {
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
-                  child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -642,9 +656,18 @@ TreeNode? convertListToTree(Node? head) {
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(colors: [orange, pink]),
                   borderRadius: BorderRadius.circular(13),
-                  boxShadow: [BoxShadow(color: pink.withOpacity(0.22), blurRadius: 18)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: pink.withValues(alpha: 0.22),
+                      blurRadius: 18,
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.account_tree_rounded, color: Colors.white, size: 25),
+                child: const Icon(
+                  Icons.account_tree_rounded,
+                  color: Colors.white,
+                  size: 25,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -653,12 +676,19 @@ TreeNode? convertListToTree(Node? head) {
                   children: [
                     const Text(
                       'Convert Linked List to Binary Tree',
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Level-order conversion • consume nodes → attach children',
-                      style: TextStyle(color: Colors.white.withOpacity(0.50), fontSize: 11.5),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.50),
+                        fontSize: 11.5,
+                      ),
                     ),
                   ],
                 ),
@@ -669,13 +699,41 @@ TreeNode? convertListToTree(Node? head) {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: _headerStat(Icons.alt_route_rounded, 'ALGORITHM', 'Level Order • O(n)', cyan)),
+              Expanded(
+                child: _headerStat(
+                  Icons.alt_route_rounded,
+                  'ALGORITHM',
+                  'Level Order • O(n)',
+                  cyan,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _headerStat(Icons.layers_rounded, 'PHASE', phase, phaseColor)),
+              Expanded(
+                child: _headerStat(
+                  Icons.layers_rounded,
+                  'PHASE',
+                  phase,
+                  phaseColor,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _headerStat(Icons.account_tree_rounded, 'NODES', '${treeValues.length}/${linkedList.length}', green)),
+              Expanded(
+                child: _headerStat(
+                  Icons.account_tree_rounded,
+                  'NODES',
+                  '${treeValues.length}/${linkedList.length}',
+                  green,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _headerStat(Icons.timeline_rounded, 'PROGRESS', '${currentStep}/${events.length}', purple)),
+              Expanded(
+                child: _headerStat(
+                  Icons.timeline_rounded,
+                  'PROGRESS',
+                  '$currentStep/${events.length}',
+                  purple,
+                ),
+              ),
             ],
           ),
         ],
@@ -687,9 +745,9 @@ TreeNode? convertListToTree(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: color.withOpacity(0.13)),
+        border: Border.all(color: color.withValues(alpha: 0.13)),
       ),
       child: Row(
         children: [
@@ -699,9 +757,25 @@ TreeNode? convertListToTree(Node? head) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(color: Colors.white.withOpacity(0.34), fontSize: 7.5, fontWeight: FontWeight.w800, letterSpacing: 0.7)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.34),
+                    fontSize: 7.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.7,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(value, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white.withOpacity(0.78), fontSize: 9.5, fontWeight: FontWeight.w800)),
+                Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
           ),
@@ -723,16 +797,28 @@ TreeNode? convertListToTree(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 7, height: 7, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 7),
-          Text(text, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6)),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+            ),
+          ),
         ],
       ),
     );
@@ -743,11 +829,19 @@ TreeNode? convertListToTree(Node? head) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.auto_awesome_rounded, 'Convert Linked List to Binary Tree', cyan),
+          _sectionTitle(
+            Icons.auto_awesome_rounded,
+            'Convert Linked List to Binary Tree',
+            cyan,
+          ),
           const SizedBox(height: 12),
           Text(
             'This algorithm reads the linked list from left to right and places the values into a binary tree level by level. The first value becomes the root, then the next values become the left and right children of each parent in queue order.',
-            style: TextStyle(color: Colors.white.withOpacity(0.64), height: 1.55, fontSize: 12.2),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.64),
+              height: 1.55,
+              fontSize: 12.2,
+            ),
           ),
           const SizedBox(height: 15),
           _buildPhaseRail(),
@@ -776,23 +870,61 @@ TreeNode? convertListToTree(Node? head) {
     final p3 = phase.contains('RESULT');
     return Row(
       children: [
-        Expanded(child: _phaseBox('01', 'INITIALIZE', 'First node → root', p1, cyan)),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 5), child: Icon(Icons.arrow_forward_rounded, color: Colors.white.withOpacity(0.18), size: 16)),
-        Expanded(child: _phaseBox('02', 'BUILD TREE', 'Attach left + right', p2, purple)),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 5), child: Icon(Icons.arrow_forward_rounded, color: Colors.white.withOpacity(0.18), size: 16)),
-        Expanded(child: _phaseBox('03', 'TREE READY', 'Return root', p3, green)),
+        Expanded(
+          child: _phaseBox('01', 'INITIALIZE', 'First node → root', p1, cyan),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(
+            Icons.arrow_forward_rounded,
+            color: Colors.white.withValues(alpha: 0.18),
+            size: 16,
+          ),
+        ),
+        Expanded(
+          child: _phaseBox(
+            '02',
+            'BUILD TREE',
+            'Attach left + right',
+            p2,
+            purple,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(
+            Icons.arrow_forward_rounded,
+            color: Colors.white.withValues(alpha: 0.18),
+            size: 16,
+          ),
+        ),
+        Expanded(
+          child: _phaseBox('03', 'TREE READY', 'Return root', p3, green),
+        ),
       ],
     );
   }
 
-  Widget _phaseBox(String number, String title, String subtitle, bool active, Color color) {
+  Widget _phaseBox(
+    String number,
+    String title,
+    String subtitle,
+    bool active,
+    Color color,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: active ? color.withOpacity(0.10) : Colors.white.withOpacity(0.025),
+        color: active
+            ? color.withValues(alpha: 0.10)
+            : Colors.white.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: active ? color.withOpacity(0.42) : Colors.white.withOpacity(0.06)),
+        border: Border.all(
+          color: active
+              ? color.withValues(alpha: 0.42)
+              : Colors.white.withValues(alpha: 0.06),
+        ),
       ),
       child: Row(
         children: [
@@ -800,17 +932,44 @@ TreeNode? convertListToTree(Node? head) {
             width: 26,
             height: 26,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: color.withOpacity(active ? 0.18 : 0.07), shape: BoxShape.circle),
-            child: Text(number, style: TextStyle(color: active ? color : Colors.white.withOpacity(0.35), fontSize: 8, fontWeight: FontWeight.w900)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: active ? 0.18 : 0.07),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              number,
+              style: TextStyle(
+                color: active ? color : Colors.white.withValues(alpha: 0.35),
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: active ? color : Colors.white.withOpacity(0.38), fontSize: 8.5, fontWeight: FontWeight.w900)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: active
+                        ? color
+                        : Colors.white.withValues(alpha: 0.38),
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white.withOpacity(0.36), fontSize: 7.5)),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.36),
+                    fontSize: 7.5,
+                  ),
+                ),
               ],
             ),
           ),
@@ -863,7 +1022,10 @@ TreeNode? convertListToTree(Node? head) {
           const SizedBox(height: 9),
           Text(
             'Enter values separated by commas or spaces. The values are placed into the binary tree in level-order.',
-            style: TextStyle(color: Colors.white.withOpacity(0.34), fontSize: 9.5),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.34),
+              fontSize: 9.5,
+            ),
           ),
         ],
       ),
@@ -878,23 +1040,36 @@ TreeNode? convertListToTree(Node? head) {
   }) {
     return TextField(
       controller: controller,
-      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: TextStyle(color: color.withOpacity(0.75), fontSize: 10),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.20), fontSize: 11),
+        labelStyle: TextStyle(
+          color: color.withValues(alpha: 0.75),
+          fontSize: 10,
+        ),
+        hintStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.20),
+          fontSize: 11,
+        ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.025),
+        fillColor: Colors.white.withValues(alpha: 0.025),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: color.withOpacity(0.65)),
+          borderSide: BorderSide(color: color.withValues(alpha: 0.65)),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 13,
+        ),
       ),
     );
   }
@@ -902,7 +1077,9 @@ TreeNode? convertListToTree(Node? head) {
   Widget _buildLivePhaseBanner() {
     final type = _currentStepType();
     final color = type == null ? cyan : _eventColor(type);
-    final title = executionHistory.isEmpty ? 'READY' : executionHistory.last.title;
+    final title = executionHistory.isEmpty
+        ? 'READY'
+        : executionHistory.last.title;
     final description = executionHistory.isEmpty
         ? 'Press Play or Next Step to start building the tree.'
         : executionHistory.last.description;
@@ -911,22 +1088,40 @@ TreeNode? convertListToTree(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(type == null ? Icons.play_circle_outline_rounded : _eventIcon(type), color: color, size: 18),
+          Icon(
+            type == null ? Icons.play_circle_outline_rounded : _eventIcon(type),
+            color: color,
+            size: 18,
+          ),
           const SizedBox(width: 9),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(description, style: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 9.5, height: 1.4)),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.58),
+                    fontSize: 9.5,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
@@ -940,7 +1135,11 @@ TreeNode? convertListToTree(Node? head) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.account_tree_rounded, 'Live Binary Tree Visualization', cyan),
+          _sectionTitle(
+            Icons.account_tree_rounded,
+            'Live Binary Tree Visualization',
+            cyan,
+          ),
           const SizedBox(height: 10),
           _buildLivePhaseBanner(),
           const SizedBox(height: 12),
@@ -948,9 +1147,17 @@ TreeNode? convertListToTree(Node? head) {
             children: [
               _miniBadge('LIST', listIndex >= 0 ? '$listIndex' : 'NULL', cyan),
               const SizedBox(width: 8),
-              _miniBadge('PARENT', parentIndex >= 0 ? '$parentIndex' : '—', purple),
+              _miniBadge(
+                'PARENT',
+                parentIndex >= 0 ? '$parentIndex' : '—',
+                purple,
+              ),
               const SizedBox(width: 8),
-              _miniBadge('ACTIVE', activeIndex >= 0 ? 'INDEX $activeIndex' : '—', green),
+              _miniBadge(
+                'ACTIVE',
+                activeIndex >= 0 ? 'INDEX $activeIndex' : '—',
+                green,
+              ),
               const SizedBox(width: 8),
               _miniBadge('STEPS', executionHistory.length.toString(), pink),
             ],
@@ -963,7 +1170,7 @@ TreeNode? convertListToTree(Node? head) {
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: _buildTreeCanvas(),
           ),
@@ -990,7 +1197,10 @@ TreeNode? convertListToTree(Node? head) {
       return Center(
         child: Text(
           'Binary tree will appear here',
-          style: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 11),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.25),
+            fontSize: 11,
+          ),
         ),
       );
     }
@@ -1017,7 +1227,10 @@ TreeNode? convertListToTree(Node? head) {
           children: [
             Positioned.fill(
               child: CustomPaint(
-                painter: _TreeEdgePainter(positions: positions, count: treeValues.length),
+                painter: _TreeEdgePainter(
+                  positions: positions,
+                  count: treeValues.length,
+                ),
               ),
             ),
             ...positions.entries.map((entry) {
@@ -1025,7 +1238,11 @@ TreeNode? convertListToTree(Node? head) {
               final position = entry.value;
               final isActive = index == activeIndex;
               final isParent = index == parentIndex;
-              final color = isActive ? green : isParent ? purple : cyan;
+              final color = isActive
+                  ? green
+                  : isParent
+                  ? purple
+                  : cyan;
 
               return Positioned(
                 left: position.dx - 26,
@@ -1035,15 +1252,33 @@ TreeNode? convertListToTree(Node? head) {
                   width: 52,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(isActive || isParent ? 0.18 : 0.06),
+                    color: color.withValues(
+                      alpha: isActive || isParent ? 0.18 : 0.06,
+                    ),
                     shape: BoxShape.circle,
-                    border: Border.all(color: isActive || isParent ? color : Colors.white.withOpacity(0.10), width: isActive || isParent ? 1.8 : 1),
-                    boxShadow: isActive ? [BoxShadow(color: color.withOpacity(0.22), blurRadius: 14)] : null,
+                    border: Border.all(
+                      color: isActive || isParent
+                          ? color
+                          : Colors.white.withValues(alpha: 0.10),
+                      width: isActive || isParent ? 1.8 : 1,
+                    ),
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: color.withValues(alpha: 0.22),
+                              blurRadius: 14,
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Center(
                     child: Text(
                       '${treeValues[index]}',
-                      style: TextStyle(color: isActive || isParent ? color : Colors.white, fontSize: 14, fontWeight: FontWeight.w900),
+                      style: TextStyle(
+                        color: isActive || isParent ? color : Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),
@@ -1072,9 +1307,23 @@ TreeNode? convertListToTree(Node? head) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 9, height: 9, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
         const SizedBox(width: 6),
-        Text(title, style: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 10, fontWeight: FontWeight.w600)),
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -1083,7 +1332,8 @@ TreeNode? convertListToTree(Node? head) {
     String message = 'Waiting for execution';
 
     if (activeIndex >= 0 && activeIndex < treeValues.length) {
-      message = 'Tree node → index $activeIndex • value ${treeValues[activeIndex]}';
+      message =
+          'Tree node → index $activeIndex • value ${treeValues[activeIndex]}';
     }
 
     if (parentIndex >= 0 && parentIndex < treeValues.length) {
@@ -1094,22 +1344,39 @@ TreeNode? convertListToTree(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: [
           Icon(Icons.account_tree_rounded, color: purple, size: 17),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(message, style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 10, fontWeight: FontWeight.w700)),
+            child: Text(
+              message,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.65),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
           if (treeValues.isNotEmpty)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-              decoration: BoxDecoration(color: green.withOpacity(0.08), borderRadius: BorderRadius.circular(7)),
-              child: Text('${treeValues.length} nodes', style: const TextStyle(color: green, fontSize: 10, fontWeight: FontWeight.w800)),
+              decoration: BoxDecoration(
+                color: green.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                '${treeValues.length} nodes',
+                style: const TextStyle(
+                  color: green,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
         ],
       ),
@@ -1132,16 +1399,25 @@ TreeNode? convertListToTree(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 9),
-          Expanded(child: Text(executionMessage, style: TextStyle(color: Colors.white.withOpacity(0.72), fontSize: 11, height: 1.45))),
+          Expanded(
+            child: Text(
+              executionMessage,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                fontSize: 11,
+                height: 1.45,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1151,7 +1427,10 @@ TreeNode? convertListToTree(Node? head) {
     return ElevatedButton.icon(
       onPressed: _generateNumbers,
       icon: const Icon(Icons.auto_awesome_rounded, size: 17),
-      label: const Text('Generate List', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+      label: const Text(
+        'Generate List',
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: purple,
         foregroundColor: Colors.white,
@@ -1166,7 +1445,10 @@ TreeNode? convertListToTree(Node? head) {
     return ElevatedButton.icon(
       onPressed: _loadList,
       icon: const Icon(Icons.download_rounded, size: 17),
-      label: const Text('LOAD LIST', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+      label: const Text(
+        'LOAD LIST',
+        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
         foregroundColor: background,
@@ -1229,9 +1511,23 @@ TreeNode? convertListToTree(Node? head) {
             children: [
               Icon(Icons.tune_rounded, color: cyan, size: 16),
               const SizedBox(width: 7),
-              const Text('Execution Controls', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+              const Text(
+                'Execution Controls',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const Spacer(),
-              Text('Speed ${speed.toStringAsFixed(1)}×', style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 9.5, fontWeight: FontWeight.w700)),
+              Text(
+                'Speed ${speed.toStringAsFixed(1)}×',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.45),
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -1240,9 +1536,13 @@ TreeNode? convertListToTree(Node? head) {
             runSpacing: 8,
             children: [
               _controlButton(
-                icon: isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                icon: isRunning
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
                 label: isRunning ? 'PAUSE' : 'PLAY',
-                onPressed: events.isEmpty || isCompleted ? null : _togglePlayPause,
+                onPressed: events.isEmpty || isCompleted
+                    ? null
+                    : _togglePlayPause,
                 primary: true,
               ),
               _controlButton(
@@ -1274,7 +1574,7 @@ TreeNode? convertListToTree(Node? head) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: purple,
-                  inactiveColor: Colors.white.withOpacity(0.10),
+                  inactiveColor: Colors.white.withValues(alpha: 0.10),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -1296,17 +1596,22 @@ TreeNode? convertListToTree(Node? head) {
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: Icon(icon, size: 17),
-        label: Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800)),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+        ),
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor: Colors.white.withOpacity(0.04),
-          disabledForegroundColor: Colors.white.withOpacity(0.20),
+          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
-            side: BorderSide(color: primary ? cyan : Colors.white.withOpacity(0.08)),
+            side: BorderSide(
+              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
+            ),
           ),
         ),
       ),
@@ -1328,18 +1633,28 @@ TreeNode? convertListToTree(Node? head) {
                 onTap: _copyCode,
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
-                    color: purple.withOpacity(0.08),
+                    color: purple.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: purple.withOpacity(0.20)),
+                    border: Border.all(color: purple.withValues(alpha: 0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.copy_rounded, color: purple, size: 14),
                       SizedBox(width: 5),
-                      Text('Copy', style: TextStyle(color: purple, fontSize: 10, fontWeight: FontWeight.w800)),
+                      Text(
+                        'Copy',
+                        style: TextStyle(
+                          color: purple,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1354,7 +1669,7 @@ TreeNode? convertListToTree(Node? head) {
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -1363,20 +1678,45 @@ TreeNode? convertListToTree(Node? head) {
                   final isActive = lineNumber == activeCodeLine;
                   return Container(
                     width: double.infinity,
-                    color: isActive ? purple.withOpacity(0.08) : Colors.transparent,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                    color: isActive
+                        ? purple.withValues(alpha: 0.08)
+                        : Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2.5,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: 30,
-                          child: Text('$lineNumber', textAlign: TextAlign.right, style: TextStyle(color: isActive ? purple : Colors.white.withOpacity(0.18), fontSize: 9, fontFamily: 'monospace')),
+                          child: Text(
+                            '$lineNumber',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: isActive
+                                  ? purple
+                                  : Colors.white.withValues(alpha: 0.18),
+                              fontSize: 9,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 9),
                         Expanded(
                           child: Text(
                             lines[index].isEmpty ? ' ' : lines[index],
-                            style: TextStyle(color: isActive ? Colors.white : Colors.white.withOpacity(0.62), fontSize: 9.5, height: 1.35, fontFamily: 'monospace', fontWeight: isActive ? FontWeight.w700 : FontWeight.w400),
+                            style: TextStyle(
+                              color: isActive
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.62),
+                              fontSize: 9.5,
+                              height: 1.35,
+                              fontFamily: 'monospace',
+                              fontWeight: isActive
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                            ),
                           ),
                         ),
                       ],
@@ -1400,7 +1740,14 @@ TreeNode? convertListToTree(Node? head) {
             children: [
               _sectionTitle(Icons.history_rounded, 'Execution History', pink),
               const Spacer(),
-              Text('${executionHistory.length} steps', style: TextStyle(color: Colors.white.withOpacity(0.34), fontSize: 9, fontWeight: FontWeight.w700)),
+              Text(
+                '${executionHistory.length} steps',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.34),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -1413,8 +1760,9 @@ TreeNode? convertListToTree(Node? head) {
                 shrinkWrap: true,
                 physics: const BouncingScrollPhysics(),
                 itemCount: executionHistory.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 7),
-                itemBuilder: (context, index) => _executionStepItem(index, executionHistory[index]),
+                separatorBuilder: (_, _) => const SizedBox(height: 7),
+                itemBuilder: (context, index) =>
+                    _executionStepItem(index, executionHistory[index]),
               ),
             ),
         ],
@@ -1427,17 +1775,35 @@ TreeNode? convertListToTree(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 34, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.025),
+        color: Colors.white.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
-          Icon(Icons.account_tree_outlined, color: Colors.white.withOpacity(0.18), size: 30),
+          Icon(
+            Icons.account_tree_outlined,
+            color: Colors.white.withValues(alpha: 0.18),
+            size: 30,
+          ),
           const SizedBox(height: 9),
-          Text('No steps executed yet', style: TextStyle(color: Colors.white.withOpacity(0.38), fontSize: 10.5, fontWeight: FontWeight.w700)),
+          Text(
+            'No steps executed yet',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.38),
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text('Use Play or Next Step to start the visualization.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white.withOpacity(0.22), fontSize: 9)),
+          Text(
+            'Use Play or Next Step to start the visualization.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.22),
+              fontSize: 9,
+            ),
+          ),
         ],
       ),
     );
@@ -1450,9 +1816,15 @@ TreeNode? convertListToTree(Node? head) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: isCurrent ? color.withOpacity(0.075) : Colors.white.withOpacity(0.025),
+        color: isCurrent
+            ? color.withValues(alpha: 0.075)
+            : Colors.white.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isCurrent ? color.withOpacity(0.24) : Colors.white.withOpacity(0.055)),
+        border: Border.all(
+          color: isCurrent
+              ? color.withValues(alpha: 0.24)
+              : Colors.white.withValues(alpha: 0.055),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1461,7 +1833,10 @@ TreeNode? convertListToTree(Node? head) {
             width: 27,
             height: 27,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: color.withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(8),
+            ),
             child: Icon(_eventIcon(event.type), color: color, size: 14),
           ),
           const SizedBox(width: 9),
@@ -1471,17 +1846,54 @@ TreeNode? convertListToTree(Node? head) {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text(event.title, style: TextStyle(color: Colors.white.withOpacity(0.82), fontSize: 10, fontWeight: FontWeight.w800))),
-                    Text('#${index + 1}', style: TextStyle(color: color, fontSize: 8.5, fontWeight: FontWeight.w900)),
+                    Expanded(
+                      child: Text(
+                        event.title,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.82),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '#${index + 1}',
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 3),
-                Text(event.description, style: TextStyle(color: Colors.white.withOpacity(0.48), fontSize: 9, height: 1.35)),
+                Text(
+                  event.description,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.48),
+                    fontSize: 9,
+                    height: 1.35,
+                  ),
+                ),
                 const SizedBox(height: 5),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.16), borderRadius: BorderRadius.circular(6)),
-                  child: Text(event.operation, style: TextStyle(color: color.withOpacity(0.82), fontSize: 8.5, fontFamily: 'monospace', fontWeight: FontWeight.w700)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    event.operation,
+                    style: TextStyle(
+                      color: color.withValues(alpha: 0.82),
+                      fontSize: 8.5,
+                      fontFamily: 'monospace',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -1498,8 +1910,14 @@ TreeNode? convertListToTree(Node? head) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.white.withOpacity(0.07)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.18), blurRadius: 20, offset: const Offset(0, 8))],
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: child,
     );
@@ -1511,7 +1929,14 @@ TreeNode? convertListToTree(Node? head) {
       children: [
         Icon(icon, color: color, size: 17),
         const SizedBox(width: 7),
-        Text(title, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
       ],
     );
   }
@@ -1520,16 +1945,31 @@ TreeNode? convertListToTree(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withOpacity(0.14)),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title.toUpperCase(), style: TextStyle(color: color.withOpacity(0.72), fontSize: 7.5, fontWeight: FontWeight.w900, letterSpacing: 0.6)),
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              color: color.withValues(alpha: 0.72),
+              fontSize: 7.5,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.6,
+            ),
+          ),
           const SizedBox(width: 7),
-          Text(value, style: TextStyle(color: Colors.white.withOpacity(0.72), fontSize: 9.5, fontWeight: FontWeight.w800)),
+          Text(
+            value,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.72),
+              fontSize: 9.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );
@@ -1540,16 +1980,32 @@ TreeNode? convertListToTree(Node? head) {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
+          color: color.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.13)),
+          border: Border.all(color: color.withValues(alpha: 0.13)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: TextStyle(color: color.withOpacity(0.70), fontSize: 7.2, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+            Text(
+              title,
+              style: TextStyle(
+                color: color.withValues(alpha: 0.70),
+                fontSize: 7.2,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(value, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w800)),
+            Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ],
         ),
       ),
@@ -1566,7 +2022,7 @@ class _TreeEdgePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.13)
+      ..color = Colors.white.withValues(alpha: 0.13)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 

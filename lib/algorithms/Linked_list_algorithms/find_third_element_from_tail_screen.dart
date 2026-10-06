@@ -643,7 +643,7 @@ Node? findThirdFromTail(Node? head) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withOpacity(0.85),
+        backgroundColor: color.withValues(alpha: 0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -687,16 +687,16 @@ Node? findThirdFromTail(Node? head) {
           colors: [
             background2,
             const Color(0xFF0A1326),
-            phaseColor.withOpacity(0.055),
+            phaseColor.withValues(alpha: 0.055),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: phaseColor.withOpacity(0.20)),
+        border: Border.all(color: phaseColor.withValues(alpha: 0.20)),
         boxShadow: [
           BoxShadow(
-            color: phaseColor.withOpacity(0.055),
+            color: phaseColor.withValues(alpha: 0.055),
             blurRadius: 28,
             spreadRadius: 2,
           ),
@@ -715,7 +715,9 @@ Node? findThirdFromTail(Node? head) {
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
                   child: const Icon(
                     Icons.arrow_back_rounded,
@@ -732,7 +734,10 @@ Node? findThirdFromTail(Node? head) {
                   gradient: const LinearGradient(colors: [orange, pink]),
                   borderRadius: BorderRadius.circular(13),
                   boxShadow: [
-                    BoxShadow(color: pink.withOpacity(0.22), blurRadius: 18),
+                    BoxShadow(
+                      color: pink.withValues(alpha: 0.22),
+                      blurRadius: 18,
+                    ),
                   ],
                 ),
                 child: const Icon(
@@ -758,7 +763,7 @@ Node? findThirdFromTail(Node? head) {
                     Text(
                       'Two pointers • fixed 3-node gap → tail-relative position',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.50),
+                        color: Colors.white.withValues(alpha: 0.50),
                         fontSize: 11.5,
                       ),
                     ),
@@ -802,7 +807,7 @@ Node? findThirdFromTail(Node? head) {
                 child: _headerStat(
                   Icons.timeline_rounded,
                   'PROGRESS',
-                  '${currentStep}/${events.length}',
+                  '$currentStep/${events.length}',
                   purple,
                 ),
               ),
@@ -817,9 +822,9 @@ Node? findThirdFromTail(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: color.withOpacity(0.13)),
+        border: Border.all(color: color.withValues(alpha: 0.13)),
       ),
       child: Row(
         children: [
@@ -832,7 +837,7 @@ Node? findThirdFromTail(Node? head) {
                 Text(
                   label,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.34),
+                    color: Colors.white.withValues(alpha: 0.34),
                     fontSize: 7.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.7,
@@ -843,7 +848,7 @@ Node? findThirdFromTail(Node? head) {
                   value,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.78),
+                    color: Colors.white.withValues(alpha: 0.78),
                     fontSize: 9.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -872,9 +877,9 @@ Node? findThirdFromTail(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -913,7 +918,7 @@ Node? findThirdFromTail(Node? head) {
           Text(
             'The algorithm uses two pointers. First, fast is moved 3 nodes ahead of slow. Then both pointers move one node at a time. When fast reaches the tail, slow is exactly the 3rd element from the tail.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.64),
+              color: Colors.white.withValues(alpha: 0.64),
               height: 1.55,
               fontSize: 12.2,
             ),
@@ -958,7 +963,7 @@ Node? findThirdFromTail(Node? head) {
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Icon(
             Icons.arrow_forward_rounded,
-            color: Colors.white.withOpacity(0.18),
+            color: Colors.white.withValues(alpha: 0.18),
             size: 16,
           ),
         ),
@@ -975,7 +980,7 @@ Node? findThirdFromTail(Node? head) {
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: Icon(
             Icons.arrow_forward_rounded,
-            color: Colors.white.withOpacity(0.18),
+            color: Colors.white.withValues(alpha: 0.18),
             size: 16,
           ),
         ),
@@ -998,13 +1003,13 @@ Node? findThirdFromTail(Node? head) {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: active
-            ? color.withOpacity(0.10)
-            : Colors.white.withOpacity(0.025),
+            ? color.withValues(alpha: 0.10)
+            : Colors.white.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(11),
         border: Border.all(
           color: active
-              ? color.withOpacity(0.42)
-              : Colors.white.withOpacity(0.06),
+              ? color.withValues(alpha: 0.42)
+              : Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -1014,13 +1019,13 @@ Node? findThirdFromTail(Node? head) {
             height: 26,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: color.withOpacity(active ? 0.18 : 0.07),
+              color: color.withValues(alpha: active ? 0.18 : 0.07),
               shape: BoxShape.circle,
             ),
             child: Text(
               number,
               style: TextStyle(
-                color: active ? color : Colors.white.withOpacity(0.35),
+                color: active ? color : Colors.white.withValues(alpha: 0.35),
                 fontSize: 8,
                 fontWeight: FontWeight.w900,
               ),
@@ -1034,7 +1039,9 @@ Node? findThirdFromTail(Node? head) {
                 Text(
                   title,
                   style: TextStyle(
-                    color: active ? color : Colors.white.withOpacity(0.38),
+                    color: active
+                        ? color
+                        : Colors.white.withValues(alpha: 0.38),
                     fontSize: 8.5,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1045,7 +1052,7 @@ Node? findThirdFromTail(Node? head) {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.36),
+                    color: Colors.white.withValues(alpha: 0.36),
                     fontSize: 7.5,
                   ),
                 ),
@@ -1098,7 +1105,7 @@ Node? findThirdFromTail(Node? head) {
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color: orange.withOpacity(0.85),
+                color: orange.withValues(alpha: 0.85),
                 size: 15,
               ),
               const SizedBox(width: 7),
@@ -1106,7 +1113,7 @@ Node? findThirdFromTail(Node? head) {
                 child: Text(
                   'Enter at least 3 values. Example: 10, 20, 30, 40, 50, 60, 70',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.45),
+                    color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -1127,16 +1134,16 @@ Node? findThirdFromTail(Node? head) {
         labelText: 'Enter Linked List Values',
         hintText: '10, 20, 30, 40, 50, 60, 70',
         labelStyle: TextStyle(
-          color: Colors.white.withOpacity(0.58),
+          color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.25),
+          color: Colors.white.withValues(alpha: 0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
           Icons.link_rounded,
-          color: cyan.withOpacity(0.8),
+          color: cyan.withValues(alpha: 0.8),
           size: 19,
         ),
         filled: true,
@@ -1147,11 +1154,11 @@ Node? findThirdFromTail(Node? head) {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: cyan.withOpacity(0.55)),
+          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
         ),
       ),
     );
@@ -1198,7 +1205,7 @@ Node? findThirdFromTail(Node? head) {
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -1237,10 +1244,10 @@ Node? findThirdFromTail(Node? head) {
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.10), Colors.transparent],
+          colors: [color.withValues(alpha: 0.10), Colors.transparent],
         ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
@@ -1248,7 +1255,7 @@ Node? findThirdFromTail(Node? head) {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(9),
             ),
             child: Icon(
@@ -1275,7 +1282,7 @@ Node? findThirdFromTail(Node? head) {
                 Text(
                   text,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.58),
+                    color: Colors.white.withValues(alpha: 0.58),
                     fontSize: 10,
                     height: 1.35,
                   ),
@@ -1295,31 +1302,31 @@ Node? findThirdFromTail(Node? head) {
     final bool isTarget = index == targetIndex;
     final bool isBoth = isSlow && isFast;
 
-    Color itemColor = Colors.white.withOpacity(0.08);
-    Color borderColor = Colors.white.withOpacity(0.08);
+    Color itemColor = Colors.white.withValues(alpha: 0.08);
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
     Color textColor = Colors.white;
     String label = '';
 
     if (isTarget) {
-      itemColor = green.withOpacity(0.18);
+      itemColor = green.withValues(alpha: 0.18);
       borderColor = green;
       textColor = green;
       label = '3RD FROM TAIL';
     }
     if (isSlow) {
-      itemColor = cyan.withOpacity(0.18);
+      itemColor = cyan.withValues(alpha: 0.18);
       borderColor = cyan;
       textColor = cyan;
       label = 'SLOW';
     }
     if (isFast) {
-      itemColor = orange.withOpacity(0.18);
+      itemColor = orange.withValues(alpha: 0.18);
       borderColor = orange;
       textColor = orange;
       label = 'FAST';
     }
     if (isBoth) {
-      itemColor = purple.withOpacity(0.20);
+      itemColor = purple.withValues(alpha: 0.20);
       borderColor = purple;
       textColor = Colors.white;
       label = 'SLOW + FAST';
@@ -1350,7 +1357,7 @@ Node? findThirdFromTail(Node? head) {
                           ? orange
                           : isSlow
                           ? cyan
-                          : Colors.white.withOpacity(0.25),
+                          : Colors.white.withValues(alpha: 0.25),
                       fontSize: 7.0,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1370,7 +1377,7 @@ Node? findThirdFromTail(Node? head) {
                   boxShadow: isSlow || isFast || isTarget || isBoth
                       ? [
                           BoxShadow(
-                            color: borderColor.withOpacity(0.18),
+                            color: borderColor.withValues(alpha: 0.18),
                             blurRadius: 12,
                             spreadRadius: 1,
                           ),
@@ -1392,7 +1399,7 @@ Node? findThirdFromTail(Node? head) {
               Text(
                 '[$index]',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1407,13 +1414,13 @@ Node? findThirdFromTail(Node? head) {
               children: [
                 Icon(
                   Icons.arrow_forward_rounded,
-                  color: Colors.white.withOpacity(0.35),
+                  color: Colors.white.withValues(alpha: 0.35),
                   size: 19,
                 ),
                 Text(
                   'next',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.22),
+                    color: Colors.white.withValues(alpha: 0.22),
                     fontSize: 7,
                   ),
                 ),
@@ -1427,13 +1434,13 @@ Node? findThirdFromTail(Node? head) {
               children: [
                 Icon(
                   Icons.stop_rounded,
-                  color: green.withOpacity(0.80),
+                  color: green.withValues(alpha: 0.80),
                   size: 19,
                 ),
                 Text(
                   'TAIL',
                   style: TextStyle(
-                    color: green.withOpacity(0.65),
+                    color: green.withValues(alpha: 0.65),
                     fontSize: 7,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1474,7 +1481,7 @@ Node? findThirdFromTail(Node? head) {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.58),
+            color: Colors.white.withValues(alpha: 0.58),
             fontSize: 10,
             fontWeight: FontWeight.w600,
           ),
@@ -1504,7 +1511,7 @@ Node? findThirdFromTail(Node? head) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withOpacity(0.14)),
+        border: Border.all(color: cyan.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
@@ -1512,7 +1519,7 @@ Node? findThirdFromTail(Node? head) {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: cyan.withOpacity(0.09),
+              color: cyan.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -1529,7 +1536,7 @@ Node? findThirdFromTail(Node? head) {
                 Text(
                   'Current Operation',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.42),
+                    color: Colors.white.withValues(alpha: 0.42),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1550,7 +1557,7 @@ Node? findThirdFromTail(Node? head) {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
               decoration: BoxDecoration(
-                color: green.withOpacity(0.08),
+                color: green.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(7),
               ),
               child: Text(
@@ -1586,9 +1593,9 @@ Node? findThirdFromTail(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1599,7 +1606,7 @@ Node? findThirdFromTail(Node? head) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.72),
+                color: Colors.white.withValues(alpha: 0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -1759,7 +1766,7 @@ Node? findThirdFromTail(Node? head) {
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1771,7 +1778,7 @@ Node? findThirdFromTail(Node? head) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor: Colors.white.withOpacity(0.08),
+                  inactiveColor: Colors.white.withValues(alpha: 0.08),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -1795,7 +1802,7 @@ Node? findThirdFromTail(Node? head) {
             child: LinearProgressIndicator(
               value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor: Colors.white.withOpacity(0.06),
+              backgroundColor: Colors.white.withValues(alpha: 0.06),
               valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
@@ -1806,7 +1813,7 @@ Node? findThirdFromTail(Node? head) {
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.45),
+                  color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 10,
                 ),
               ),
@@ -1823,7 +1830,7 @@ Node? findThirdFromTail(Node? head) {
                       ? green
                       : isRunning
                       ? orange
-                      : Colors.white.withOpacity(0.4),
+                      : Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1853,14 +1860,14 @@ Node? findThirdFromTail(Node? head) {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor: Colors.white.withOpacity(0.04),
-          disabledForegroundColor: Colors.white.withOpacity(0.20),
+          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary ? cyan : Colors.white.withOpacity(0.08),
+              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
             ),
           ),
         ),
@@ -1888,9 +1895,9 @@ Node? findThirdFromTail(Node? head) {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withOpacity(0.08),
+                    color: purple.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: purple.withOpacity(0.20)),
+                    border: Border.all(color: purple.withValues(alpha: 0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1919,7 +1926,7 @@ Node? findThirdFromTail(Node? head) {
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -1933,7 +1940,9 @@ Node? findThirdFromTail(Node? head) {
                       horizontal: 8,
                       vertical: 2,
                     ),
-                    color: active ? cyan.withOpacity(0.09) : Colors.transparent,
+                    color: active
+                        ? cyan.withValues(alpha: 0.09)
+                        : Colors.transparent,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1945,7 +1954,7 @@ Node? findThirdFromTail(Node? head) {
                             style: TextStyle(
                               color: active
                                   ? cyan
-                                  : Colors.white.withOpacity(0.20),
+                                  : Colors.white.withValues(alpha: 0.20),
                               fontSize: 9,
                               fontFamily: 'monospace',
                             ),
@@ -1958,7 +1967,7 @@ Node? findThirdFromTail(Node? head) {
                             style: TextStyle(
                               color: active
                                   ? Colors.white
-                                  : Colors.white.withOpacity(0.65),
+                                  : Colors.white.withValues(alpha: 0.65),
                               fontSize: 10,
                               height: 1.45,
                               fontFamily: 'monospace',
@@ -1992,9 +2001,9 @@ Node? findThirdFromTail(Node? head) {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withOpacity(0.07),
+                  color: cyan.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: cyan.withOpacity(0.14)),
+                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -2033,20 +2042,20 @@ Node? findThirdFromTail(Node? head) {
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withOpacity(0.20),
+            color: Colors.white.withValues(alpha: 0.20),
             size: 32,
           ),
           const SizedBox(height: 10),
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -2055,7 +2064,7 @@ Node? findThirdFromTail(Node? head) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.30),
+              color: Colors.white.withValues(alpha: 0.30),
               fontSize: 10,
             ),
           ),
@@ -2071,9 +2080,9 @@ Node? findThirdFromTail(Node? head) {
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.045),
+        color: color.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withOpacity(0.14)),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2082,7 +2091,7 @@ Node? findThirdFromTail(Node? head) {
             width: 27,
             height: 27,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
+              color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(_eventIcon(event.type), color: color, size: 15),
@@ -2107,7 +2116,7 @@ Node? findThirdFromTail(Node? head) {
                     Text(
                       '#${index + 1}',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.22),
+                        color: Colors.white.withValues(alpha: 0.22),
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                       ),
@@ -2118,7 +2127,7 @@ Node? findThirdFromTail(Node? head) {
                 Text(
                   event.description,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.53),
+                    color: Colors.white.withValues(alpha: 0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -2127,7 +2136,7 @@ Node? findThirdFromTail(Node? head) {
                 Text(
                   event.operation,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.30),
+                    color: Colors.white.withValues(alpha: 0.30),
                     fontSize: 8.5,
                     fontFamily: 'monospace',
                   ),
@@ -2147,10 +2156,10 @@ Node? findThirdFromTail(Node? head) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.065)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -2168,7 +2177,7 @@ Node? findThirdFromTail(Node? head) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.09),
+            color: color.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 17),
@@ -2190,9 +2199,9 @@ Node? findThirdFromTail(Node? head) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withOpacity(0.16)),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2200,7 +2209,7 @@ Node? findThirdFromTail(Node? head) {
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
@@ -2224,9 +2233,9 @@ Node? findThirdFromTail(Node? head) {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(color: color.withOpacity(0.18)),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           children: [

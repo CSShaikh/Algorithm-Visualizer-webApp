@@ -8,8 +8,7 @@ class SortLinkedListScreen extends StatefulWidget {
   const SortLinkedListScreen({super.key});
 
   @override
-  State<SortLinkedListScreen> createState() =>
-      _SortLinkedListScreenState();
+  State<SortLinkedListScreen> createState() => _SortLinkedListScreenState();
 }
 
 enum SortEventType {
@@ -163,36 +162,40 @@ Node? merge(Node? left, Node? right) {
     var step = 0;
 
     if (working.length <= 1) {
-      generated.add(SortEvent(
-        type: SortEventType.resultFound,
-        list: [...working],
-        leftIndex: -1,
-        rightIndex: -1,
-        activeIndex: working.isEmpty ? -1 : 0,
-        rangeStart: 0,
-        rangeEnd: working.isEmpty ? -1 : working.length - 1,
-        title: 'List Already Sorted',
-        description: 'A linked list with zero or one node is already sorted.',
-        operation: 'if (head == null || head.next == null) return head;',
-      ));
+      generated.add(
+        SortEvent(
+          type: SortEventType.resultFound,
+          list: [...working],
+          leftIndex: -1,
+          rightIndex: -1,
+          activeIndex: working.isEmpty ? -1 : 0,
+          rangeStart: 0,
+          rangeEnd: working.isEmpty ? -1 : working.length - 1,
+          title: 'List Already Sorted',
+          description: 'A linked list with zero or one node is already sorted.',
+          operation: 'if (head == null || head.next == null) return head;',
+        ),
+      );
       events = generated;
       return;
     }
 
-    generated.add(SortEvent(
-      type: SortEventType.initialize,
-      list: [...working],
-      leftIndex: -1,
-      rightIndex: -1,
-      activeIndex: -1,
-      rangeStart: 0,
-      rangeEnd: working.length - 1,
-      title: 'Linked List Initialized',
-      description:
-          'Merge Sort starts by recursively splitting the linked list into smaller halves.',
-      operation: 'sortLinkedList(head)',
-      iteration: step,
-    ));
+    generated.add(
+      SortEvent(
+        type: SortEventType.initialize,
+        list: [...working],
+        leftIndex: -1,
+        rightIndex: -1,
+        activeIndex: -1,
+        rangeStart: 0,
+        rangeEnd: working.length - 1,
+        title: 'Linked List Initialized',
+        description:
+            'Merge Sort starts by recursively splitting the linked list into smaller halves.',
+        operation: 'sortLinkedList(head)',
+        iteration: step,
+      ),
+    );
 
     void addEvent({
       required SortEventType type,
@@ -207,19 +210,21 @@ Node? merge(Node? left, Node? right) {
       required String operation,
     }) {
       step++;
-      generated.add(SortEvent(
-        type: type,
-        list: [...list],
-        leftIndex: left,
-        rightIndex: right,
-        activeIndex: active,
-        rangeStart: start,
-        rangeEnd: end,
-        title: title,
-        description: description,
-        operation: operation,
-        iteration: step,
-      ));
+      generated.add(
+        SortEvent(
+          type: type,
+          list: [...list],
+          leftIndex: left,
+          rightIndex: right,
+          activeIndex: active,
+          rangeStart: start,
+          rangeEnd: end,
+          title: title,
+          description: description,
+          operation: operation,
+          iteration: step,
+        ),
+      );
     }
 
     void mergeSort(List<int> arr, int start, int end) {
@@ -406,8 +411,7 @@ Node? merge(Node? left, Node? right) {
       rangeEnd = -1;
       activeCodeLine = 0;
       iteration = 0;
-      executionMessage =
-          'Linked list loaded. Ready to sort using Merge Sort.';
+      executionMessage = 'Linked list loaded. Ready to sort using Merge Sort.';
     });
 
     _generateEvents();
@@ -449,29 +453,25 @@ Node? merge(Node? left, Node? right) {
     timer?.cancel();
     setState(() => isRunning = true);
 
-    final milliseconds =
-        (900 / speed).round().clamp(100, 2000).toInt();
+    final milliseconds = (900 / speed).round().clamp(100, 2000).toInt();
 
-    timer = Timer.periodic(
-      Duration(milliseconds: milliseconds),
-      (_) {
-        if (!mounted) {
-          timer?.cancel();
-          return;
-        }
+    timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
+      if (!mounted) {
+        timer?.cancel();
+        return;
+      }
 
-        if (currentStep >= events.length) {
-          timer?.cancel();
-          setState(() {
-            isRunning = false;
-            isCompleted = true;
-          });
-          return;
-        }
+      if (currentStep >= events.length) {
+        timer?.cancel();
+        setState(() {
+          isRunning = false;
+          isCompleted = true;
+        });
+        return;
+      }
 
-        _nextStepInternal();
-      },
-    );
+      _nextStepInternal();
+    });
   }
 
   void _pause() {
@@ -553,8 +553,7 @@ Node? merge(Node? left, Node? right) {
     activeCodeLine = _codeLineForEvent(event.type);
 
     if (event.type == SortEventType.resultFound) {
-      executionMessage =
-          'Linked List Sorted → ${linkedList.join(', ')}';
+      executionMessage = 'Linked List Sorted → ${linkedList.join(', ')}';
     }
 
     if (updateState) setState(() {});
@@ -576,8 +575,7 @@ Node? merge(Node? left, Node? right) {
       rangeEnd = -1;
       activeCodeLine = 0;
       iteration = 0;
-      executionMessage =
-          'Ready to sort the linked list using Merge Sort.';
+      executionMessage = 'Ready to sort the linked list using Merge Sort.';
     });
 
     _generateEvents();
@@ -589,11 +587,13 @@ Node? merge(Node? left, Node? right) {
   }
 
   String _currentPhase() {
-    if (activeIndex >= 0 && executionHistory.any(
-      (e) => e.type == SortEventType.compare ||
-          e.type == SortEventType.takeLeft ||
-          e.type == SortEventType.takeRight,
-    )) {
+    if (activeIndex >= 0 &&
+        executionHistory.any(
+          (e) =>
+              e.type == SortEventType.compare ||
+              e.type == SortEventType.takeLeft ||
+              e.type == SortEventType.takeRight,
+        )) {
       return 'PHASE 2 • MERGE';
     }
 
@@ -697,7 +697,7 @@ Node? merge(Node? left, Node? right) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withOpacity(0.85),
+        backgroundColor: color.withValues(alpha: 0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -738,14 +738,22 @@ Node? merge(Node? left, Node? right) {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [background2, const Color(0xFF0A1326), phaseColor.withOpacity(0.055)],
+          colors: [
+            background2,
+            const Color(0xFF0A1326),
+            phaseColor.withValues(alpha: 0.055),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: phaseColor.withOpacity(0.20)),
+        border: Border.all(color: phaseColor.withValues(alpha: 0.20)),
         boxShadow: [
-          BoxShadow(color: phaseColor.withOpacity(0.055), blurRadius: 28, spreadRadius: 2),
+          BoxShadow(
+            color: phaseColor.withValues(alpha: 0.055),
+            blurRadius: 28,
+            spreadRadius: 2,
+          ),
         ],
       ),
       child: Column(
@@ -756,35 +764,63 @@ Node? merge(Node? left, Node? right) {
                 onTap: () => Navigator.pop(context),
                 borderRadius: BorderRadius.circular(11),
                 child: Container(
-                  width: 42, height: 42,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: BorderRadius.circular(11),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
-                  child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               Container(
-                width: 46, height: 46,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(colors: [orange, pink]),
                   borderRadius: BorderRadius.circular(13),
-                  boxShadow: [BoxShadow(color: pink.withOpacity(0.22), blurRadius: 18)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: pink.withValues(alpha: 0.22),
+                      blurRadius: 18,
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.low_priority_rounded, color: Colors.white, size: 25),
+                child: const Icon(
+                  Icons.low_priority_rounded,
+                  color: Colors.white,
+                  size: 25,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Sort a Linked List',
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
+                    const Text(
+                      'Sort a Linked List',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('Merge Sort • split → compare → merge',
-                      style: TextStyle(color: Colors.white.withOpacity(0.50), fontSize: 11.5)),
+                    Text(
+                      'Merge Sort • split → compare → merge',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.50),
+                        fontSize: 11.5,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -794,13 +830,41 @@ Node? merge(Node? left, Node? right) {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: _headerStat(Icons.alt_route_rounded, 'ALGORITHM', 'Merge Sort • O(n log n)', cyan)),
+              Expanded(
+                child: _headerStat(
+                  Icons.alt_route_rounded,
+                  'ALGORITHM',
+                  'Merge Sort • O(n log n)',
+                  cyan,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _headerStat(Icons.layers_rounded, 'PHASE', phase, phaseColor)),
+              Expanded(
+                child: _headerStat(
+                  Icons.layers_rounded,
+                  'PHASE',
+                  phase,
+                  phaseColor,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _headerStat(Icons.flag_rounded, 'WRITE', isCompleted ? 'SORTED' : 'ASCENDING', green)),
+              Expanded(
+                child: _headerStat(
+                  Icons.flag_rounded,
+                  'WRITE',
+                  isCompleted ? 'SORTED' : 'ASCENDING',
+                  green,
+                ),
+              ),
               const SizedBox(width: 8),
-              Expanded(child: _headerStat(Icons.timeline_rounded, 'PROGRESS', '${currentStep}/${events.length}', purple)),
+              Expanded(
+                child: _headerStat(
+                  Icons.timeline_rounded,
+                  'PROGRESS',
+                  '$currentStep/${events.length}',
+                  purple,
+                ),
+              ),
             ],
           ),
         ],
@@ -812,19 +876,40 @@ Node? merge(Node? left, Node? right) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: color.withOpacity(0.13)),
+        border: Border.all(color: color.withValues(alpha: 0.13)),
       ),
       child: Row(
         children: [
           Icon(icon, color: color, size: 15),
           const SizedBox(width: 7),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: TextStyle(color: Colors.white.withOpacity(0.34), fontSize: 7.5, fontWeight: FontWeight.w800, letterSpacing: 0.7)),
-            const SizedBox(height: 2),
-            Text(value, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white.withOpacity(0.78), fontSize: 9.5, fontWeight: FontWeight.w800)),
-          ])),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.34),
+                    fontSize: 7.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.7,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -843,16 +928,28 @@ Node? merge(Node? left, Node? right) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 7, height: 7, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 7),
-          Text(text, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.6)),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+            ),
+          ),
         ],
       ),
     );
@@ -867,13 +964,18 @@ Node? merge(Node? left, Node? right) {
           const SizedBox(height: 12),
           Text(
             'Merge Sort recursively divides the linked list into smaller halves, sorts each half, and merges the sorted halves. During execution, the visualization shows the active range, compared nodes, and the position being written.',
-            style: TextStyle(color: Colors.white.withOpacity(0.64), height: 1.55, fontSize: 12.2),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.64),
+              height: 1.55,
+              fontSize: 12.2,
+            ),
           ),
           const SizedBox(height: 15),
           _buildPhaseRail(),
           const SizedBox(height: 14),
           Wrap(
-            spacing: 8, runSpacing: 8,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               _infoBox('Time', 'O(n log n)', orange),
               _infoBox('Space', 'O(log n)', blue),
@@ -895,38 +997,107 @@ Node? merge(Node? left, Node? right) {
     final p3 = phase.contains('RESULT');
     return Row(
       children: [
-        Expanded(child: _phaseBox('01', 'SPLIT', 'Divide into halves', p1, cyan)),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 5), child: Icon(Icons.arrow_forward_rounded, color: Colors.white.withOpacity(0.18), size: 16)),
-        Expanded(child: _phaseBox('02', 'MERGE', 'Compare + place', p2, purple)),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: 5), child: Icon(Icons.arrow_forward_rounded, color: Colors.white.withOpacity(0.18), size: 16)),
-        Expanded(child: _phaseBox('03', 'SORTED', 'All ranges merged', p3, green)),
+        Expanded(
+          child: _phaseBox('01', 'SPLIT', 'Divide into halves', p1, cyan),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(
+            Icons.arrow_forward_rounded,
+            color: Colors.white.withValues(alpha: 0.18),
+            size: 16,
+          ),
+        ),
+        Expanded(
+          child: _phaseBox('02', 'MERGE', 'Compare + place', p2, purple),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Icon(
+            Icons.arrow_forward_rounded,
+            color: Colors.white.withValues(alpha: 0.18),
+            size: 16,
+          ),
+        ),
+        Expanded(
+          child: _phaseBox('03', 'SORTED', 'All ranges merged', p3, green),
+        ),
       ],
     );
   }
 
-  Widget _phaseBox(String number, String title, String subtitle, bool active, Color color) {
+  Widget _phaseBox(
+    String number,
+    String title,
+    String subtitle,
+    bool active,
+    Color color,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: active ? color.withOpacity(0.10) : Colors.white.withOpacity(0.025),
+        color: active
+            ? color.withValues(alpha: 0.10)
+            : Colors.white.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: active ? color.withOpacity(0.42) : Colors.white.withOpacity(0.06)),
+        border: Border.all(
+          color: active
+              ? color.withValues(alpha: 0.42)
+              : Colors.white.withValues(alpha: 0.06),
+        ),
       ),
-      child: Row(children: [
-        Container(width: 26, height: 26, alignment: Alignment.center,
-          decoration: BoxDecoration(color: color.withOpacity(active ? 0.18 : 0.07), shape: BoxShape.circle),
-          child: Text(number, style: TextStyle(color: active ? color : Colors.white.withOpacity(0.35), fontSize: 8, fontWeight: FontWeight.w900))),
-        const SizedBox(width: 8),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title, style: TextStyle(color: active ? color : Colors.white.withOpacity(0.38), fontSize: 8.5, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 2),
-          Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white.withOpacity(0.36), fontSize: 7.5)),
-        ])),
-      ]),
+      child: Row(
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: active ? 0.18 : 0.07),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              number,
+              style: TextStyle(
+                color: active ? color : Colors.white.withValues(alpha: 0.35),
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: active
+                        ? color
+                        : Colors.white.withValues(alpha: 0.38),
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.36),
+                    fontSize: 7.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
-
 
   Widget _buildInputSection() {
     return _card(
@@ -967,12 +1138,19 @@ Node? merge(Node? left, Node? right) {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(Icons.lightbulb_outline_rounded, color: orange.withOpacity(0.85), size: 15),
+              Icon(
+                Icons.lightbulb_outline_rounded,
+                color: orange.withValues(alpha: 0.85),
+                size: 15,
+              ),
               const SizedBox(width: 7),
               Expanded(
                 child: Text(
                   'Enter numbers to sort. Example: 38, 12, 45, 7, 29, 18, 50',
-                  style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 11),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.45),
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ],
@@ -990,19 +1168,32 @@ Node? merge(Node? left, Node? right) {
       decoration: InputDecoration(
         labelText: 'Enter Linked List Values',
         hintText: '38, 12, 45, 7, 29, 18, 50',
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 12),
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.25), fontSize: 12),
-        prefixIcon: Icon(Icons.link_rounded, color: cyan.withOpacity(0.8), size: 19),
+        labelStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.58),
+          fontSize: 12,
+        ),
+        hintStyle: TextStyle(
+          color: Colors.white.withValues(alpha: 0.25),
+          fontSize: 12,
+        ),
+        prefixIcon: Icon(
+          Icons.link_rounded,
+          color: cyan.withValues(alpha: 0.8),
+          size: 19,
+        ),
         filled: true,
         fillColor: visualizationColor,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 13,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: cyan.withOpacity(0.55)),
+          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
         ),
       ),
     );
@@ -1013,7 +1204,11 @@ Node? merge(Node? left, Node? right) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.account_tree_rounded, 'Live Sorting Visualization', cyan),
+          _sectionTitle(
+            Icons.account_tree_rounded,
+            'Live Sorting Visualization',
+            cyan,
+          ),
           const SizedBox(height: 10),
           _buildLivePhaseBanner(),
           const SizedBox(height: 12),
@@ -1021,11 +1216,23 @@ Node? merge(Node? left, Node? right) {
             children: [
               _miniBadge('LEFT', leftIndex >= 0 ? '$leftIndex' : 'NULL', cyan),
               const SizedBox(width: 8),
-              _miniBadge('RIGHT', rightIndex >= 0 ? '$rightIndex' : 'NULL', orange),
+              _miniBadge(
+                'RIGHT',
+                rightIndex >= 0 ? '$rightIndex' : 'NULL',
+                orange,
+              ),
               const SizedBox(width: 8),
-              _miniBadge('RANGE', rangeStart >= 0 ? '$rangeStart-$rangeEnd' : 'ALL', purple),
+              _miniBadge(
+                'RANGE',
+                rangeStart >= 0 ? '$rangeStart-$rangeEnd' : 'ALL',
+                purple,
+              ),
               const SizedBox(width: 8),
-              _miniBadge('WRITE', activeIndex >= 0 ? 'INDEX $activeIndex' : '—', green),
+              _miniBadge(
+                'WRITE',
+                activeIndex >= 0 ? 'INDEX $activeIndex' : '—',
+                green,
+              ),
               const SizedBox(width: 8),
               _miniBadge('STEPS', executionHistory.length.toString(), pink),
             ],
@@ -1037,13 +1244,16 @@ Node? merge(Node? left, Node? right) {
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.06)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: List.generate(linkedList.length, (index) => _buildListNode(index)),
+                children: List.generate(
+                  linkedList.length,
+                  (index) => _buildListNode(index),
+                ),
               ),
             ),
           ),
@@ -1066,26 +1276,61 @@ Node? merge(Node? left, Node? right) {
     final text = isResult
         ? 'All ranges are merged. The linked list is now sorted in ascending order.'
         : isMove
-            ? 'The two sorted halves are compared and written back in ascending order.'
-            : 'The current range is divided into smaller halves before merging.';
+        ? 'The two sorted halves are compared and written back in ascending order.'
+        : 'The current range is divided into smaller halves before merging.';
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       padding: const EdgeInsets.all(11),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color.withOpacity(0.10), Colors.transparent]),
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha: 0.10), Colors.transparent],
+        ),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
-      child: Row(children: [
-        Container(width: 34, height: 34, decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(9)),
-          child: Icon(isResult ? Icons.flag_rounded : Icons.radar_rounded, color: color, size: 18)),
-        const SizedBox(width: 9),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(phase, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.7)),
-          const SizedBox(height: 3),
-          Text(text, style: TextStyle(color: Colors.white.withOpacity(0.58), fontSize: 10, height: 1.35)),
-        ])),
-      ]),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Icon(
+              isResult ? Icons.flag_rounded : Icons.radar_rounded,
+              color: color,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  phase,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.7,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.58),
+                    fontSize: 10,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1096,31 +1341,31 @@ Node? merge(Node? left, Node? right) {
     final bool isTarget = index == activeIndex;
     final bool isBoth = isSlow && isFast;
 
-    Color itemColor = Colors.white.withOpacity(0.08);
-    Color borderColor = Colors.white.withOpacity(0.08);
+    Color itemColor = Colors.white.withValues(alpha: 0.08);
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
     Color textColor = Colors.white;
     String label = '';
 
     if (isTarget) {
-      itemColor = green.withOpacity(0.18);
+      itemColor = green.withValues(alpha: 0.18);
       borderColor = green;
       textColor = green;
       label = 'WRITE';
     }
     if (isSlow) {
-      itemColor = cyan.withOpacity(0.18);
+      itemColor = cyan.withValues(alpha: 0.18);
       borderColor = cyan;
       textColor = cyan;
       label = 'LEFT';
     }
     if (isFast) {
-      itemColor = orange.withOpacity(0.18);
+      itemColor = orange.withValues(alpha: 0.18);
       borderColor = orange;
       textColor = orange;
       label = 'RIGHT';
     }
     if (isBoth) {
-      itemColor = purple.withOpacity(0.20);
+      itemColor = purple.withValues(alpha: 0.20);
       borderColor = purple;
       textColor = Colors.white;
       label = 'LEFT + RIGHT';
@@ -1143,7 +1388,15 @@ Node? merge(Node? left, Node? right) {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: isBoth ? purple : isTarget ? green : isFast ? orange : isSlow ? cyan : Colors.white.withOpacity(0.25),
+                      color: isBoth
+                          ? purple
+                          : isTarget
+                          ? green
+                          : isFast
+                          ? orange
+                          : isSlow
+                          ? cyan
+                          : Colors.white.withValues(alpha: 0.25),
                       fontSize: 7.0,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1161,18 +1414,35 @@ Node? merge(Node? left, Node? right) {
                     width: isSlow || isFast || isTarget || isBoth ? 1.7 : 1,
                   ),
                   boxShadow: isSlow || isFast || isTarget || isBoth
-                      ? [BoxShadow(color: borderColor.withOpacity(0.18), blurRadius: 12, spreadRadius: 1)]
+                      ? [
+                          BoxShadow(
+                            color: borderColor.withValues(alpha: 0.18),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ]
                       : null,
                 ),
                 child: Center(
                   child: Text(
                     value.toString(),
-                    style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w800),
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 5),
-              Text('[$index]', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 10, fontWeight: FontWeight.w600)),
+              Text(
+                '[$index]',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
@@ -1181,8 +1451,18 @@ Node? merge(Node? left, Node? right) {
             padding: const EdgeInsets.only(top: 16, left: 1, right: 1),
             child: Column(
               children: [
-                Icon(Icons.arrow_forward_rounded, color: Colors.white.withOpacity(0.35), size: 19),
-                Text('next', style: TextStyle(color: Colors.white.withOpacity(0.22), fontSize: 7)),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white.withValues(alpha: 0.35),
+                  size: 19,
+                ),
+                Text(
+                  'next',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.22),
+                    fontSize: 7,
+                  ),
+                ),
               ],
             ),
           )
@@ -1191,8 +1471,19 @@ Node? merge(Node? left, Node? right) {
             padding: const EdgeInsets.only(top: 16, left: 3),
             child: Column(
               children: [
-                Icon(Icons.stop_rounded, color: green.withOpacity(0.80), size: 19),
-                Text('TAIL', style: TextStyle(color: green.withOpacity(0.65), fontSize: 7, fontWeight: FontWeight.w700)),
+                Icon(
+                  Icons.stop_rounded,
+                  color: green.withValues(alpha: 0.80),
+                  size: 19,
+                ),
+                Text(
+                  'TAIL',
+                  style: TextStyle(
+                    color: green.withValues(alpha: 0.65),
+                    fontSize: 7,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1217,12 +1508,23 @@ Node? merge(Node? left, Node? right) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 9, height: 9,
-            decoration: BoxDecoration(color: color,
-                borderRadius: BorderRadius.circular(3))),
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
         const SizedBox(width: 6),
-        Text(title, style: TextStyle(color: Colors.white.withOpacity(0.58),
-            fontSize: 10, fontWeight: FontWeight.w600)),
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -1232,8 +1534,12 @@ Node? merge(Node? left, Node? right) {
 
     if (activeIndex >= 0 && activeIndex < linkedList.length) {
       message = 'Sorted List → ${linkedList.join(', ')}';
-    } else if (leftIndex >= 0 && leftIndex < linkedList.length && rightIndex >= 0 && rightIndex < linkedList.length) {
-      message = 'Left → ${linkedList[leftIndex]}    •    Right → ${linkedList[rightIndex]}';
+    } else if (leftIndex >= 0 &&
+        leftIndex < linkedList.length &&
+        rightIndex >= 0 &&
+        rightIndex < linkedList.length) {
+      message =
+          'Left → ${linkedList[leftIndex]}    •    Right → ${linkedList[rightIndex]}';
     } else if (leftIndex >= 0 && leftIndex < linkedList.length) {
       message = 'Left → ${linkedList[leftIndex]}    •    Right → NULL';
     }
@@ -1243,31 +1549,63 @@ Node? merge(Node? left, Node? right) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withOpacity(0.14)),
+        border: Border.all(color: cyan.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
           Container(
-            width: 34, height: 34,
-            decoration: BoxDecoration(color: cyan.withOpacity(0.09), borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.compare_arrows_rounded, color: cyan, size: 18),
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cyan.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.compare_arrows_rounded,
+              color: cyan,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Current Operation', style: TextStyle(color: Colors.white.withOpacity(0.42), fontSize: 9, fontWeight: FontWeight.w700)),
+                Text(
+                  'Current Operation',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.42),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(message, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ],
             ),
           ),
           if (activeIndex >= 0 && activeIndex < linkedList.length)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-              decoration: BoxDecoration(color: green.withOpacity(0.08), borderRadius: BorderRadius.circular(7)),
-              child: Text('Sorted → ${linkedList.join(', ')}', style: const TextStyle(color: green, fontSize: 10, fontWeight: FontWeight.w800)),
+              decoration: BoxDecoration(
+                color: green.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                'Sorted → ${linkedList.join(', ')}',
+                style: const TextStyle(
+                  color: green,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
         ],
       ),
@@ -1290,16 +1628,25 @@ Node? merge(Node? left, Node? right) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.18)),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(width: 9),
-          Expanded(child: Text(executionMessage, style: TextStyle(color: Colors.white.withOpacity(0.72), fontSize: 11, height: 1.45))),
+          Expanded(
+            child: Text(
+              executionMessage,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                fontSize: 11,
+                height: 1.45,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1308,28 +1655,17 @@ Node? merge(Node? left, Node? right) {
   Widget _generateButton() {
     return ElevatedButton.icon(
       onPressed: _generateNumbers,
-      icon: const Icon(
-        Icons.auto_awesome_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
         'Generate List',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: purple,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1337,28 +1673,17 @@ Node? merge(Node? left, Node? right) {
   Widget _loadButton() {
     return ElevatedButton.icon(
       onPressed: _loadList,
-      icon: const Icon(
-        Icons.download_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.download_rounded, size: 17),
       label: const Text(
         'LOAD LIST',
-        style: TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
         foregroundColor: background,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -1415,9 +1740,24 @@ Node? merge(Node? left, Node? right) {
             children: [
               Icon(Icons.tune_rounded, color: cyan, size: 16),
               const SizedBox(width: 7),
-              const Text('Execution Controls', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+              const Text(
+                'Execution Controls',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const Spacer(),
-              Text(_currentPhase(), style: TextStyle(color: _phaseColor(), fontSize: 8.5, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+              Text(
+                _currentPhase(),
+                style: TextStyle(
+                  color: _phaseColor(),
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -1426,9 +1766,7 @@ Node? merge(Node? left, Node? right) {
               _controlButton(
                 icon: Icons.skip_previous_rounded,
                 label: 'Previous',
-                onPressed: executionHistory.isEmpty
-                    ? null
-                    : _previousStep,
+                onPressed: executionHistory.isEmpty ? null : _previousStep,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1437,9 +1775,7 @@ Node? merge(Node? left, Node? right) {
                       ? Icons.pause_rounded
                       : Icons.play_arrow_rounded,
                   label: isRunning ? 'Pause' : 'Play',
-                  onPressed: isCompleted
-                      ? null
-                      : _togglePlayPause,
+                  onPressed: isCompleted ? null : _togglePlayPause,
                   primary: true,
                 ),
               ),
@@ -1447,9 +1783,7 @@ Node? merge(Node? left, Node? right) {
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next Step',
-                onPressed: currentStep >= events.length
-                    ? null
-                    : _nextStep,
+                onPressed: currentStep >= events.length ? null : _nextStep,
               ),
               const SizedBox(width: 8),
               _controlButton(
@@ -1462,16 +1796,12 @@ Node? merge(Node? left, Node? right) {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: cyan,
-                size: 17,
-              ),
+              const Icon(Icons.speed_rounded, color: cyan, size: 17),
               const SizedBox(width: 8),
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withOpacity( 0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1483,8 +1813,7 @@ Node? merge(Node? left, Node? right) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor:
-                      Colors.white.withOpacity( 0.08),
+                  inactiveColor: Colors.white.withValues(alpha: 0.08),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -1506,14 +1835,10 @@ Node? merge(Node? left, Node? right) {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: events.isEmpty
-                  ? 0
-                  : currentStep / events.length,
+              value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor:
-                  Colors.white.withOpacity( 0.06),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(cyan),
+              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
           const SizedBox(height: 6),
@@ -1523,7 +1848,7 @@ Node? merge(Node? left, Node? right) {
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity( 0.45),
+                  color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 10,
                 ),
               ),
@@ -1531,16 +1856,16 @@ Node? merge(Node? left, Node? right) {
                 isCompleted
                     ? 'Execution Finished'
                     : isRunning
-                        ? 'Running...'
-                        : currentStep == 0
-                            ? 'Ready'
-                            : 'Paused',
+                    ? 'Running...'
+                    : currentStep == 0
+                    ? 'Ready'
+                    : 'Paused',
                 style: TextStyle(
                   color: isCompleted
                       ? green
                       : isRunning
-                          ? orange
-                          : Colors.white.withOpacity( 0.4),
+                      ? orange
+                      : Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1565,26 +1890,19 @@ Node? merge(Node? left, Node? right) {
         icon: Icon(icon, size: 17),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor:
-              Colors.white.withOpacity( 0.04),
-          disabledForegroundColor:
-              Colors.white.withOpacity( 0.20),
+          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary
-                  ? cyan
-                  : Colors.white.withOpacity( 0.08),
+              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
             ),
           ),
         ),
@@ -1601,11 +1919,7 @@ Node? merge(Node? left, Node? right) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.code_rounded,
-                'Source Code',
-                purple,
-              ),
+              _sectionTitle(Icons.code_rounded, 'Source Code', purple),
               const Spacer(),
               InkWell(
                 onTap: _copyCode,
@@ -1616,20 +1930,14 @@ Node? merge(Node? left, Node? right) {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withOpacity( 0.08),
+                    color: purple.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: purple.withOpacity( 0.20),
-                    ),
+                    border: Border.all(color: purple.withValues(alpha: 0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.copy_rounded,
-                        color: purple,
-                        size: 14,
-                      ),
+                      Icon(Icons.copy_rounded, color: purple, size: 14),
                       SizedBox(width: 5),
                       Text(
                         'Copy',
@@ -1648,75 +1956,66 @@ Node? merge(Node? left, Node? right) {
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(
-              minHeight: 280,
-              maxHeight: 500,
-            ),
+            constraints: const BoxConstraints(minHeight: 280, maxHeight: 500),
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(
-                color: Colors.white.withOpacity( 0.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
-                children: List.generate(
-                  lines.length,
-                  (index) {
-                    final lineNumber = index + 1;
-                    final active = lineNumber == activeCodeLine;
+                children: List.generate(lines.length, (index) {
+                  final lineNumber = index + 1;
+                  final active = lineNumber == activeCodeLine;
 
-                    return Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      color: active
-                          ? cyan.withOpacity( 0.09)
-                          : Colors.transparent,
-                      child: Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 25,
-                            child: Text(
-                              '$lineNumber',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: active
-                                    ? cyan
-                                    : Colors.white.withOpacity(0.20),
-                                fontSize: 9,
-                                fontFamily: 'monospace',
-                              ),
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    color: active
+                        ? cyan.withValues(alpha: 0.09)
+                        : Colors.transparent,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 25,
+                          child: Text(
+                            '$lineNumber',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: active
+                                  ? cyan
+                                  : Colors.white.withValues(alpha: 0.20),
+                              fontSize: 9,
+                              fontFamily: 'monospace',
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              lines[index],
-                              style: TextStyle(
-                                color: active
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.65),
-                                fontSize: 10,
-                                height: 1.45,
-                                fontFamily: 'monospace',
-                                fontWeight: active
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                              ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            lines[index],
+                            style: TextStyle(
+                              color: active
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.65),
+                              fontSize: 10,
+                              height: 1.45,
+                              fontFamily: 'monospace',
+                              fontWeight: active
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ),
           ),
@@ -1732,23 +2031,14 @@ Node? merge(Node? left, Node? right) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.history_rounded,
-                'Execution Steps',
-                cyan,
-              ),
+              _sectionTitle(Icons.history_rounded, 'Execution Steps', cyan),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withOpacity( 0.07),
+                  color: cyan.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(
-                    color: cyan.withOpacity( 0.14),
-                  ),
+                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -1771,10 +2061,7 @@ Node? merge(Node? left, Node? right) {
                 shrinkWrap: true,
                 itemCount: executionHistory.length,
                 itemBuilder: (context, index) {
-                  return _executionStepItem(
-                    index,
-                    executionHistory[index],
-                  );
+                  return _executionStepItem(index, executionHistory[index]);
                 },
               ),
             ),
@@ -1786,29 +2073,24 @@ Node? merge(Node? left, Node? right) {
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 35,
-        horizontal: 15,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.white.withOpacity( 0.06),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withOpacity( 0.20),
+            color: Colors.white.withValues(alpha: 0.20),
             size: 32,
           ),
           const SizedBox(height: 10),
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -1817,7 +2099,7 @@ Node? merge(Node? left, Node? right) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.30),
+              color: Colors.white.withValues(alpha: 0.30),
               fontSize: 10,
             ),
           ),
@@ -1826,90 +2108,81 @@ Node? merge(Node? left, Node? right) {
     );
   }
 
-  Widget _executionStepItem(
-  int index,
-  SortEvent event,
-) {
-  final color = _eventColor(event.type);
+  Widget _executionStepItem(int index, SortEvent event) {
+    final color = _eventColor(event.type);
 
-  return Container(
-    margin: const EdgeInsets.only(bottom: 7),
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.045),
-      borderRadius: BorderRadius.circular(9),
-      border: Border.all(
-        color: color.withOpacity(0.14),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 7),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.045),
+        borderRadius: BorderRadius.circular(9),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 27,
-          height: 27,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 27,
+            height: 27,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: Icon(_eventIcon(event.type), color: color, size: 15),
           ),
-          child: Icon(
-            _eventIcon(event.type),
-            color: color,
-            size: 15,
-          ),
-        ),
-        const SizedBox(width: 9),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      event.title,
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w800,
+          const SizedBox(width: 9),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        event.title,
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                  ),
-                  Text(
-                    '#${index + 1}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.22),
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
+                    Text(
+                      '#${index + 1}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  event.description,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.53),
+                    fontSize: 9.5,
+                    height: 1.35,
                   ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                event.description,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.53),
-                  fontSize: 9.5,
-                  height: 1.35,
                 ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                event.operation,
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.30),
-                  fontSize: 8.5,
-                  fontFamily: 'monospace',
+                const SizedBox(height: 5),
+                Text(
+                  event.operation,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.30),
+                    fontSize: 8.5,
+                    fontFamily: 'monospace',
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _card({required Widget child}) {
     return Container(
@@ -1918,12 +2191,10 @@ Node? merge(Node? left, Node? right) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity( 0.065),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity( 0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -1933,11 +2204,7 @@ Node? merge(Node? left, Node? right) {
     );
   }
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1945,14 +2212,10 @@ Node? merge(Node? left, Node? right) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withOpacity( 0.09),
+            color: color.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 17,
-          ),
+          child: Icon(icon, color: color, size: 17),
         ),
         const SizedBox(width: 9),
         Text(
@@ -1967,22 +2230,13 @@ Node? merge(Node? left, Node? right) {
     );
   }
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity( 0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity( 0.16),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1990,7 +2244,7 @@ Node? merge(Node? left, Node? right) {
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity( 0.8),
+              color: color.withValues(alpha: 0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
@@ -2009,23 +2263,14 @@ Node? merge(Node? left, Node? right) {
     );
   }
 
-  Widget _miniBadge(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity( 0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: color.withOpacity( 0.18),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           children: [

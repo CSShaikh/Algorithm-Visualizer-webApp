@@ -45,8 +45,7 @@ class ReverseEvent {
   });
 }
 
-class _ReverseLinkedListScreenState
-    extends State<ReverseLinkedListScreen> {
+class _ReverseLinkedListScreenState extends State<ReverseLinkedListScreen> {
   static const Color background = Color(0xFF030712);
   static const Color background2 = Color(0xFF07101F);
   static const Color cardColor = Color(0xFF0B1428);
@@ -81,8 +80,7 @@ class _ReverseLinkedListScreenState
   int previousIndex = -1;
   int activeCodeLine = 0;
 
-  String executionMessage =
-      'Ready to reverse the linked list.';
+  String executionMessage = 'Ready to reverse the linked list.';
 
   final String sourceCode = '''
 class Node {
@@ -236,7 +234,6 @@ Node? reverseList(Node? head) {
     events = generated;
   }
 
-
   void _loadList() {
     final text = listController.text.trim();
 
@@ -273,8 +270,7 @@ Node? reverseList(Node? head) {
       nextIndex = -1;
       previousIndex = -1;
       activeCodeLine = 0;
-      executionMessage =
-          'Linked list loaded. Ready to reverse the list.';
+      executionMessage = 'Linked list loaded. Ready to reverse the list.';
     });
 
     _generateEvents();
@@ -319,28 +315,25 @@ Node? reverseList(Node? head) {
 
     final milliseconds = (900 / speed).round().clamp(100, 2000);
 
-    timer = Timer.periodic(
-      Duration(milliseconds: milliseconds),
-      (_) {
-        if (!mounted) {
-          timer?.cancel();
-          return;
-        }
+    timer = Timer.periodic(Duration(milliseconds: milliseconds), (_) {
+      if (!mounted) {
+        timer?.cancel();
+        return;
+      }
 
-        if (currentStep >= events.length) {
-          timer?.cancel();
+      if (currentStep >= events.length) {
+        timer?.cancel();
 
-          setState(() {
-            isRunning = false;
-            isCompleted = true;
-          });
+        setState(() {
+          isRunning = false;
+          isCompleted = true;
+        });
 
-          return;
-        }
+        return;
+      }
 
-        _nextStepInternal();
-      },
-    );
+      _nextStepInternal();
+    });
   }
 
   void _pause() {
@@ -408,18 +401,14 @@ Node? reverseList(Node? head) {
     nextIndex = -1;
     previousIndex = -1;
     activeCodeLine = 0;
-    executionMessage =
-        'Ready to reverse the linked list.';
+    executionMessage = 'Ready to reverse the linked list.';
 
     for (final event in executionHistory) {
       _applyEvent(event, updateState: false);
     }
   }
 
-  void _applyEvent(
-    ReverseEvent event, {
-    bool updateState = true,
-  }) {
+  void _applyEvent(ReverseEvent event, {bool updateState = true}) {
     linkedList = [...event.list];
     currentIndex = event.currentIndex;
     nextIndex = event.nextIndex;
@@ -454,8 +443,7 @@ Node? reverseList(Node? head) {
       nextIndex = -1;
       previousIndex = -1;
       activeCodeLine = 0;
-      executionMessage =
-          'Ready to reverse the linked list.';
+      executionMessage = 'Ready to reverse the linked list.';
     });
 
     _generateEvents();
@@ -488,7 +476,6 @@ Node? reverseList(Node? head) {
     }
   }
 
-
   Color _eventColor(ReverseEventType type) {
     switch (type) {
       case ReverseEventType.initialize:
@@ -505,7 +492,6 @@ Node? reverseList(Node? head) {
         return green;
     }
   }
-
 
   IconData _eventIcon(ReverseEventType type) {
     switch (type) {
@@ -524,11 +510,8 @@ Node? reverseList(Node? head) {
     }
   }
 
-
   Future<void> _copyCode() async {
-    await Clipboard.setData(
-      ClipboardData(text: sourceCode),
-    );
+    await Clipboard.setData(ClipboardData(text: sourceCode));
 
     _showSnackBar('Source code copied.', cyan);
   }
@@ -545,7 +528,7 @@ Node? reverseList(Node? head) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withOpacity( 0.85),
+        backgroundColor: color.withValues(alpha: 0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -581,16 +564,11 @@ Node? reverseList(Node? head) {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: orange.withOpacity( 0.16),
-        ),
+        border: Border.all(color: orange.withValues(alpha: 0.16)),
       ),
       child: Row(
         children: [
@@ -603,9 +581,7 @@ Node? reverseList(Node? head) {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.white.withOpacity( 0.08),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -619,9 +595,7 @@ Node? reverseList(Node? head) {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [orange, pink],
-              ),
+              gradient: const LinearGradient(colors: [orange, pink]),
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
@@ -647,7 +621,7 @@ Node? reverseList(Node? head) {
                 Text(
                   'Reverse the linked list using previous, current, and next pointers',
                   style: TextStyle(
-                    color: Colors.white.withOpacity( 0.55),
+                    color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 12,
                   ),
                 ),
@@ -673,16 +647,11 @@ Node? reverseList(Node? head) {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withOpacity( 0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: color.withOpacity( 0.35),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -690,10 +659,7 @@ Node? reverseList(Node? head) {
           Container(
             width: 7,
             height: 7,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 7),
           Text(
@@ -727,7 +693,7 @@ Node? reverseList(Node? head) {
             'pointer processes the current node, and the next pointer '
             'temporarily stores the remaining part of the list.',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.64),
+              color: Colors.white.withValues(alpha: 0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
@@ -755,11 +721,7 @@ Node? reverseList(Node? head) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.input_rounded,
-            'Input',
-            cyan,
-          ),
+          _sectionTitle(Icons.input_rounded, 'Input', cyan),
           const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -770,13 +732,9 @@ Node? reverseList(Node? head) {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Expanded(
-                          child: _generateButton(),
-                        ),
+                        Expanded(child: _generateButton()),
                         const SizedBox(width: 10),
-                        Expanded(
-                          child: _loadButton(),
-                        ),
+                        Expanded(child: _loadButton()),
                       ],
                     ),
                   ],
@@ -788,15 +746,9 @@ Node? reverseList(Node? head) {
                 children: [
                   Expanded(child: _inputField()),
                   const SizedBox(width: 10),
-                  SizedBox(
-                    height: 46,
-                    child: _generateButton(),
-                  ),
+                  SizedBox(height: 46, child: _generateButton()),
                   const SizedBox(width: 10),
-                  SizedBox(
-                    height: 46,
-                    child: _loadButton(),
-                  ),
+                  SizedBox(height: 46, child: _loadButton()),
                 ],
               );
             },
@@ -806,7 +758,7 @@ Node? reverseList(Node? head) {
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color: orange.withOpacity( 0.85),
+                color: orange.withValues(alpha: 0.85),
                 size: 15,
               ),
               const SizedBox(width: 7),
@@ -814,7 +766,7 @@ Node? reverseList(Node? head) {
                 child: Text(
                   'Watch each link change direction as previous, current, and next pointers move through the list.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity( 0.45),
+                    color: Colors.white.withValues(alpha: 0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -829,25 +781,22 @@ Node? reverseList(Node? head) {
   Widget _inputField() {
     return TextField(
       controller: listController,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 13,
-      ),
+      style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
         labelText: 'Enter Linked List Values',
         hintText: '10, 20, 30, 40, 50...',
         labelStyle: TextStyle(
-          color: Colors.white.withOpacity( 0.58),
+          color: Colors.white.withValues(alpha: 0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white.withOpacity( 0.25),
+          color: Colors.white.withValues(alpha: 0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
           Icons.link_rounded,
-          color: cyan.withOpacity( 0.8),
+          color: cyan.withValues(alpha: 0.8),
           size: 19,
         ),
         filled: true,
@@ -858,15 +807,11 @@ Node? reverseList(Node? head) {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity( 0.08),
-          ),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: cyan.withOpacity( 0.55),
-          ),
+          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
         ),
       ),
     );
@@ -875,28 +820,17 @@ Node? reverseList(Node? head) {
   Widget _generateButton() {
     return ElevatedButton.icon(
       onPressed: _generateNumbers,
-      icon: const Icon(
-        Icons.auto_awesome_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
         'Generate List',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: purple,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -904,28 +838,17 @@ Node? reverseList(Node? head) {
   Widget _loadButton() {
     return ElevatedButton.icon(
       onPressed: _loadList,
-      icon: const Icon(
-        Icons.download_rounded,
-        size: 17,
-      ),
+      icon: const Icon(Icons.download_rounded, size: 17),
       label: const Text(
         'LOAD LIST',
-        style: TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 12,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
         foregroundColor: background,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 12,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -978,11 +901,7 @@ Node? reverseList(Node? head) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(
-            Icons.account_tree_rounded,
-            'Visualization',
-            cyan,
-          ),
+          _sectionTitle(Icons.account_tree_rounded, 'Visualization', cyan),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -1004,26 +923,17 @@ Node? reverseList(Node? head) {
                 green,
               ),
               const SizedBox(width: 8),
-              _miniBadge(
-                'STEPS',
-                executionHistory.length.toString(),
-                purple,
-              ),
+              _miniBadge('STEPS', executionHistory.length.toString(), purple),
             ],
           ),
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              vertical: 22,
-              horizontal: 10,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 10),
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity( 0.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -1052,37 +962,38 @@ Node? reverseList(Node? head) {
     final bool isCurrent = index == currentIndex;
     final bool isNext = index == nextIndex;
     final bool isPrevious = index == previousIndex;
-    final bool isReversed = executionHistory.isNotEmpty &&
+    final bool isReversed =
+        executionHistory.isNotEmpty &&
         executionHistory.last.reversedCount > index;
 
-    Color itemColor = Colors.white.withOpacity(0.08);
-    Color borderColor = Colors.white.withOpacity(0.08);
+    Color itemColor = Colors.white.withValues(alpha: 0.08);
+    Color borderColor = Colors.white.withValues(alpha: 0.08);
     Color textColor = Colors.white;
     String label = '';
 
     if (isPrevious) {
-      itemColor = green.withOpacity(0.18);
+      itemColor = green.withValues(alpha: 0.18);
       borderColor = green;
       textColor = green;
       label = 'PREVIOUS';
     }
 
     if (isCurrent) {
-      itemColor = cyan.withOpacity(0.18);
+      itemColor = cyan.withValues(alpha: 0.18);
       borderColor = cyan;
       textColor = cyan;
       label = isNext ? 'CURRENT + NEXT' : 'CURRENT';
     }
 
     if (isNext) {
-      itemColor = orange.withOpacity(0.18);
+      itemColor = orange.withValues(alpha: 0.18);
       borderColor = orange;
       textColor = orange;
       label = isCurrent ? 'CURRENT + NEXT' : 'NEXT';
     }
 
     if (isPrevious && isCurrent) {
-      itemColor = green.withOpacity(0.18);
+      itemColor = green.withValues(alpha: 0.18);
       borderColor = green;
       textColor = green;
       label = 'PREVIOUS + CURRENT';
@@ -1105,10 +1016,10 @@ Node? reverseList(Node? head) {
                       color: isPrevious
                           ? green
                           : isNext
-                              ? orange
-                              : isCurrent
-                                  ? cyan
-                                  : Colors.white.withOpacity(0.25),
+                          ? orange
+                          : isCurrent
+                          ? cyan
+                          : Colors.white.withValues(alpha: 0.25),
                       fontSize: 7.2,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1128,7 +1039,7 @@ Node? reverseList(Node? head) {
                   boxShadow: isCurrent || isNext || isPrevious
                       ? [
                           BoxShadow(
-                            color: borderColor.withOpacity(0.18),
+                            color: borderColor.withValues(alpha: 0.18),
                             blurRadius: 12,
                             spreadRadius: 1,
                           ),
@@ -1150,7 +1061,7 @@ Node? reverseList(Node? head) {
               Text(
                 '[$index]',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1160,11 +1071,7 @@ Node? reverseList(Node? head) {
         ),
         if (index < linkedList.length - 1)
           Padding(
-            padding: const EdgeInsets.only(
-              top: 16,
-              left: 1,
-              right: 1,
-            ),
+            padding: const EdgeInsets.only(top: 16, left: 1, right: 1),
             child: Column(
               children: [
                 Icon(
@@ -1172,16 +1079,16 @@ Node? reverseList(Node? head) {
                       ? Icons.arrow_back_rounded
                       : Icons.arrow_forward_rounded,
                   color: isReversed
-                      ? green.withOpacity(0.75)
-                      : Colors.white.withOpacity(0.35),
+                      ? green.withValues(alpha: 0.75)
+                      : Colors.white.withValues(alpha: 0.35),
                   size: 19,
                 ),
                 Text(
                   isReversed ? 'prev' : 'next',
                   style: TextStyle(
                     color: isReversed
-                        ? green.withOpacity(0.65)
-                        : Colors.white.withOpacity(0.22),
+                        ? green.withValues(alpha: 0.65)
+                        : Colors.white.withValues(alpha: 0.22),
                     fontSize: 7,
                     fontWeight: isReversed ? FontWeight.w700 : FontWeight.w400,
                   ),
@@ -1191,21 +1098,18 @@ Node? reverseList(Node? head) {
           )
         else
           Padding(
-            padding: const EdgeInsets.only(
-              top: 16,
-              left: 3,
-            ),
+            padding: const EdgeInsets.only(top: 16, left: 3),
             child: Column(
               children: [
                 Icon(
                   Icons.arrow_forward_rounded,
-                  color: Colors.white.withOpacity(0.20),
+                  color: Colors.white.withValues(alpha: 0.20),
                   size: 19,
                 ),
                 Text(
                   'null',
                   style: TextStyle(
-                    color: red.withOpacity(0.55),
+                    color: red.withValues(alpha: 0.55),
                     fontSize: 7,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1216,7 +1120,6 @@ Node? reverseList(Node? head) {
       ],
     );
   }
-
 
   Widget _buildLegend() {
     return Wrap(
@@ -1247,7 +1150,7 @@ Node? reverseList(Node? head) {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withOpacity( 0.58),
+            color: Colors.white.withValues(alpha: 0.58),
             fontSize: 10,
             fontWeight: FontWeight.w600,
           ),
@@ -1268,8 +1171,7 @@ Node? reverseList(Node? head) {
     } else if (currentIndex >= 0 &&
         currentIndex < linkedList.length &&
         nextIndex == -1) {
-      message =
-          'Current → ${linkedList[currentIndex]}    •    Next → NULL';
+      message = 'Current → ${linkedList[currentIndex]}    •    Next → NULL';
     } else if (previousIndex >= 0 &&
         previousIndex < linkedList.length &&
         currentIndex == -1) {
@@ -1281,9 +1183,7 @@ Node? reverseList(Node? head) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: cyan.withOpacity(0.14),
-        ),
+        border: Border.all(color: cyan.withValues(alpha: 0.14)),
       ),
       child: Row(
         children: [
@@ -1291,7 +1191,7 @@ Node? reverseList(Node? head) {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: cyan.withOpacity(0.09),
+              color: cyan.withValues(alpha: 0.09),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -1308,7 +1208,7 @@ Node? reverseList(Node? head) {
                 Text(
                   'Current Operation',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.42),
+                    color: Colors.white.withValues(alpha: 0.42),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1327,12 +1227,9 @@ Node? reverseList(Node? head) {
           ),
           if (previousIndex >= 0)
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 9,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
               decoration: BoxDecoration(
-                color: green.withOpacity(0.08),
+                color: green.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(7),
               ),
               child: const Text(
@@ -1365,11 +1262,9 @@ Node? reverseList(Node? head) {
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withOpacity( 0.06),
+        color: color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withOpacity( 0.18),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1380,7 +1275,7 @@ Node? reverseList(Node? head) {
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white.withOpacity( 0.72),
+                color: Colors.white.withValues(alpha: 0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -1400,9 +1295,7 @@ Node? reverseList(Node? head) {
               _controlButton(
                 icon: Icons.skip_previous_rounded,
                 label: 'Previous',
-                onPressed: executionHistory.isEmpty
-                    ? null
-                    : _previousStep,
+                onPressed: executionHistory.isEmpty ? null : _previousStep,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1411,9 +1304,7 @@ Node? reverseList(Node? head) {
                       ? Icons.pause_rounded
                       : Icons.play_arrow_rounded,
                   label: isRunning ? 'Pause' : 'Play',
-                  onPressed: isCompleted
-                      ? null
-                      : _togglePlayPause,
+                  onPressed: isCompleted ? null : _togglePlayPause,
                   primary: true,
                 ),
               ),
@@ -1421,9 +1312,7 @@ Node? reverseList(Node? head) {
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next Step',
-                onPressed: currentStep >= events.length
-                    ? null
-                    : _nextStep,
+                onPressed: currentStep >= events.length ? null : _nextStep,
               ),
               const SizedBox(width: 8),
               _controlButton(
@@ -1436,16 +1325,12 @@ Node? reverseList(Node? head) {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(
-                Icons.speed_rounded,
-                color: cyan,
-                size: 17,
-              ),
+              const Icon(Icons.speed_rounded, color: cyan, size: 17),
               const SizedBox(width: 8),
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withOpacity( 0.55),
+                  color: Colors.white.withValues(alpha: 0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1457,8 +1342,7 @@ Node? reverseList(Node? head) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor:
-                      Colors.white.withOpacity( 0.08),
+                  inactiveColor: Colors.white.withValues(alpha: 0.08),
                   onChanged: _setSpeed,
                 ),
               ),
@@ -1480,14 +1364,10 @@ Node? reverseList(Node? head) {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: events.isEmpty
-                  ? 0
-                  : currentStep / events.length,
+              value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor:
-                  Colors.white.withOpacity( 0.06),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(cyan),
+              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
           const SizedBox(height: 6),
@@ -1497,7 +1377,7 @@ Node? reverseList(Node? head) {
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withOpacity( 0.45),
+                  color: Colors.white.withValues(alpha: 0.45),
                   fontSize: 10,
                 ),
               ),
@@ -1505,16 +1385,16 @@ Node? reverseList(Node? head) {
                 isCompleted
                     ? 'Execution Finished'
                     : isRunning
-                        ? 'Running...'
-                        : currentStep == 0
-                            ? 'Ready'
-                            : 'Paused',
+                    ? 'Running...'
+                    : currentStep == 0
+                    ? 'Ready'
+                    : 'Paused',
                 style: TextStyle(
                   color: isCompleted
                       ? green
                       : isRunning
-                          ? orange
-                          : Colors.white.withOpacity( 0.4),
+                      ? orange
+                      : Colors.white.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1539,26 +1419,19 @@ Node? reverseList(Node? head) {
         icon: Icon(icon, size: 17),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor:
-              Colors.white.withOpacity( 0.04),
-          disabledForegroundColor:
-              Colors.white.withOpacity( 0.20),
+          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
+          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary
-                  ? cyan
-                  : Colors.white.withOpacity( 0.08),
+              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
             ),
           ),
         ),
@@ -1575,11 +1448,7 @@ Node? reverseList(Node? head) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.code_rounded,
-                'Source Code',
-                purple,
-              ),
+              _sectionTitle(Icons.code_rounded, 'Source Code', purple),
               const Spacer(),
               InkWell(
                 onTap: _copyCode,
@@ -1590,20 +1459,14 @@ Node? reverseList(Node? head) {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withOpacity( 0.08),
+                    color: purple.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: purple.withOpacity( 0.20),
-                    ),
+                    border: Border.all(color: purple.withValues(alpha: 0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.copy_rounded,
-                        color: purple,
-                        size: 14,
-                      ),
+                      Icon(Icons.copy_rounded, color: purple, size: 14),
                       SizedBox(width: 5),
                       Text(
                         'Copy',
@@ -1622,75 +1485,66 @@ Node? reverseList(Node? head) {
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            constraints: const BoxConstraints(
-              minHeight: 280,
-              maxHeight: 500,
-            ),
+            constraints: const BoxConstraints(minHeight: 280, maxHeight: 500),
             padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(
-                color: Colors.white.withOpacity( 0.06),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
-                children: List.generate(
-                  lines.length,
-                  (index) {
-                    final lineNumber = index + 1;
-                    final active = lineNumber == activeCodeLine;
+                children: List.generate(lines.length, (index) {
+                  final lineNumber = index + 1;
+                  final active = lineNumber == activeCodeLine;
 
-                    return Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      color: active
-                          ? cyan.withOpacity( 0.09)
-                          : Colors.transparent,
-                      child: Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 25,
-                            child: Text(
-                              '$lineNumber',
-                              textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: active
-                                    ? cyan
-                                    : Colors.white.withOpacity(0.20),
-                                fontSize: 9,
-                                fontFamily: 'monospace',
-                              ),
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    color: active
+                        ? cyan.withValues(alpha: 0.09)
+                        : Colors.transparent,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 25,
+                          child: Text(
+                            '$lineNumber',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: active
+                                  ? cyan
+                                  : Colors.white.withValues(alpha: 0.20),
+                              fontSize: 9,
+                              fontFamily: 'monospace',
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              lines[index],
-                              style: TextStyle(
-                                color: active
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.65),
-                                fontSize: 10,
-                                height: 1.45,
-                                fontFamily: 'monospace',
-                                fontWeight: active
-                                    ? FontWeight.w700
-                                    : FontWeight.w400,
-                              ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            lines[index],
+                            style: TextStyle(
+                              color: active
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.65),
+                              fontSize: 10,
+                              height: 1.45,
+                              fontFamily: 'monospace',
+                              fontWeight: active
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ),
           ),
@@ -1706,23 +1560,14 @@ Node? reverseList(Node? head) {
         children: [
           Row(
             children: [
-              _sectionTitle(
-                Icons.history_rounded,
-                'Execution Steps',
-                cyan,
-              ),
+              _sectionTitle(Icons.history_rounded, 'Execution Steps', cyan),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withOpacity( 0.07),
+                  color: cyan.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(
-                    color: cyan.withOpacity( 0.14),
-                  ),
+                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -1745,10 +1590,7 @@ Node? reverseList(Node? head) {
                 shrinkWrap: true,
                 itemCount: executionHistory.length,
                 itemBuilder: (context, index) {
-                  return _executionStepItem(
-                    index,
-                    executionHistory[index],
-                  );
+                  return _executionStepItem(index, executionHistory[index]);
                 },
               ),
             ),
@@ -1760,29 +1602,24 @@ Node? reverseList(Node? head) {
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        vertical: 35,
-        horizontal: 15,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Colors.white.withOpacity( 0.06),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withOpacity( 0.20),
+            color: Colors.white.withValues(alpha: 0.20),
             size: 32,
           ),
           const SizedBox(height: 10),
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -1791,7 +1628,7 @@ Node? reverseList(Node? head) {
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withOpacity( 0.30),
+              color: Colors.white.withValues(alpha: 0.30),
               fontSize: 10,
             ),
           ),
@@ -1800,21 +1637,16 @@ Node? reverseList(Node? head) {
     );
   }
 
-  Widget _executionStepItem(
-    int index,
-    ReverseEvent event,
-  ) {
+  Widget _executionStepItem(int index, ReverseEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withOpacity( 0.045),
+        color: color.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity( 0.14),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1823,14 +1655,10 @@ Node? reverseList(Node? head) {
             width: 27,
             height: 27,
             decoration: BoxDecoration(
-              color: color.withOpacity( 0.10),
+              color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Icon(
-              _eventIcon(event.type),
-              color: color,
-              size: 15,
-            ),
+            child: Icon(_eventIcon(event.type), color: color, size: 15),
           ),
           const SizedBox(width: 9),
           Expanded(
@@ -1852,7 +1680,7 @@ Node? reverseList(Node? head) {
                     Text(
                       '#${index + 1}',
                       style: TextStyle(
-                        color: Colors.white.withOpacity( 0.22),
+                        color: Colors.white.withValues(alpha: 0.22),
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1863,7 +1691,7 @@ Node? reverseList(Node? head) {
                 Text(
                   event.description,
                   style: TextStyle(
-                    color: Colors.white.withOpacity( 0.53),
+                    color: Colors.white.withValues(alpha: 0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
@@ -1872,7 +1700,7 @@ Node? reverseList(Node? head) {
                 Text(
                   event.operation,
                   style: TextStyle(
-                    color: Colors.white.withOpacity( 0.30),
+                    color: Colors.white.withValues(alpha: 0.30),
                     fontSize: 8.5,
                     fontFamily: 'monospace',
                   ),
@@ -1892,12 +1720,10 @@ Node? reverseList(Node? head) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withOpacity( 0.065),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity( 0.18),
+            color: Colors.black.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -1907,11 +1733,7 @@ Node? reverseList(Node? head) {
     );
   }
 
-  Widget _sectionTitle(
-    IconData icon,
-    String title,
-    Color color,
-  ) {
+  Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1919,14 +1741,10 @@ Node? reverseList(Node? head) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withOpacity( 0.09),
+            color: color.withValues(alpha: 0.09),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 17,
-          ),
+          child: Icon(icon, color: color, size: 17),
         ),
         const SizedBox(width: 9),
         Text(
@@ -1941,22 +1759,13 @@ Node? reverseList(Node? head) {
     );
   }
 
-  Widget _infoBox(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _infoBox(String title, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withOpacity( 0.055),
+        color: color.withValues(alpha: 0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(
-          color: color.withOpacity( 0.16),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1964,7 +1773,7 @@ Node? reverseList(Node? head) {
           Text(
             title,
             style: TextStyle(
-              color: color.withOpacity( 0.8),
+              color: color.withValues(alpha: 0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
@@ -1983,23 +1792,14 @@ Node? reverseList(Node? head) {
     );
   }
 
-  Widget _miniBadge(
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity( 0.07),
+          color: color.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(
-            color: color.withOpacity( 0.18),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: Column(
           children: [

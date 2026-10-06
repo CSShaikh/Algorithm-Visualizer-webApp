@@ -2,6 +2,7 @@ import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/convert
 import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/find_start_of_loop_in_linked_list_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/find_third_element_from_tail_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/finding_middle_element_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/floyd_cycle_detection_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/merge_two_sorted_linked_lists_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/reverse_linked_list_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/sort_linked_list_screen.dart';
@@ -423,6 +424,20 @@ abstract final class AlgorithmRegistry {
     ),
 
     Algorithm(
+      id: 'floyd-cycle-detection',
+      title: 'Floyd Cycle Detection',
+      description:
+          'Detects whether a linked list contains a cycle using slow and fast pointers.',
+      complexity: 'O(n)',
+      categoryLabel: 'Linked List Algorithms',
+      category: AlgorithmCategory.linkedListAlgorithms,
+      color: AppColors.pink,
+      icon: Icons.loop_rounded,
+      difficulty: 'Medium',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    Algorithm(
       id: 'linked-list-to-binary-tree',
       title: 'Convert Linked List to Binary Tree',
       description: 'Converts linked list data into a binary tree structure.',
@@ -569,7 +584,7 @@ abstract final class AlgorithmRegistry {
     // Multiple Linear Regression //
     Algorithm(
       id: 'multiple-linear-regression',
-      title: 'Multiple Linear Regression Screen',
+      title: 'Multiple Linear Regression',
       description:
           'Predicts a target value from multiple input features using multiple linear regression.',
       complexity: 'O(n × p² + p³)',
@@ -671,6 +686,8 @@ abstract final class AlgorithmRegistry {
         return const MergeTwoSortedLinkedListsScreen();
       case 'linked-list-to-binary-tree':
         return const ConvertLinkedListToBinaryTreeScreen();
+      case 'floyd-cycle-detection':
+        return const FloydCycleDetectionScreen();
       default:
         return null;
     }

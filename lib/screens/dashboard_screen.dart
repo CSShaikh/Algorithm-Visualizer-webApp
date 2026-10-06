@@ -352,11 +352,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 280),
-            curve: Curves.easeOutCubic,
+            duration: const Duration(milliseconds: 330),
+            curve: Curves.easeInOutCubic,
             top: 0,
             bottom: 0,
-            left: isSidebarOpen ? 0 : -290,
+            left: isSidebarOpen ? 0 : -300,
             width: 280,
             child: Material(color: Colors.transparent, child: _buildSidebar()),
           ),
@@ -373,19 +373,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final tablet = _isTablet(context);
 
     final sidebarWidth = tablet
-        ? (isSidebarOpen ? 250.0 : 78.0)
-        : (isSidebarOpen ? 270.0 : 92.0);
+        ? (isSidebarOpen ? 250.0 : 72.0)
+        : (isSidebarOpen ? 280.0 : 72.0);
 
     return Scaffold(
       backgroundColor: _background,
       body: Row(
         children: [
           AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 330),
+            curve: Curves.easeInOutCubic,
             width: sidebarWidth,
             child: RepaintBoundary(
-              child: isSidebarOpen ? _buildSidebar() : _buildCollapsedSidebar(),
+              child: ClipRect(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: tablet ? 250 : 280,
+                      child: IgnorePointer(
+                        ignoring: !isSidebarOpen,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 170),
+                          curve: Curves.easeOut,
+                          opacity: isSidebarOpen ? 1 : 0,
+                          child: _buildSidebar(),
+                        ),
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        ignoring: isSidebarOpen,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 170),
+                          curve: Curves.easeIn,
+                          opacity: isSidebarOpen ? 0 : 1,
+                          child: _buildCollapsedSidebar(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           Expanded(
@@ -676,7 +708,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    '${AlgorithmRegistry.implemented.length} ALGORITHMS  •  '
+                    '${AlgorithmRegistry.implemented.length} READY  •  '
+                    '${AlgorithmRegistry.all.length} TOTAL  •  '
                     '${_categoryLabels.length} CATEGORIES',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -1102,7 +1135,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final matchesQuery = query.isEmpty ||
               algorithm.title.toLowerCase().contains(query) ||
               algorithm.categoryLabel.toLowerCase().contains(query) ||
-              algorithm.description.toLowerCase().contains(query);
+              algorithm.description.toLowerCase().contains(query) ||
+              algorithm.complexity.toLowerCase().contains(query) ||
+              algorithm.difficulty.toLowerCase().contains(query) ||
+              algorithm.id.toLowerCase().contains(query);
 
           final matchesCategory = selectedCategory == 'All' ||
               algorithm.categoryLabel == selectedCategory;
@@ -1161,7 +1197,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildBreadcrumb(),
                 SizedBox(height: mobile ? 16 : 24),
                 _buildHero(),
-                SizedBox(height: mobile ? 20 : 28),
+                SizedBox(height: mobile ? 18 : 22),
+                _buildOverviewSection(),
+                SizedBox(height: mobile ? 22 : 28),
                 _buildHorizontalCategoryBar(),
                 const SizedBox(height: 12),
                 _buildFilterBar(),
@@ -1191,8 +1229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 else
                   _buildAlgorithmGrid(filtered),
                 SizedBox(height: mobile ? 32 : 45),
-                _buildOverviewSection(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 1),
               ],
             ),
           ),
@@ -1431,6 +1468,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             );
           }),
+          if (selectedCategory != 'All' ||
+              selectedDifficulty != 'All' ||
+              selectedStatusFilter != 'All' ||
+              searchQuery.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  selectedCategory = 'All';
+                  selectedDifficulty = 'All';
+                  selectedStatusFilter = 'All';
+                  searchQuery = '';
+                  searchController.clear();
+                });
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 15),
+              label: const Text('Reset'),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.cyan,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1488,10 +1548,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final tablet = width >= 650 && width < 950;
 
         final heroHeight = mobile
-            ? 350.0
+            ? 285.0
             : tablet
             ? 260.0
-            : 230.0;
+            : 235.0;
 
         return Container(
           width: double.infinity,
@@ -1622,7 +1682,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         border: Border.all(color: AppColors.cyan.withValues(alpha: .30)),
       ),
       child: Text(
-        'ALGORITHM VISUALIZER • ${AlgorithmRegistry.implemented.length} READY',
+        'ALGORITHM VISUALIZER • ${AlgorithmRegistry.implemented.length} READY • ${AlgorithmRegistry.comingSoon.length} SOON',
         style: const TextStyle(
           color: AppColors.cyan,
           fontSize: 9,
@@ -1793,10 +1853,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final spacing = width < 650 ? 14.0 : 18.0;
 
         final cardHeight = width < 650
-            ? 225.0
+            ? 220.0
             : width < 900
-            ? 235.0
-            : 245.0;
+            ? 225.0
+            : 220.0;
 
         return GridView.builder(
           shrinkWrap: true,
@@ -1815,6 +1875,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               item: algorithm,
               onTap: () => _openAlgorithm(algorithm),
               isDarkMode: isDarkMode,
+              searchQuery: searchQuery,
             );
           },
         );
@@ -1850,10 +1911,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Try searching for another algorithm.',
+            'Try another algorithm name, category, difficulty, status, or complexity.',
             textAlign: TextAlign.center,
             style: TextStyle(color: _secondaryText, fontSize: 12),
           ),
+          if (searchQuery.isNotEmpty ||
+              selectedCategory != 'All' ||
+              selectedDifficulty != 'All' ||
+              selectedStatusFilter != 'All') ...[
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () {
+                setState(() {
+                  selectedCategory = 'All';
+                  selectedDifficulty = 'All';
+                  selectedStatusFilter = 'All';
+                  searchQuery = '';
+                  searchController.clear();
+                });
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 16),
+              label: const Text('Reset filters'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.cyan,
+                side: BorderSide(
+                  color: AppColors.cyan.withValues(alpha: .28),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1955,12 +2041,14 @@ class AlgorithmCardWidget extends StatefulWidget {
   final Algorithm item;
   final VoidCallback onTap;
   final bool isDarkMode;
+  final String searchQuery;
 
   const AlgorithmCardWidget({
     super.key,
     required this.item,
     required this.onTap,
     required this.isDarkMode,
+    this.searchQuery = '',
   });
 
   @override
@@ -2049,16 +2137,17 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        widget.item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: primaryText,
-                          fontSize: mobile ? 14 : 15,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      child: _HighlightedText(
+                      text: widget.item.title,
+                      query: widget.searchQuery,
+                      maxLines: 1,
+                      baseStyle: TextStyle(
+                        color: primaryText,
+                        fontSize: mobile ? 14 : 15,
+                        fontWeight: FontWeight.w800,
                       ),
+                      highlightColor: color,
+                    ),
                     ),
                     const SizedBox(width: 6),
                     Container(
@@ -2159,12 +2248,26 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
 
                     const SizedBox(width: 8),
 
+                    const Spacer(),
+                    Text(
+                      widget.item.isComingSoon ? 'Coming Soon' : 'Visualize',
+                      style: TextStyle(
+                        color: hovered
+                            ? color
+                            : secondaryText.withValues(alpha: .82),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
                     Icon(
-                      Icons.arrow_forward_rounded,
+                      widget.item.isComingSoon
+                          ? Icons.hourglass_top_rounded
+                          : Icons.arrow_forward_rounded,
                       color: hovered
                           ? color
                           : secondaryText.withValues(alpha: .60),
-                      size: 19,
+                      size: 17,
                     ),
                   ],
                 ),
@@ -2187,6 +2290,67 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
       default:
         return AppColors.cyan;
     }
+  }
+}
+
+class _HighlightedText extends StatelessWidget {
+  final String text;
+  final String query;
+  final int maxLines;
+  final TextStyle baseStyle;
+  final Color highlightColor;
+
+  const _HighlightedText({
+    required this.text,
+    required this.query,
+    required this.maxLines,
+    required this.baseStyle,
+    required this.highlightColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) {
+      return Text(
+        text,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: baseStyle,
+      );
+    }
+
+    final lower = text.toLowerCase();
+    final needle = trimmed.toLowerCase();
+    final start = lower.indexOf(needle);
+    if (start < 0) {
+      return Text(
+        text,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: baseStyle,
+      );
+    }
+
+    final end = start + needle.length;
+    return Text.rich(
+      TextSpan(
+        children: [
+          if (start > 0) TextSpan(text: text.substring(0, start)),
+          TextSpan(
+            text: text.substring(start, end),
+            style: baseStyle.copyWith(
+              color: highlightColor,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          if (end < text.length) TextSpan(text: text.substring(end)),
+        ],
+        style: baseStyle,
+      ),
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+    );
   }
 }
 
@@ -2322,7 +2486,7 @@ class DashboardGridPainter extends CustomPainter {
     final paint = Paint()
       ..color = isDarkMode
           ? Colors.white.withValues(alpha: .018)
-          : const Color(0xFF94A3B8).withValues(alpha: .16)
+          : const Color(0xFF94A3B8).withValues(alpha: .055)
       ..strokeWidth = .7;
 
     const spacing = 45.0;

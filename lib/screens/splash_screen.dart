@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _loadingController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 7),
+      duration: const Duration(milliseconds: 1900),
     );
 
     _loadingController.forward().whenComplete(() {
