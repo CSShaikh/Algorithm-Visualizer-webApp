@@ -1,3 +1,10 @@
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/convert_linked_list_to_binary_tree_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/find_start_of_loop_in_linked_list_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/find_third_element_from_tail_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/finding_middle_element_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/merge_two_sorted_linked_lists_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/reverse_linked_list_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/Linked_list_algorithms/sort_linked_list_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/array_algorithms/two_pointer_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/euclidean_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/mathematical_algorithms/fibonacci_screen.dart';
@@ -9,6 +16,7 @@ import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms
 import 'package:a_algorithm_visualizer/algorithms/dynamic_programming_algorithms/lis_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/sorting_algorithms/counting_sort_screen.dart';
 import 'package:a_algorithm_visualizer/algorithms/supervised_learning_algorithms/linear_regression_screen.dart';
+import 'package:a_algorithm_visualizer/algorithms/supervised_learning_algorithms/multiple_linear_regression_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../algorithms/graph_algorithms/dijkstra_screen.dart';
@@ -243,7 +251,7 @@ abstract final class AlgorithmRegistry {
       color: AppColors.cyan,
       icon: Icons.account_tree_rounded,
       difficulty: 'Medium',
-      status: AlgorithmStatus.implemented,
+      status: AlgorithmStatus.comingSoon,
     ),
     Algorithm(
       id: 'binary-tree',
@@ -255,7 +263,7 @@ abstract final class AlgorithmRegistry {
       color: AppColors.blue,
       icon: Icons.account_tree_rounded,
       difficulty: 'Medium',
-      status: AlgorithmStatus.implemented,
+      status: AlgorithmStatus.comingSoon,
     ),
     Algorithm(
       id: 'binary-search-tree',
@@ -268,7 +276,7 @@ abstract final class AlgorithmRegistry {
       color: AppColors.pink,
       icon: Icons.account_tree_rounded,
       difficulty: 'Hard',
-      status: AlgorithmStatus.implemented,
+      status: AlgorithmStatus.comingSoon,
     ),
 
     // -------------------------------------------------------------------------
@@ -297,7 +305,7 @@ abstract final class AlgorithmRegistry {
       color: AppColors.cyan,
       icon: Icons.hub_rounded,
       difficulty: 'Medium',
-      status: AlgorithmStatus.implemented,
+      status: AlgorithmStatus.comingSoon,
     ),
     Algorithm(
       id: 'dfs',
@@ -309,7 +317,7 @@ abstract final class AlgorithmRegistry {
       color: AppColors.purple,
       icon: Icons.account_tree_rounded,
       difficulty: 'Medium',
-      status: AlgorithmStatus.implemented,
+      status: AlgorithmStatus.comingSoon,
     ),
 
     // -------------------------------------------------------------------------
@@ -542,8 +550,8 @@ abstract final class AlgorithmRegistry {
       difficulty: 'Medium',
       status: AlgorithmStatus.implemented,
     ),
-    // Supervised Learning Algorithms //
 
+    // Supervised Learning Algorithms //
     Algorithm(
       id: 'linear-regression',
       title: 'Linear Regression',
@@ -555,6 +563,21 @@ abstract final class AlgorithmRegistry {
       color: AppColors.green,
       icon: Icons.show_chart_rounded,
       difficulty: 'Easy',
+      status: AlgorithmStatus.implemented,
+    ),
+
+    // Multiple Linear Regression //
+    Algorithm(
+      id: 'multiple-linear-regression',
+      title: 'Multiple Linear Regression Screen',
+      description:
+          'Predicts a target value from multiple input features using multiple linear regression.',
+      complexity: 'O(n × p² + p³)',
+      categoryLabel: 'Supervised Learning Algorithms',
+      category: AlgorithmCategory.supervisedLearningAlgorithms,
+      color: AppColors.blue,
+      icon: Icons.model_training_rounded,
+      difficulty: 'Hard',
       status: AlgorithmStatus.implemented,
     ),
   ];
@@ -632,6 +655,22 @@ abstract final class AlgorithmRegistry {
         return const FibonacciAlgorithmScreen();
       case 'linear-regression':
         return const LinearRegressionScreen();
+      case 'multiple-linear-regression':
+        return const MultipleLinearRegressionScreen();
+      case 'find-middle-linked-list':
+        return const FindMiddleElementScreen();
+      case 'reverse-linked-list':
+        return const ReverseLinkedListScreen();
+      case 'find-loop-start-linked-list':
+        return const FindStartOfLoopScreen();
+      case 'third-element-from-tail':
+        return const FindThirdElementFromTailScreen();
+      case 'sort-linked-list':
+        return const SortLinkedListScreen();
+      case 'merge-two-sorted-linked-lists':
+        return const MergeTwoSortedLinkedListsScreen();
+      case 'linked-list-to-binary-tree':
+        return const ConvertLinkedListToBinaryTreeScreen();
       default:
         return null;
     }

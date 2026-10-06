@@ -31,10 +31,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isSidebarOpen = true;
   bool get isDarkMode => ThemeController.instance.isDarkMode;
 
-  String selectedCategory = 'Searching';
+  String selectedCategory = 'All';
+  String selectedDifficulty = 'All';
+  String selectedStatusFilter = 'All';
   String searchQuery = '';
 
   final TextEditingController searchController = TextEditingController();
+
+  List<String> get _allCategoryFilters => ['All', ..._categoryLabels];
 
   static const double mobileBreakpoint = 700;
   static const double tabletBreakpoint = 1100;
@@ -69,7 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ==============================================================
 
   /// Single source of truth comes from AlgorithmRegistry.
-  List<Algorithm> get algorithms => AlgorithmRegistry.implemented;
+  List<Algorithm> get algorithms => AlgorithmRegistry.all;
 
   List<Algorithm> _algorithmsForCategory(String category) {
     return algorithms
@@ -90,6 +94,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Color _categoryColor(String category) {
+    if (category == 'All') {
+      return AppColors.cyan;
+    }
+
     final matching = _algorithmsForCategory(category);
 
     if (matching.isNotEmpty) {
@@ -124,6 +132,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   IconData _categoryIcon(String category) {
+    if (category == 'All') {
+      return Icons.grid_view_rounded;
+    }
+
     switch (category) {
       case 'Searching':
         return Icons.search_rounded;
@@ -199,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _selectCategory(String category) {
     setState(() {
-      selectedIndex = 1;
+      selectedIndex = category == 'All' ? 0 : 1;
       selectedCategory = category;
       searchQuery = '';
       searchController.clear();
@@ -215,9 +227,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _goToDashboard() {
     setState(() {
       selectedIndex = 0;
-      selectedCategory = _categoryLabels.isNotEmpty
-          ? _categoryLabels.first
-          : 'Searching';
+      selectedCategory = 'All';
+      selectedDifficulty = 'All';
+      selectedStatusFilter = 'All';
       searchQuery = '';
       searchController.clear();
     });
@@ -434,17 +446,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(width: 12),
               ],
-              if (!mobile) ...[
-                _topIconButton(
-                  isDarkMode
-                      ? Icons.light_mode_outlined
-                      : Icons.dark_mode_outlined,
-                  _toggleTheme,
-                ),
-                if (!tablet) ...[
-                  const SizedBox(width: 8),
-                  _topIconButton(Icons.person_outline_rounded, () {}),
-                ],
+              _topIconButton(
+                isDarkMode
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
+                _toggleTheme,
+              ),
+              if (!mobile && !tablet) ...[
+                const SizedBox(width: 8),
+                _topIconButton(Icons.person_outline_rounded, () {}),
               ],
             ],
           ),
@@ -918,6 +928,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
+                  if (algorithm.isComingSoon) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.orange.withValues(alpha: .12),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Text(
+                        'Soon',
+                        style: TextStyle(
+                          color: AppColors.orange,
+                          fontSize: 7.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                   Icon(
                     Icons.chevron_right_rounded,
                     color: _mutedText.withValues(alpha: .55),
@@ -1071,13 +1099,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .where((algorithm) {
           final query = searchQuery.toLowerCase().trim();
 
-          if (query.isEmpty) {
-            return algorithm.categoryLabel == selectedCategory;
-          }
-
-          return algorithm.title.toLowerCase().contains(query) ||
+          final matchesQuery = query.isEmpty ||
+              algorithm.title.toLowerCase().contains(query) ||
               algorithm.categoryLabel.toLowerCase().contains(query) ||
               algorithm.description.toLowerCase().contains(query);
+
+          final matchesCategory = selectedCategory == 'All' ||
+              algorithm.categoryLabel == selectedCategory;
+
+          final matchesDifficulty = selectedDifficulty == 'All' ||
+              algorithm.difficulty.toLowerCase() ==
+                  selectedDifficulty.toLowerCase();
+
+          final matchesStatus = selectedStatusFilter == 'All' ||
+              (selectedStatusFilter == 'Ready' && algorithm.isImplemented) ||
+              (selectedStatusFilter == 'Soon' && algorithm.isComingSoon);
+
+          return matchesQuery &&
+              matchesCategory &&
+              matchesDifficulty &&
+              matchesStatus;
         })
         .toList(growable: false);
 
@@ -1120,17 +1161,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildBreadcrumb(),
                 SizedBox(height: mobile ? 16 : 24),
                 _buildHero(),
-                SizedBox(height: mobile ? 28 : 42),
+                SizedBox(height: mobile ? 20 : 28),
+                _buildHorizontalCategoryBar(),
+                const SizedBox(height: 12),
+                _buildFilterBar(),
+                SizedBox(height: mobile ? 22 : 30),
                 _buildSectionHeader(
-                  title: searchQuery.isEmpty
-                      ? '$selectedCategory Algorithms'
-                      : 'Search Results',
-                  subtitle: searchQuery.isEmpty
-                      ? 'Explore algorithms interactively'
-                      : '${filtered.length} algorithm(s) found',
-                  color: AppColors.cyan,
+                  title: searchQuery.isNotEmpty
+                      ? 'Search Results'
+                      : selectedCategory == 'All'
+                          ? 'All Algorithms'
+                          : '$selectedCategory Algorithms',
+                  subtitle: searchQuery.isNotEmpty
+                      ? '${filtered.length} algorithm(s) found'
+                      : selectedCategory == 'All'
+                          ? 'Showing all ${filtered.length} algorithms across categories'
+                          : 'Explore ${selectedCategory.toLowerCase()} algorithms interactively',
+                  color: selectedCategory == 'All'
+                      ? AppColors.cyan
+                      : _categoryColor(selectedCategory),
                   count: filtered.length,
-                  icon: Icons.search_rounded,
+                  icon: selectedCategory == 'All'
+                      ? Icons.grid_view_rounded
+                      : _categoryIcon(selectedCategory),
                 ),
                 SizedBox(height: mobile ? 14 : 18),
                 if (filtered.isEmpty)
@@ -1143,6 +1196,241 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  // ==============================================================
+  // HORIZONTAL CATEGORY BAR
+  // ==============================================================
+
+  Widget _buildHorizontalCategoryBar() {
+    final categories = _allCategoryFilters;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 44,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemCount: categories.length,
+            separatorBuilder: (context, index) => const SizedBox(width: 8),
+            itemBuilder: (context, index) {
+              final cat = categories[index];
+              final isSelected = selectedCategory == cat;
+              final catColor = _categoryColor(cat);
+              final count = cat == 'All'
+                  ? algorithms.length
+                  : _algorithmsForCategory(cat).length;
+
+              return InkWell(
+                onTap: () => _selectCategory(cat),
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? catColor.withValues(alpha: isDarkMode ? .18 : .12)
+                        : _cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected
+                          ? catColor.withValues(alpha: .65)
+                          : (isDarkMode
+                              ? Colors.white.withValues(alpha: .06)
+                              : Colors.black.withValues(alpha: .06)),
+                      width: isSelected ? 1.4 : 1.0,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: catColor.withValues(alpha: .15),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _categoryIcon(cat),
+                        size: 16,
+                        color: isSelected ? catColor : _secondaryText,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        cat,
+                        style: TextStyle(
+                          color: isSelected ? _primaryText : _secondaryText,
+                          fontSize: 12,
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? catColor.withValues(alpha: .24)
+                              : (isDarkMode
+                                  ? Colors.white.withValues(alpha: .06)
+                                  : Colors.black.withValues(alpha: .05)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$count',
+                          style: TextStyle(
+                            color: isSelected ? catColor : _mutedText,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==============================================================
+  // DIFFICULTY & STATUS FILTER BAR
+  // ==============================================================
+
+  Widget _buildFilterBar() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: [
+          Text(
+            'DIFFICULTY:',
+            style: TextStyle(
+              color: _mutedText,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: .8,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ...['All', 'Easy', 'Medium', 'Hard'].map((diff) {
+            final active = selectedDifficulty == diff;
+            Color diffColor;
+            switch (diff) {
+              case 'Easy':
+                diffColor = AppColors.green;
+                break;
+              case 'Medium':
+                diffColor = AppColors.orange;
+                break;
+              case 'Hard':
+                diffColor = AppColors.pink;
+                break;
+              default:
+                diffColor = AppColors.cyan;
+            }
+            return Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: ChoiceChip(
+                label: Text(diff),
+                selected: active,
+                onSelected: (_) {
+                  setState(() => selectedDifficulty = diff);
+                },
+                selectedColor: diffColor.withValues(alpha: .18),
+                backgroundColor: _cardColor,
+                side: BorderSide(
+                  color: active
+                      ? diffColor.withValues(alpha: .6)
+                      : (isDarkMode
+                          ? Colors.white.withValues(alpha: .06)
+                          : Colors.black.withValues(alpha: .06)),
+                ),
+                labelStyle: TextStyle(
+                  color: active
+                      ? (isDarkMode ? Colors.white : diffColor)
+                      : _secondaryText,
+                  fontSize: 10.5,
+                  fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(9),
+                ),
+              ),
+            );
+          }),
+          const SizedBox(width: 14),
+          Text(
+            'STATUS:',
+            style: TextStyle(
+              color: _mutedText,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: .8,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ...['All', 'Ready', 'Soon'].map((st) {
+            final active = selectedStatusFilter == st;
+            final color = st == 'Ready'
+                ? AppColors.green
+                : st == 'Soon'
+                    ? AppColors.orange
+                    : AppColors.blue;
+            final labelText = st == 'Ready'
+                ? '⚡ Interactive'
+                : st == 'Soon'
+                    ? '⏳ Soon'
+                    : 'All';
+            return Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: ChoiceChip(
+                label: Text(labelText),
+                selected: active,
+                onSelected: (_) {
+                  setState(() => selectedStatusFilter = st);
+                },
+                selectedColor: color.withValues(alpha: .18),
+                backgroundColor: _cardColor,
+                side: BorderSide(
+                  color: active
+                      ? color.withValues(alpha: .6)
+                      : (isDarkMode
+                          ? Colors.white.withValues(alpha: .06)
+                          : Colors.black.withValues(alpha: .06)),
+                ),
+                labelStyle: TextStyle(
+                  color: active
+                      ? (isDarkMode ? Colors.white : color)
+                      : _secondaryText,
+                  fontSize: 10.5,
+                  fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(9),
+                ),
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -1333,9 +1621,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: AppColors.cyan.withValues(alpha: .30)),
       ),
-      child: const Text(
-        'WELCOME TO THE LAB',
-        style: TextStyle(
+      child: Text(
+        'ALGORITHM VISUALIZER • ${AlgorithmRegistry.implemented.length} READY',
+        style: const TextStyle(
           color: AppColors.cyan,
           fontSize: 9,
           fontWeight: FontWeight.w900,
@@ -1603,13 +1891,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             final stats = [
               (
                 Icons.category_rounded,
-                '${AlgorithmRegistry.implemented.length}',
-                'Algorithms',
+                '${AlgorithmRegistry.all.length}',
+                'Total Algorithms',
                 AppColors.cyan,
               ),
-              (Icons.animation_rounded, 'STEP', 'Animations', AppColors.purple),
-              (Icons.speed_rounded, 'BIG-O', 'Analysis', AppColors.green),
-              (Icons.school_rounded, 'DSA', 'Learning', AppColors.orange),
+              (
+                Icons.check_circle_rounded,
+                '${AlgorithmRegistry.implemented.length}',
+                'Interactive Ready',
+                AppColors.green,
+              ),
+              (
+                Icons.hourglass_top_rounded,
+                '${AlgorithmRegistry.comingSoon.length}',
+                'Coming Soon',
+                AppColors.orange,
+              ),
+              (
+                Icons.folder_copy_rounded,
+                '${_categoryLabels.length}',
+                'Categories',
+                AppColors.purple,
+              ),
             ];
 
             return GridView.builder(
@@ -1778,6 +2081,31 @@ class _AlgorithmCardWidgetState extends State<AlgorithmCardWidget> {
                         ),
                       ),
                     ),
+                    if (widget.item.isComingSoon) ...[
+                      const SizedBox(width: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.orange.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: AppColors.orange.withValues(alpha: .30),
+                          ),
+                        ),
+                        child: const Text(
+                          'SOON',
+                          style: TextStyle(
+                            color: AppColors.orange,
+                            fontSize: 7,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: .5,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 14),

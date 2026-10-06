@@ -294,7 +294,9 @@ final residual = y - prediction;
       currentIndex = -1;
       executionMessage = 'Regression Complete: $equation';
     }
-    if (updateState) setState(() {});
+    if (updateState) {
+      setState(() {});
+    }
   }
 
   void _rebuildVisualState() {
@@ -527,16 +529,22 @@ final residual = y - prediction;
   }
 
   void _nextStep() {
-    if (currentStep >= events.length) return;
+    if (currentStep >= events.length) {
+      return;
+    }
     final e = events[currentStep];
     executionHistory.add(e);
     currentStep++;
     _applyEvent(e);
-    if (currentStep >= events.length) setState(() => isCompleted = true);
+    if (currentStep >= events.length) {
+      setState(() => isCompleted = true);
+    }
   }
 
   void _previousStep() {
-    if (executionHistory.isEmpty) return;
+    if (executionHistory.isEmpty) {
+      return;
+    }
     executionHistory.removeLast();
     currentStep = max(0, currentStep - 1);
     setState(() => isCompleted = false);
@@ -1061,12 +1069,11 @@ final residual = y - prediction;
     String m;
     if (currentIndex >= 0 && prediction != 0) {
       m = 'Sample $currentIndex: x = ${_fmt(xValues[currentIndex])}, observed y = ${_fmt(yValues[currentIndex])}, predicted y = ${_fmt(prediction)}, residual = ${_fmt(residual)}';
-    } else if (isCompleted)
-      // ignore: curly_braces_in_flow_control_structures
+    } else if (isCompleted) {
       m = 'Model fitted successfully: $equation';
-    else
-      // ignore: curly_braces_in_flow_control_structures
+    } else {
       m = 'Press Next Step or Play to fit the least-squares regression line.';
+    }
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -1439,6 +1446,7 @@ class _RegressionPainter extends CustomPainter {
   final int currentIndex;
   final bool showLine;
   final Color cyan, green, orange, red;
+
   _RegressionPainter({
     required this.x,
     required this.y,
@@ -1452,37 +1460,99 @@ class _RegressionPainter extends CustomPainter {
     required this.orange,
     required this.red,
   });
+
   @override
   void paint(Canvas canvas, Size size) {
-    if (x.isEmpty) return;
-    final minX = x.reduce(min),
-        maxX = x.reduce(max),
-        minY = y.reduce(min),
-        maxY = y.reduce(max);
-    final dx = (maxX - minX).abs() < .001 ? 1 : maxX - minX,
-        dy = (maxY - minY).abs() < .001 ? 1 : maxY - minY;
-    const left = 42.0, right = 14.0, top = 18.0, bottom = 32.0;
+    if (x.isEmpty || y.isEmpty) return;
+
+    final minXData = x.reduce(min);
+    final maxXData = x.reduce(max);
+    final xRange = (maxXData - minXData).abs();
+    final xPad = xRange < 0.001 ? 1.0 : xRange * 0.12;
+    final minX = minXData - xPad;
+    final maxX = maxXData + xPad;
+
+    final fittedMinY = intercept + slope * minX;
+    final fittedMaxY = intercept + slope * maxX;
+
+    final allY = <double>[...y];
+    if (showLine) {
+      allY.add(fittedMinY);
+      allY.add(fittedMaxY);
+    }
+    if (currentIndex >= 0 && currentIndex < x.length && prediction.isFinite) {
+      allY.add(prediction);
+    }
+
+    var minY = allY.reduce(min);
+    var maxY = allY.reduce(max);
+    final yRange = (maxY - minY).abs();
+    final yPad = yRange < 0.001 ? 1.0 : yRange * 0.14;
+    minY -= yPad;
+    maxY += yPad;
+
+    final dx = (maxX - minX).abs() < 0.001 ? 1.0 : maxX - minX;
+    final dy = (maxY - minY).abs() < 0.001 ? 1.0 : maxY - minY;
+
+    const left = 48.0;
+    const right = 18.0;
+    const top = 22.0;
+    const bottom = 38.0;
     final plot = Rect.fromLTRB(
       left,
       top,
       size.width - right,
       size.height - bottom,
     );
+
     Offset map(double xv, double yv) => Offset(
       plot.left + (xv - minX) / dx * plot.width,
       plot.bottom - (yv - minY) / dy * plot.height,
     );
+
     final grid = Paint()
-      ..color = Colors.white.withValues(alpha: .06)
+      ..color = Colors.white.withValues(alpha: .055)
       ..strokeWidth = 1;
+
+    final labelStyle = TextStyle(
+      color: Colors.white.withValues(alpha: .38),
+      fontSize: 9,
+      fontWeight: FontWeight.w600,
+    );
+
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+
     for (int i = 0; i <= 4; i++) {
-      final xx = plot.left + i * plot.width / 4,
-          yy = plot.top + i * plot.height / 4;
+      final ratio = i / 4;
+      final xx = plot.left + ratio * plot.width;
+      final yy = plot.bottom - ratio * plot.height;
+
       canvas.drawLine(Offset(xx, plot.top), Offset(xx, plot.bottom), grid);
       canvas.drawLine(Offset(plot.left, yy), Offset(plot.right, yy), grid);
+
+      textPainter.text = TextSpan(
+        text: _axisNumber(minX + ratio * dx),
+        style: labelStyle,
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(xx - textPainter.width / 2, plot.bottom + 8),
+      );
+
+      textPainter.text = TextSpan(
+        text: _axisNumber(minY + ratio * dy),
+        style: labelStyle,
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(plot.left - textPainter.width - 8, yy - textPainter.height / 2),
+      );
     }
+
     final axis = Paint()
-      ..color = Colors.white.withValues(alpha: .16)
+      ..color = Colors.white.withValues(alpha: .18)
       ..strokeWidth = 1.2;
     canvas.drawLine(
       Offset(plot.left, plot.bottom),
@@ -1494,45 +1564,55 @@ class _RegressionPainter extends CustomPainter {
       Offset(plot.left, plot.bottom),
       axis,
     );
+
     if (showLine) {
-      final y1 = intercept + slope * minX, y2 = intercept + slope * maxX;
       final line = Paint()
         ..color = green
-        ..strokeWidth = 3
+        ..strokeWidth = 3.2
         ..strokeCap = StrokeCap.round;
-      canvas.drawLine(map(minX, y1), map(maxX, y2), line);
+      canvas.drawLine(map(minX, fittedMinY), map(maxX, fittedMaxY), line);
     }
+
     for (int i = 0; i < x.length; i++) {
-      final p = map(x[i], y[i]);
-      if (i == currentIndex && prediction != 0) {
-        final pp = map(x[i], prediction);
-        final rp = Paint()
-          ..color = red.withValues(alpha: .8)
-          ..strokeWidth = 2;
-        canvas.drawLine(p, pp, rp);
+      final observed = map(x[i], y[i]);
+
+      if (i == currentIndex && prediction.isFinite) {
+        final predicted = map(x[i], prediction);
+        final residualPaint = Paint()
+          ..color = red.withValues(alpha: .85)
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round;
+        canvas.drawLine(observed, predicted, residualPaint);
+
+        final predictionPaint = Paint()..color = red;
+        canvas.drawCircle(predicted, 4.5, predictionPaint);
       }
-      final point = Paint()..color = i == currentIndex ? orange : cyan;
-      canvas.drawCircle(p, i == currentIndex ? 7 : 5, point);
+
+      final pointPaint = Paint()..color = i == currentIndex ? orange : cyan;
+      canvas.drawCircle(observed, i == currentIndex ? 7 : 5, pointPaint);
     }
-    final tp = TextPainter(textDirection: TextDirection.ltr);
-    tp.text = TextSpan(
-      text: 'X',
-      style: TextStyle(
-        color: Colors.white.withValues(alpha: .45),
-        fontSize: 10,
-      ),
+
+    textPainter.text = TextSpan(text: 'X', style: labelStyle);
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(plot.right - textPainter.width, plot.bottom + 22),
     );
-    tp.layout();
-    tp.paint(canvas, Offset(plot.right - 4, plot.bottom + 8));
-    tp.text = TextSpan(
-      text: 'Y',
-      style: TextStyle(
-        color: Colors.white.withValues(alpha: .45),
-        fontSize: 10,
-      ),
+
+    textPainter.text = TextSpan(text: 'Y', style: labelStyle);
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(plot.left - textPainter.width - 22, plot.top - 2),
     );
-    tp.layout();
-    tp.paint(canvas, Offset(plot.left - 28, plot.top - 2));
+  }
+
+  String _axisNumber(double value) {
+    if (value.abs() < 0.0001) return '0';
+    if ((value - value.roundToDouble()).abs() < 0.0001) {
+      return value.toStringAsFixed(0);
+    }
+    return value.toStringAsFixed(1);
   }
 
   @override

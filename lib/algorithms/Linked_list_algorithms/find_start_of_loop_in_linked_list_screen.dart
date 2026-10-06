@@ -4,64 +4,51 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class FibonacciAlgorithmScreen extends StatefulWidget {
-  const FibonacciAlgorithmScreen({super.key});
+class FindStartOfLoopScreen extends StatefulWidget {
+  const FindStartOfLoopScreen({super.key});
 
   @override
-  State<FibonacciAlgorithmScreen> createState() => _FibonacciAlgorithmScreenState();
+  State<FindStartOfLoopScreen> createState() => _FindStartOfLoopScreenState();
 }
 
-// ============================================================================
-// EVENT TYPES
-// ============================================================================
+enum LoopEventType {
+  initialize,
+  pointersSet,
+  moveSlow,
+  moveFast,
+  compare,
+  phaseTwoStart,
+  moveFinder,
+  loopStartFound,
+  cycleFound,
+  noCycle,
+}
 
-enum FibonacciEventType { initialize, calculate, result, complete }
-
-// ============================================================================
-// EVENT MODEL
-// ============================================================================
-
-class FibonacciEvent {
-  final FibonacciEventType type;
-
-  /// Snapshot of the array at this exact event.
-  final List<int> array;
-
-  final int index;
-  final int secondIndex;
-
-  final int firstValue;
-  final int secondValue;
-
-  final int sortedCount;
-
+class LoopEvent {
+  final LoopEventType type;
+  final List<int> list;
+  final int slowIndex;
+  final int fastIndex;
+  final int cycleStart;
   final String title;
   final String description;
   final String operation;
+  final int iteration;
 
-  const FibonacciEvent({
+  const LoopEvent({
     required this.type,
-    required this.array,
-    required this.index,
-    required this.secondIndex,
-    required this.firstValue,
-    required this.secondValue,
-    required this.sortedCount,
+    required this.list,
+    required this.slowIndex,
+    required this.fastIndex,
+    required this.cycleStart,
     required this.title,
     required this.description,
     required this.operation,
+    this.iteration = 0,
   });
 }
 
-// ============================================================================
-// STATE
-// ============================================================================
-
-class _FibonacciAlgorithmScreenState extends State<FibonacciAlgorithmScreen> {
-  // ==========================================================================
-  // COLORS
-  // ==========================================================================
-
+class _FindStartOfLoopScreenState extends State<FindStartOfLoopScreen> {
   static const Color background = Color(0xFF030712);
   static const Color background2 = Color(0xFF07101F);
   static const Color cardColor = Color(0xFF0B1428);
@@ -75,304 +62,401 @@ class _FibonacciAlgorithmScreenState extends State<FibonacciAlgorithmScreen> {
   static const Color pink = Color(0xFFFF4081);
   static const Color red = Color(0xFFFF5252);
 
-  // ==========================================================================
-  // DATA
-  // ==========================================================================
+  List<int> linkedList = [10, 20, 30, 40, 50];
+  List<int> originalList = [10, 20, 30, 40, 50];
 
-  int fibonacciIndex = 10;
+  // -1 = no cycle. Otherwise the tail points back to this index.
+  int cycleStart = 2;
 
-  List<int> array = [0, 1];
-
-  /// Original state used by Reset.
-  List<int> originalArray = [0, 1];
-
-  // ==========================================================================
-  // CONTROLLER
-  // ==========================================================================
-
-  final TextEditingController arrayController = TextEditingController(
-    text: '10',
+  final TextEditingController listController = TextEditingController(
+    text: '10, 20, 30, 40, 50 | loop:2',
   );
 
-  // ==========================================================================
-  // EVENTS
-  // ==========================================================================
-
-  List<FibonacciEvent> events = [];
-
-  List<FibonacciEvent> executionHistory = [];
-
-  // ==========================================================================
-  // EXECUTION
-  // ==========================================================================
+  List<LoopEvent> events = [];
+  List<LoopEvent> executionHistory = [];
 
   int currentStep = 0;
-
   bool isRunning = false;
-
   bool isCompleted = false;
-
   double speed = 1.0;
-
   Timer? timer;
 
-  // ==========================================================================
-  // VISUAL STATE
-  // ==========================================================================
-
-  int comparingIndex = -1;
-
-  int secondComparingIndex = -1;
-
-  int swappingIndex = -1;
-
-  int secondSwappingIndex = -1;
-
-  int sortedCount = 0;
-
-  Set<int> sortedIndexes = {};
-
+  int slowIndex = -1;
+  int fastIndex = -1;
   int activeCodeLine = 0;
+  int iteration = 0;
 
-  String executionMessage = 'Ready to start Fibonacci Algorithm.';
-
-  // ==========================================================================
-  // SOURCE CODE
-  // ==========================================================================
+  String executionMessage =
+      "Ready to find the starting node of a loop using Floyd's algorithm.";
 
   final String sourceCode = '''
-int fibonacci(int n) {
-  if (n <= 0) return 0;
-  if (n == 1) return 1;
+class Node {
+  int data;
+  Node? next;
 
-  int a = 0;
-  int b = 1;
+  Node(this.data);
+}
 
-  for (int i = 2; i <= n; i++) {
-    int next = a + b;
-    a = b;
-    b = next;
+Node? findLoopStart(Node? head) {
+  Node? slow = head;
+  Node? fast = head;
+
+  // Phase 1: find the meeting point.
+  while (fast != null && fast.next != null) {
+    slow = slow!.next;
+    fast = fast.next!.next;
+
+    if (slow == fast) {
+      // Phase 2: move one pointer to head.
+      Node? finder = head;
+
+      while (finder != slow) {
+        finder = finder!.next;
+        slow = slow!.next;
+      }
+
+      return finder;
+    }
   }
 
-  return b;
+  return null;
 }
 ''';
-
-  // ==========================================================================
-  // INIT
-  // ==========================================================================
 
   @override
   void initState() {
     super.initState();
-
-    originalArray = [...array];
-
+    originalList = [...linkedList];
     _generateEvents();
   }
-
-  // ==========================================================================
-  // DISPOSE
-  // ==========================================================================
 
   @override
   void dispose() {
     timer?.cancel();
-    arrayController.dispose();
-
+    listController.dispose();
     super.dispose();
   }
 
-  // ==========================================================================
-  // GENERATE EVENTS
-  // ==========================================================================
+  int _nextIndex(int index) {
+    if (index < 0 || linkedList.isEmpty) return -1;
+    if (index + 1 < linkedList.length) return index + 1;
+    return cycleStart >= 0 && cycleStart < linkedList.length ? cycleStart : -1;
+  }
+
+  int _movePointer(int index, int steps) {
+    var current = index;
+    for (var i = 0; i < steps; i++) {
+      current = _nextIndex(current);
+      if (current == -1) return -1;
+    }
+    return current;
+  }
 
   void _generateEvents() {
-    final n = fibonacciIndex.clamp(0, 30);
-    final generated = <FibonacciEvent>[];
-    final working = <int>[];
+    final working = [...linkedList];
+    final generated = <LoopEvent>[];
 
-    generated.add(
-      FibonacciEvent(
-        type: FibonacciEventType.initialize,
-        array: <int>[],
-        index: -1,
-        secondIndex: -1,
-        firstValue: 0,
-        secondValue: 1,
-        sortedCount: 0,
-        title: 'Fibonacci Initialized',
-        description: 'Start with F[0] = 0 and F[1] = 1.',
-        operation: 'Initialize Fibonacci sequence',
-      ),
-    );
-
-    working.add(0);
-    generated.add(
-      FibonacciEvent(
-        type: FibonacciEventType.result,
-        array: [...working],
-        index: 0,
-        secondIndex: -1,
-        firstValue: 0,
-        secondValue: -1,
-        sortedCount: 1,
-        title: 'F[0] Ready',
-        description: 'The 0th Fibonacci number is 0.',
-        operation: 'F[0] = 0',
-      ),
-    );
-
-    if (n >= 1) {
-      working.add(1);
-      generated.add(
-        FibonacciEvent(
-          type: FibonacciEventType.result,
-          array: [...working],
-          index: 1,
-          secondIndex: -1,
-          firstValue: 1,
-          secondValue: -1,
-          sortedCount: 2,
-          title: 'F[1] Ready',
-          description: 'The 1st Fibonacci number is 1.',
-          operation: 'F[1] = 1',
-        ),
-      );
-    }
-
-    for (int i = 2; i <= n; i++) {
-      final a = working[i - 2];
-      final b = working[i - 1];
-      final next = a + b;
-
-      generated.add(
-        FibonacciEvent(
-          type: FibonacciEventType.calculate,
-          array: [...working],
-          index: i - 2,
-          secondIndex: i - 1,
-          firstValue: a,
-          secondValue: b,
-          sortedCount: working.length,
-          title: 'Calculate F[$i]',
-          description: 'Add the previous two Fibonacci values.',
-          operation: 'F[$i] = F[${i - 2}] + F[${i - 1}] = $a + $b = $next',
-        ),
-      );
-
-      working.add(next);
-
-      generated.add(
-        FibonacciEvent(
-          type: FibonacciEventType.result,
-          array: [...working],
-          index: i,
-          secondIndex: -1,
-          firstValue: next,
-          secondValue: -1,
-          sortedCount: working.length,
-          title: 'F[$i] Stored',
-          description: 'The new Fibonacci value is added to the sequence.',
-          operation: 'F[$i] = $next',
-        ),
-      );
+    if (working.isEmpty) {
+      events = generated;
+      return;
     }
 
     generated.add(
-      FibonacciEvent(
-        type: FibonacciEventType.complete,
-        array: [...working],
-        index: n,
-        secondIndex: -1,
-        firstValue: working[n],
-        secondValue: -1,
-        sortedCount: working.length,
-        title: 'Fibonacci Complete',
-        description: 'The requested Fibonacci number has been calculated.',
-        operation: 'F[$n] = ${working[n]}',
+      LoopEvent(
+        type: LoopEventType.initialize,
+        list: [...working],
+        slowIndex: -1,
+        fastIndex: -1,
+        cycleStart: cycleStart,
+        title: 'Linked List Initialized',
+        description: cycleStart >= 0
+            ? 'The last node points back to index $cycleStart. A loop exists.'
+            : 'The last node points to NULL, so there is no loop.',
+        operation: cycleStart >= 0
+            ? 'tail.next = node[$cycleStart]'
+            : 'tail.next = null',
       ),
     );
+
+    var slow = 0;
+    var fast = 0;
+    var step = 0;
+
+    generated.add(
+      LoopEvent(
+        type: LoopEventType.pointersSet,
+        list: [...working],
+        slowIndex: slow,
+        fastIndex: fast,
+        cycleStart: cycleStart,
+        title: 'Slow and Fast Initialized',
+        description:
+            'Both pointers start at head. Slow moves 1 node and fast moves 2 nodes.',
+        operation: 'slow = head, fast = head',
+        iteration: step,
+      ),
+    );
+
+    // Phase 1: find the meeting point.
+    while (true) {
+      final nextSlow = _movePointer(slow, 1);
+      final nextFast = _movePointer(fast, 2);
+      step++;
+
+      if (nextSlow == -1 || nextFast == -1) {
+        generated.add(
+          LoopEvent(
+            type: LoopEventType.moveFast,
+            list: [...working],
+            slowIndex: nextSlow,
+            fastIndex: nextFast,
+            cycleStart: cycleStart,
+            title: 'Fast Pointer Reaches NULL',
+            description: 'Fast cannot move two more nodes, so no loop exists.',
+            operation: 'fast = fast.next.next',
+            iteration: step,
+          ),
+        );
+
+        generated.add(
+          LoopEvent(
+            type: LoopEventType.noCycle,
+            list: [...working],
+            slowIndex: nextSlow,
+            fastIndex: nextFast,
+            cycleStart: cycleStart,
+            title: 'No Loop Found',
+            description: 'Fast reached NULL before slow and fast could meet.',
+            operation: 'return null',
+            iteration: step,
+          ),
+        );
+        break;
+      }
+
+      generated.add(
+        LoopEvent(
+          type: LoopEventType.moveSlow,
+          list: [...working],
+          slowIndex: nextSlow,
+          fastIndex: fast,
+          cycleStart: cycleStart,
+          title: 'Slow Pointer Moves',
+          description:
+              'Slow moves one node from index $slow to index $nextSlow.',
+          operation: 'slow = slow.next',
+          iteration: step,
+        ),
+      );
+
+      generated.add(
+        LoopEvent(
+          type: LoopEventType.moveFast,
+          list: [...working],
+          slowIndex: nextSlow,
+          fastIndex: nextFast,
+          cycleStart: cycleStart,
+          title: 'Fast Pointer Moves',
+          description: 'Fast moves two nodes and reaches index $nextFast.',
+          operation: 'fast = fast.next.next',
+          iteration: step,
+        ),
+      );
+
+      generated.add(
+        LoopEvent(
+          type: LoopEventType.compare,
+          list: [...working],
+          slowIndex: nextSlow,
+          fastIndex: nextFast,
+          cycleStart: cycleStart,
+          title: 'Compare Slow and Fast',
+          description: nextSlow == nextFast
+              ? 'Slow and fast met. A loop is confirmed.'
+              : 'They are different, so Phase 1 continues.',
+          operation: 'if (slow == fast)',
+          iteration: step,
+        ),
+      );
+
+      if (nextSlow == nextFast) {
+        slow = nextSlow;
+        fast = nextFast;
+
+        generated.add(
+          LoopEvent(
+            type: LoopEventType.phaseTwoStart,
+            list: [...working],
+            slowIndex: slow,
+            fastIndex: fast,
+            cycleStart: cycleStart,
+            title: 'Meeting Point Found',
+            description:
+                'The pointers met inside the loop. Move one pointer to head to locate the loop start.',
+            operation: 'finder = head',
+            iteration: step,
+          ),
+        );
+
+        var finder = 0;
+        var locateStep = step;
+
+        while (finder != slow) {
+          final nextFinder = _movePointer(finder, 1);
+          final nextSlow = _movePointer(slow, 1);
+
+          if (nextFinder == -1 || nextSlow == -1) {
+            break;
+          }
+
+          finder = nextFinder;
+          slow = nextSlow;
+          locateStep++;
+
+          generated.add(
+            LoopEvent(
+              type: LoopEventType.moveFinder,
+              list: [...working],
+              slowIndex: slow,
+              fastIndex: finder,
+              cycleStart: cycleStart,
+              title: 'Move Head Pointer and Meeting Pointer',
+              description:
+                  'Finder moves from head while slow moves from the meeting point. Both move one node.',
+              operation: 'finder = finder.next; slow = slow.next',
+              iteration: locateStep,
+            ),
+          );
+        }
+
+        generated.add(
+          LoopEvent(
+            type: LoopEventType.loopStartFound,
+            list: [...working],
+            slowIndex: slow,
+            fastIndex: finder,
+            cycleStart: cycleStart,
+            title: 'Loop Start Found',
+            description:
+                'Both pointers meet at index $finder. This node is the start of the loop.',
+            operation: 'return finder',
+            iteration: locateStep,
+          ),
+        );
+
+        break;
+      }
+
+      slow = nextSlow;
+      fast = nextFast;
+
+      if (step > working.length * 3 + 5) {
+        break;
+      }
+    }
 
     events = generated;
   }
 
-  // ==========================================================================
-  // LOAD ARRAY
-  // ==========================================================================
+  void _loadList() {
+    final text = listController.text.trim();
 
-  void _loadArray() {
-    final value = int.tryParse(arrayController.text.trim());
+    if (text.isEmpty) {
+      _showSnackBar('Please enter numbers.', red);
+      return;
+    }
 
-    if (value == null || value < 0 || value > 30) {
-      _showSnackBar('Enter a Fibonacci index between 0 and 30.', red);
+    var listText = text;
+    var parsedCycleStart = -1;
+
+    final cycleMatch = RegExp(
+      r'\|\s*loop\s*:\s*(-?\d+)',
+      caseSensitive: false,
+    ).firstMatch(text);
+
+    if (cycleMatch != null) {
+      parsedCycleStart = int.tryParse(cycleMatch.group(1) ?? '') ?? -1;
+      listText = text.substring(0, cycleMatch.start).trim();
+    }
+
+    final parts = listText.split(RegExp(r'[\s,]+'));
+    final values = <int>[];
+
+    for (final part in parts) {
+      final value = int.tryParse(part);
+      if (value != null) {
+        values.add(value);
+      }
+    }
+
+    if (values.isEmpty) {
+      _showSnackBar('No valid numbers found.', red);
+      return;
+    }
+
+    if (parsedCycleStart >= values.length) {
+      _showSnackBar(
+        'Cycle index must be between 0 and ${values.length - 1}.',
+        red,
+      );
       return;
     }
 
     timer?.cancel();
 
     setState(() {
-      fibonacciIndex = value;
-      array = value == 0 ? [0] : [0, 1];
-      originalArray = [...array];
+      linkedList = [...values];
+      originalList = [...values];
+      cycleStart = parsedCycleStart;
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      comparingIndex = -1;
-      secondComparingIndex = -1;
-      swappingIndex = -1;
-      secondSwappingIndex = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
+      slowIndex = -1;
+      fastIndex = -1;
       activeCodeLine = 0;
-      executionMessage = 'Fibonacci index loaded. Ready to calculate.';
+      iteration = 0;
+      executionMessage =
+          'Linked list loaded. Ready to find the start of a loop.';
     });
 
     _generateEvents();
-    _showSnackBar('Fibonacci index loaded successfully.', green);
+    _showSnackBar('Linked list loaded successfully.', green);
   }
-
-  // ==========================================================================
-  // GENERATE NUMBERS
-  // ==========================================================================
 
   void _generateNumbers() {
-    final value = Random().nextInt(31);
-    arrayController.text = value.toString();
+    final random = Random();
+    final generated = List.generate(7, (_) => random.nextInt(90) + 10);
+
+    cycleStart = generated.length > 2 ? 2 : -1;
+
+    listController.text = cycleStart >= 0
+        ? '${generated.join(', ')} | loop:$cycleStart'
+        : generated.join(', ');
 
     timer?.cancel();
 
     setState(() {
-      fibonacciIndex = value;
-      array = value == 0 ? [0] : [0, 1];
-      originalArray = [...array];
+      linkedList = [...generated];
+      originalList = [...generated];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      comparingIndex = -1;
-      secondComparingIndex = -1;
-      swappingIndex = -1;
-      secondSwappingIndex = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
+      slowIndex = -1;
+      fastIndex = -1;
       activeCodeLine = 0;
-      executionMessage = 'New Fibonacci index generated. Ready to calculate.';
+      iteration = 0;
+      executionMessage =
+          'New linked list generated. Ready to find the start of a loop.';
     });
 
     _generateEvents();
-    _showSnackBar('New Fibonacci index generated.', purple);
+    _showSnackBar('New linked list generated.', purple);
   }
 
-  // ==========================================================================
-  // PLAY
-  // ==========================================================================
-
   void _play() {
-    if (events.isEmpty || isCompleted) {
-      return;
-    }
+    if (events.isEmpty || isCompleted) return;
 
     timer?.cancel();
 
@@ -403,10 +487,6 @@ int fibonacci(int n) {
     });
   }
 
-  // ==========================================================================
-  // PAUSE
-  // ==========================================================================
-
   void _pause() {
     timer?.cancel();
 
@@ -417,10 +497,6 @@ int fibonacci(int n) {
     });
   }
 
-  // ==========================================================================
-  // TOGGLE
-  // ==========================================================================
-
   void _togglePlayPause() {
     if (isRunning) {
       _pause();
@@ -429,29 +505,18 @@ int fibonacci(int n) {
     }
   }
 
-  // ==========================================================================
-  // NEXT
-  // ==========================================================================
-
   void _nextStep() {
-    if (currentStep >= events.length) {
-      return;
-    }
-
+    if (currentStep >= events.length) return;
     _nextStepInternal();
   }
 
   void _nextStepInternal() {
-    if (currentStep >= events.length) {
-      return;
-    }
+    if (currentStep >= events.length) return;
 
     final event = events[currentStep];
 
     executionHistory.add(event);
-
     currentStep++;
-
     _applyEvent(event);
 
     if (currentStep >= events.length) {
@@ -464,19 +529,12 @@ int fibonacci(int n) {
     }
   }
 
-  // ==========================================================================
-  // PREVIOUS
-  // ==========================================================================
-
   void _previousStep() {
-    if (executionHistory.isEmpty) {
-      return;
-    }
+    if (executionHistory.isEmpty) return;
 
     timer?.cancel();
 
     executionHistory.removeLast();
-
     currentStep = executionHistory.length;
 
     _rebuildVisualState();
@@ -487,70 +545,37 @@ int fibonacci(int n) {
     });
   }
 
-  // ==========================================================================
-  // REBUILD VISUAL STATE
-  // ==========================================================================
-
   void _rebuildVisualState() {
-    // Restore the original array first.
-    array = [...originalArray];
+    linkedList = [...originalList];
 
-    comparingIndex = -1;
-
-    secondComparingIndex = -1;
-
-    swappingIndex = -1;
-
-    secondSwappingIndex = -1;
-
-    sortedCount = 0;
-
-    sortedIndexes.clear();
-
+    slowIndex = -1;
+    fastIndex = -1;
     activeCodeLine = 0;
+    iteration = 0;
+    executionMessage =
+        "Ready to find the starting node of a loop using Floyd's algorithm.";
 
-    executionMessage = 'Ready to start Fibonacci Algorithm.';
-
-    // Replay all previous events.
     for (final event in executionHistory) {
       _applyEvent(event, updateState: false);
     }
   }
 
-  // ==========================================================================
-  // APPLY EVENT
-  // ==========================================================================
-
-  void _applyEvent(FibonacciEvent event, {bool updateState = true}) {
-    // Always apply the event snapshot so previous/next/playback never shows
-    // stale Fibonacci values.
-    array = [...event.array];
-
-    comparingIndex = -1;
-    secondComparingIndex = -1;
-    swappingIndex = -1;
-    secondSwappingIndex = -1;
-
-    sortedCount = event.sortedCount;
+  void _applyEvent(LoopEvent event, {bool updateState = true}) {
+    linkedList = [...event.list];
+    cycleStart = event.cycleStart;
+    slowIndex = event.slowIndex;
+    fastIndex = event.fastIndex;
+    iteration = event.iteration;
     executionMessage = '${event.title}: ${event.description}';
     activeCodeLine = _codeLineForEvent(event.type);
 
-    if (event.type == FibonacciEventType.calculate) {
-      comparingIndex = event.index;
-      secondComparingIndex = event.secondIndex;
-    }
-
-    if (event.type == FibonacciEventType.result && event.index >= 0) {
-      sortedIndexes.add(event.index);
-    }
-
-    if (event.type == FibonacciEventType.complete) {
-      sortedIndexes = Set<int>.from(
-        List.generate(array.length, (index) => index),
-      );
-      sortedCount = array.length;
+    if (event.type == LoopEventType.loopStartFound) {
       executionMessage =
-          'Fibonacci Complete: F[$fibonacciIndex] = ${array[fibonacciIndex]}.';
+          'Loop Start Found: The loop begins at index ${event.slowIndex}.';
+    }
+
+    if (event.type == LoopEventType.noCycle) {
+      executionMessage = 'No Loop Found: Fast pointer reached NULL.';
     }
 
     if (updateState) {
@@ -558,36 +583,25 @@ int fibonacci(int n) {
     }
   }
 
-  // ==========================================================================
-  // RESET
-  // ==========================================================================
-
   void _reset() {
     timer?.cancel();
 
     setState(() {
-      array = fibonacciIndex == 0 ? [0] : [0, 1];
-      originalArray = [...array];
+      linkedList = [...originalList];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      comparingIndex = -1;
-      secondComparingIndex = -1;
-      swappingIndex = -1;
-      secondSwappingIndex = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
+      slowIndex = -1;
+      fastIndex = -1;
       activeCodeLine = 0;
-      executionMessage = 'Ready to start Fibonacci.';
+      iteration = 0;
+      executionMessage =
+          "Ready to find the starting node of a loop using Floyd's algorithm.";
     });
 
     _generateEvents();
   }
-
-  // ==========================================================================
-  // SPEED
-  // ==========================================================================
 
   void _setSpeed(double value) {
     setState(() {
@@ -599,70 +613,85 @@ int fibonacci(int n) {
     }
   }
 
-  // ==========================================================================
-  // CODE LINE
-  // ==========================================================================
-
-  int _codeLineForEvent(FibonacciEventType type) {
+  int _codeLineForEvent(LoopEventType type) {
     switch (type) {
-      case FibonacciEventType.initialize:
-        return 2;
-      case FibonacciEventType.calculate:
-        return 9;
-      case FibonacciEventType.result:
-        return 10;
-      case FibonacciEventType.complete:
+      case LoopEventType.initialize:
+        return 1;
+      case LoopEventType.pointersSet:
+        return 7;
+      case LoopEventType.moveSlow:
+        return 11;
+      case LoopEventType.moveFast:
+        return 12;
+      case LoopEventType.compare:
         return 14;
+      case LoopEventType.phaseTwoStart:
+        return 18;
+      case LoopEventType.moveFinder:
+        return 21;
+      case LoopEventType.loopStartFound:
+        return 24;
+      case LoopEventType.cycleFound:
+      case LoopEventType.noCycle:
+        return 28;
     }
   }
 
-  // ==========================================================================
-  // EVENT COLOR
-  // ==========================================================================
-
-  Color _eventColor(FibonacciEventType type) {
+  Color _eventColor(LoopEventType type) {
     switch (type) {
-      case FibonacciEventType.initialize:
+      case LoopEventType.initialize:
         return blue;
-      case FibonacciEventType.calculate:
-        return orange;
-      case FibonacciEventType.result:
+      case LoopEventType.pointersSet:
+        return purple;
+      case LoopEventType.moveSlow:
         return cyan;
-      case FibonacciEventType.complete:
+      case LoopEventType.moveFast:
+        return orange;
+      case LoopEventType.compare:
+        return pink;
+      case LoopEventType.phaseTwoStart:
+        return blue;
+      case LoopEventType.moveFinder:
+        return cyan;
+      case LoopEventType.loopStartFound:
         return green;
+      case LoopEventType.cycleFound:
+        return green;
+      case LoopEventType.noCycle:
+        return red;
     }
   }
 
-  // ==========================================================================
-  // EVENT ICON
-  // ==========================================================================
-
-  IconData _eventIcon(FibonacciEventType type) {
+  IconData _eventIcon(LoopEventType type) {
     switch (type) {
-      case FibonacciEventType.initialize:
+      case LoopEventType.initialize:
         return Icons.play_arrow_rounded;
-      case FibonacciEventType.calculate:
-        return Icons.calculate_rounded;
-      case FibonacciEventType.result:
-        return Icons.add_circle_outline_rounded;
-      case FibonacciEventType.complete:
-        return Icons.check_circle_rounded;
+      case LoopEventType.pointersSet:
+        return Icons.my_location_rounded;
+      case LoopEventType.moveSlow:
+        return Icons.directions_walk_rounded;
+      case LoopEventType.moveFast:
+        return Icons.bolt_rounded;
+      case LoopEventType.compare:
+        return Icons.compare_arrows_rounded;
+      case LoopEventType.phaseTwoStart:
+        return Icons.gps_fixed_rounded;
+      case LoopEventType.moveFinder:
+        return Icons.navigation_rounded;
+      case LoopEventType.loopStartFound:
+        return Icons.flag_rounded;
+      case LoopEventType.cycleFound:
+        return Icons.loop_rounded;
+      case LoopEventType.noCycle:
+        return Icons.block_rounded;
     }
   }
-
-  // ==========================================================================
-  // COPY
-  // ==========================================================================
 
   Future<void> _copyCode() async {
     await Clipboard.setData(ClipboardData(text: sourceCode));
 
     _showSnackBar('Source code copied.', cyan);
   }
-
-  // ==========================================================================
-  // SNACKBAR
-  // ==========================================================================
 
   void _showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -676,15 +705,11 @@ int fibonacci(int n) {
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: color.withValues(alpha: 0.85),
+        backgroundColor: color.withOpacity(0.85),
         behavior: SnackBarBehavior.floating,
       ),
     );
   }
-
-  // ==========================================================================
-  // BUILD
-  // ==========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -699,17 +724,11 @@ int fibonacci(int n) {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
-
                   const SizedBox(height: 16),
-
                   _buildAlgorithmInfo(),
-
                   const SizedBox(height: 16),
-
                   _buildInputSection(),
-
                   const SizedBox(height: 16),
-
                   _buildMainWorkspace(constraints.maxWidth),
                 ],
               ),
@@ -720,24 +739,18 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // HEADER
-  // ==========================================================================
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: orange.withValues(alpha: 0.16)),
+        border: Border.all(color: orange.withOpacity(0.16)),
       ),
       child: Row(
         children: [
           InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 40,
@@ -745,7 +758,7 @@ int fibonacci(int n) {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                border: Border.all(color: Colors.white.withOpacity(0.08)),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -754,9 +767,7 @@ int fibonacci(int n) {
               ),
             ),
           ),
-
           const SizedBox(width: 12),
-
           Container(
             width: 42,
             height: 42,
@@ -765,69 +776,60 @@ int fibonacci(int n) {
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
-              Icons.auto_graph_rounded,
+              Icons.loop_rounded,
               color: Colors.white,
               size: 23,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Fibonacci Algorithm',
+                  "Find Start of Loop in Linked List",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
-                  'Calculate Fibonacci numbers step by step',
+                  'Find the starting node of a loop using slow and fast pointers',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: Colors.white.withOpacity(0.55),
                     fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-
           _statusBadge(),
         ],
       ),
     );
   }
 
-  // ==========================================================================
-  // STATUS
-  // ==========================================================================
-
   Widget _statusBadge() {
     Color color = cyan;
-
     String text = 'READY';
-
     if (isRunning) {
       color = orange;
       text = 'RUNNING';
     } else if (isCompleted) {
-      color = green;
-      text = 'COMPLETE';
+      final found = executionHistory.any(
+        (event) => event.type == LoopEventType.loopStartFound,
+      );
+      color = found ? green : red;
+      text = found ? 'LOOP FOUND' : 'NO LOOP';
     }
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: color.withOpacity(0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        border: Border.all(color: color.withOpacity(0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -837,9 +839,7 @@ int fibonacci(int n) {
             height: 7,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
-
           const SizedBox(width: 7),
-
           Text(
             text,
             style: TextStyle(
@@ -854,10 +854,6 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // ALGORITHM INFO
-  // ==========================================================================
-
   Widget _buildAlgorithmInfo() {
     return _card(
       child: Column(
@@ -868,32 +864,29 @@ int fibonacci(int n) {
             'Algorithm Information',
             cyan,
           ),
-
           const SizedBox(height: 14),
-
           Text(
-            'The Fibonacci sequence is generated by adding the previous two '
-            'values. Each step calculates the next number and appends it to '
-            'the sequence.',
+            'Floyd’s algorithm finds the start of a loop in two phases. First, slow moves one node '
+            'at a time while fast moves two nodes at a time until they meet. Then one pointer '
+            'returns to head; moving both one node at a time makes their next meeting point '
+            'the start of the loop.',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.64),
+              color: Colors.white.withOpacity(0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
           ),
-
           const SizedBox(height: 14),
-
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               _infoBox('Time', 'O(n)', orange),
               _infoBox('Space', 'O(1)', blue),
-              _infoBox('Type', 'Mathematical', purple),
-              _infoBox('Best', 'O(n)', green),
-              _infoBox('Worst', 'O(n)', red),
-              _infoBox('Method', 'Iterative', cyan),
+              _infoBox('Type', 'Linked List', purple),
+              _infoBox('Method', 'Two Pointers', green),
+              _infoBox('Phase 1', 'Meet', cyan),
+              _infoBox('Phase 2', 'Find Start', red),
             ],
           ),
         ],
@@ -901,75 +894,56 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // INPUT
-  // ==========================================================================
-
   Widget _buildInputSection() {
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(Icons.input_rounded, 'Input', cyan),
-
           const SizedBox(height: 12),
-
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 700) {
                 return Column(
                   children: [
                     _inputField(),
-
                     const SizedBox(height: 10),
-
                     Row(
                       children: [
                         Expanded(child: _generateButton()),
-
                         const SizedBox(width: 10),
-
                         Expanded(child: _loadButton()),
                       ],
                     ),
                   ],
                 );
               }
-
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(child: _inputField()),
-
                   const SizedBox(width: 10),
-
                   SizedBox(height: 46, child: _generateButton()),
-
                   const SizedBox(width: 10),
-
                   SizedBox(height: 46, child: _loadButton()),
                 ],
               );
             },
           ),
-
           const SizedBox(height: 10),
-
           Row(
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color: orange.withValues(alpha: 0.85),
+                color: orange.withOpacity(0.85),
                 size: 15,
               ),
-
               const SizedBox(width: 7),
-
               Expanded(
                 child: Text(
-                  'Enter a Fibonacci index from 0 to 30 and calculate it step by step.',
+                  'Use "loop:2" to connect the last node back to index 2. Omit it for no loop.',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.45),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -981,29 +955,25 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // INPUT FIELD
-  // ==========================================================================
-
   Widget _inputField() {
     return TextField(
-      controller: arrayController,
+      controller: listController,
       style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
-        labelText: 'Enter Fibonacci Index',
-        hintText: 'Example: 10',
+        labelText: 'Enter Linked List Values + Loop Start',
+        hintText: '10, 20, 30, 40, 50 | loop:2',
         labelStyle: TextStyle(
-          color: Colors.white.withValues(alpha: 0.58),
+          color: Colors.white.withOpacity(0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white.withValues(alpha: 0.25),
+          color: Colors.white.withOpacity(0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
-          Icons.tag_rounded,
-          color: cyan.withValues(alpha: 0.8),
+          Icons.link_rounded,
+          color: cyan.withOpacity(0.8),
           size: 19,
         ),
         filled: true,
@@ -1014,324 +984,234 @@ int fibonacci(int n) {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
+          borderSide: BorderSide(color: cyan.withOpacity(0.55)),
         ),
       ),
     );
   }
-
-  // ==========================================================================
-  // GENERATE
-  // ==========================================================================
-
-  Widget _generateButton() {
-    return ElevatedButton.icon(
-      onPressed: _generateNumbers,
-      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
-      label: const Text(
-        'Random Index',
-        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: purple,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-
-  // ==========================================================================
-  // LOAD
-  // ==========================================================================
-
-  Widget _loadButton() {
-    return ElevatedButton.icon(
-      onPressed: _loadArray,
-      icon: const Icon(Icons.download_rounded, size: 17),
-      label: const Text(
-        'LOAD INDEX',
-        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: cyan,
-        foregroundColor: background,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
-  }
-
-  // ==========================================================================
-  // WORKSPACE
-  // ==========================================================================
-
-  Widget _buildMainWorkspace(double width) {
-    if (width < 900) {
-      return Column(
-        children: [
-          _buildVisualization(),
-
-          const SizedBox(height: 14),
-
-          _buildControls(),
-
-          const SizedBox(height: 14),
-
-          _buildSourceCode(),
-
-          const SizedBox(height: 14),
-
-          _buildExecutionSteps(),
-        ],
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              _buildVisualization(),
-
-              const SizedBox(height: 14),
-
-              _buildControls(),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        Expanded(
-          flex: 2,
-          child: Column(
-            children: [
-              _buildSourceCode(),
-
-              const SizedBox(height: 14),
-
-              _buildExecutionSteps(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ==========================================================================
-  // VISUALIZATION
-  // ==========================================================================
 
   Widget _buildVisualization() {
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.bar_chart_rounded, 'Visualization', cyan),
-
+          _sectionTitle(Icons.account_tree_rounded, 'Visualization', cyan),
           const SizedBox(height: 12),
-
           Row(
             children: [
+              _miniBadge('SLOW', slowIndex >= 0 ? '$slowIndex' : 'NULL', cyan),
+              const SizedBox(width: 8),
               _miniBadge(
-                'CALCULATE',
-                comparingIndex >= 0 ? '$comparingIndex' : '-',
-                cyan,
+                'FAST',
+                fastIndex >= 0 ? '$fastIndex' : 'NULL',
+                orange,
               ),
-
               const SizedBox(width: 8),
-
               _miniBadge(
-                'SECOND',
-                secondComparingIndex >= 0 ? '$secondComparingIndex' : '-',
-                blue,
+                'LOOP',
+                cycleStart >= 0 ? 'INDEX $cycleStart' : 'NONE',
+                green,
               ),
-
               const SizedBox(width: 8),
-
-              _miniBadge('COMPLETE', sortedIndexes.length.toString(), green),
-
-              const SizedBox(width: 8),
-
               _miniBadge('STEPS', executionHistory.length.toString(), purple),
             ],
           ),
-
           const SizedBox(height: 16),
-
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 10),
             decoration: BoxDecoration(
               color: visualizationColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              border: Border.all(color: Colors.white.withOpacity(0.06)),
             ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: List.generate(
-                  array.length,
-                  (index) => _buildArrayItem(index),
+                  linkedList.length,
+                  (index) => _buildListNode(index),
                 ),
               ),
             ),
           ),
-
           const SizedBox(height: 12),
-
           _buildLegend(),
-
           const SizedBox(height: 12),
-
           _buildCurrentInfo(),
-
           const SizedBox(height: 12),
-
           _buildStatusCard(),
         ],
       ),
     );
   }
 
-  // ==========================================================================
-  // ARRAY ITEM
-  // ==========================================================================
+  Widget _buildListNode(int index) {
+    final value = linkedList[index];
+    final bool isSlow = index == slowIndex;
+    final bool isFast = index == fastIndex;
+    final bool isMeeting = isSlow && isFast;
+    final bool isCycleStart = index == cycleStart;
 
-  Widget _buildArrayItem(int index) {
-    final value = array[index];
-
-    final bool isComparing =
-        index == comparingIndex || index == secondComparingIndex;
-
-    final bool isSwapping =
-        index == swappingIndex || index == secondSwappingIndex;
-
-    final bool isSorted = sortedIndexes.contains(index);
-
-    Color itemColor = Colors.white.withValues(alpha: 0.08);
-
-    Color borderColor = Colors.white.withValues(alpha: 0.08);
-
+    Color itemColor = Colors.white.withOpacity(0.08);
+    Color borderColor = Colors.white.withOpacity(0.08);
     Color textColor = Colors.white;
-
     String label = '';
 
-    // ------------------------------------------------------------------------
-    // SORTED
-    // ------------------------------------------------------------------------
-
-    if (isSorted) {
-      itemColor = green.withValues(alpha: 0.18);
-      borderColor = green;
+    if (isCycleStart) {
+      itemColor = green.withOpacity(0.10);
+      borderColor = green.withOpacity(0.70);
       textColor = green;
-      label = 'COMPLETE';
+      label = 'LOOP START';
     }
-
-    // ------------------------------------------------------------------------
-    // COMPARE
-    // ------------------------------------------------------------------------
-
-    if (isComparing) {
-      itemColor = cyan.withValues(alpha: 0.18);
+    if (isSlow) {
+      itemColor = cyan.withOpacity(0.18);
       borderColor = cyan;
       textColor = cyan;
-      label = 'COMPARE';
+      label = 'SLOW';
     }
-
-    // ------------------------------------------------------------------------
-    // SWAP
-    // ------------------------------------------------------------------------
-
-    if (isSwapping) {
-      itemColor = orange.withValues(alpha: 0.20);
+    if (isFast) {
+      itemColor = orange.withOpacity(0.18);
       borderColor = orange;
       textColor = orange;
-      label = 'CALCULATE';
+      label = 'FAST';
+    }
+    if (isMeeting) {
+      itemColor = green.withOpacity(0.20);
+      borderColor = green;
+      textColor = green;
+      label = 'SLOW + FAST';
     }
 
-    return Container(
-      width: 70,
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 19,
-            child: Center(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: isSwapping
-                      ? orange
-                      : isComparing
-                      ? cyan
-                      : green,
-                  fontSize: 7.5,
-                  fontWeight: FontWeight.w900,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 88,
+          child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+                child: Center(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isMeeting
+                          ? green
+                          : isFast
+                          ? orange
+                          : isSlow
+                          ? cyan
+                          : isCycleStart
+                          ? green
+                          : Colors.white.withOpacity(0.25),
+                      fontSize: 7.2,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-
-          Container(
-            height: 58,
-            width: 58,
-            decoration: BoxDecoration(
-              color: itemColor,
-              borderRadius: BorderRadius.circular(11),
-              border: Border.all(
-                color: borderColor,
-                width: isComparing || isSwapping || isSorted ? 1.6 : 1,
-              ),
-              boxShadow: isComparing || isSwapping || isSorted
-                  ? [
-                      BoxShadow(
-                        color: borderColor.withValues(alpha: 0.18),
-                        blurRadius: 12,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Center(
-              child: Text(
-                value.toString(),
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
+              Container(
+                height: 58,
+                width: 64,
+                decoration: BoxDecoration(
+                  color: itemColor,
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: borderColor,
+                    width: isSlow || isFast || isMeeting || isCycleStart
+                        ? 1.7
+                        : 1,
+                  ),
+                  boxShadow: isSlow || isFast || isMeeting
+                      ? [
+                          BoxShadow(
+                            color: borderColor.withOpacity(0.18),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    value.toString(),
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(height: 5),
+              Text(
+                '[$index]',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.4),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (index < linkedList.length - 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 16, left: 1, right: 1),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white.withOpacity(0.35),
+                  size: 19,
+                ),
+                Text(
+                  'next',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.22),
+                    fontSize: 7,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.only(top: 16, left: 3),
+            child: Column(
+              children: [
+                Icon(
+                  cycleStart >= 0
+                      ? Icons.subdirectory_arrow_left_rounded
+                      : Icons.arrow_forward_rounded,
+                  color: cycleStart >= 0
+                      ? green.withOpacity(0.80)
+                      : Colors.white.withOpacity(0.20),
+                  size: 19,
+                ),
+                Text(
+                  cycleStart >= 0 ? '→ [$cycleStart]' : 'null',
+                  style: TextStyle(
+                    color: cycleStart >= 0
+                        ? green.withOpacity(0.65)
+                        : red.withOpacity(0.55),
+                    fontSize: 7,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            '[$index]',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
-
-  // ==========================================================================
-  // LEGEND
-  // ==========================================================================
 
   Widget _buildLegend() {
     return Wrap(
@@ -1339,8 +1219,9 @@ int fibonacci(int n) {
       runSpacing: 8,
       children: [
         _legendItem('Ready', Colors.white),
-        _legendItem('Calculate', orange),
-        _legendItem('Result', green),
+        _legendItem('Slow Pointer', cyan),
+        _legendItem('Fast Pointer', orange),
+        _legendItem('Loop Start / Meeting', green),
       ],
     );
   }
@@ -1357,13 +1238,11 @@ int fibonacci(int n) {
             borderRadius: BorderRadius.circular(3),
           ),
         ),
-
         const SizedBox(width: 6),
-
         Text(
           title,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
+            color: Colors.white.withOpacity(0.58),
             fontSize: 10,
             fontWeight: FontWeight.w600,
           ),
@@ -1372,23 +1251,19 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // CURRENT INFO
-  // ==========================================================================
-
   Widget _buildCurrentInfo() {
     String message = 'Waiting for execution';
 
-    if (comparingIndex >= 0 &&
-        secondComparingIndex >= 0 &&
-        comparingIndex < array.length &&
-        secondComparingIndex < array.length) {
+    if (slowIndex >= 0 &&
+        slowIndex < linkedList.length &&
+        fastIndex >= 0 &&
+        fastIndex < linkedList.length) {
       message =
-          'Calculating: ${array[comparingIndex]} + ${array[secondComparingIndex]}';
-    }
-
-    if (isCompleted && fibonacciIndex < array.length) {
-      message = 'F[$fibonacciIndex] = ${array[fibonacciIndex]}';
+          'Slow → ${linkedList[slowIndex]}    •    Pointer → ${linkedList[fastIndex]}';
+    } else if (fastIndex == -1 &&
+        slowIndex >= 0 &&
+        slowIndex < linkedList.length) {
+      message = 'Slow → ${linkedList[slowIndex]}    •    Pointer → NULL';
     }
 
     return Container(
@@ -1396,7 +1271,7 @@ int fibonacci(int n) {
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withValues(alpha: 0.14)),
+        border: Border.all(color: cyan.withOpacity(0.14)),
       ),
       child: Row(
         children: [
@@ -1404,10 +1279,14 @@ int fibonacci(int n) {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: cyan.withValues(alpha: 0.09),
+              color: cyan.withOpacity(0.09),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.calculate_rounded, color: cyan, size: 18),
+            child: const Icon(
+              Icons.compare_arrows_rounded,
+              color: cyan,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1417,7 +1296,7 @@ int fibonacci(int n) {
                 Text(
                   'Current Operation',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.42),
+                    color: Colors.white.withOpacity(0.42),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1434,63 +1313,60 @@ int fibonacci(int n) {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-            decoration: BoxDecoration(
-              color: green.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(7),
-            ),
-            child: Text(
-              '$sortedCount values',
-              style: const TextStyle(
-                color: green,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
+          if (cycleStart >= 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+              decoration: BoxDecoration(
+                color: green.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                'Loop Start → [$cycleStart]',
+                style: const TextStyle(
+                  color: green,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  // ==========================================================================
-  // STATUS CARD
-  // ==========================================================================
-
   Widget _buildStatusCard() {
     Color color = cyan;
-
     IconData icon = Icons.info_outline_rounded;
 
     if (isRunning) {
       color = orange;
       icon = Icons.play_circle_rounded;
     } else if (isCompleted) {
-      color = green;
-      icon = Icons.check_circle_rounded;
+      final found = executionHistory.any(
+        (event) => event.type == LoopEventType.loopStartFound,
+      );
+      color = found ? green : red;
+      icon = found ? Icons.check_circle_rounded : Icons.block_rounded;
     }
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
+        color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.18)),
+        border: Border.all(color: color.withOpacity(0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 18),
-
           const SizedBox(width: 9),
-
           Expanded(
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.72),
+                color: Colors.white.withOpacity(0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -1501,9 +1377,84 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // CONTROLS
-  // ==========================================================================
+  Widget _generateButton() {
+    return ElevatedButton.icon(
+      onPressed: _generateNumbers,
+      icon: const Icon(Icons.auto_awesome_rounded, size: 17),
+      label: const Text(
+        'Generate List',
+        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: purple,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  Widget _loadButton() {
+    return ElevatedButton.icon(
+      onPressed: _loadList,
+      icon: const Icon(Icons.download_rounded, size: 17),
+      label: const Text(
+        'LOAD LIST',
+        style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: cyan,
+        foregroundColor: background,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  Widget _buildMainWorkspace(double width) {
+    if (width < 900) {
+      return Column(
+        children: [
+          _buildVisualization(),
+          const SizedBox(height: 14),
+          _buildControls(),
+          const SizedBox(height: 14),
+          _buildSourceCode(),
+          const SizedBox(height: 14),
+          _buildExecutionSteps(),
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 3,
+          child: Column(
+            children: [
+              _buildVisualization(),
+              const SizedBox(height: 14),
+              _buildControls(),
+            ],
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          flex: 2,
+          child: Column(
+            children: [
+              _buildSourceCode(),
+              const SizedBox(height: 14),
+              _buildExecutionSteps(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildControls() {
     return _card(
@@ -1516,9 +1467,7 @@ int fibonacci(int n) {
                 label: 'Previous',
                 onPressed: executionHistory.isEmpty ? null : _previousStep,
               ),
-
               const SizedBox(width: 8),
-
               Expanded(
                 child: _controlButton(
                   icon: isRunning
@@ -1529,17 +1478,13 @@ int fibonacci(int n) {
                   primary: true,
                 ),
               ),
-
               const SizedBox(width: 8),
-
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next Step',
                 onPressed: currentStep >= events.length ? null : _nextStep,
               ),
-
               const SizedBox(width: 8),
-
               _controlButton(
                 icon: Icons.restart_alt_rounded,
                 label: 'Reset',
@@ -1547,24 +1492,19 @@ int fibonacci(int n) {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           Row(
             children: [
               const Icon(Icons.speed_rounded, color: cyan, size: 17),
-
               const SizedBox(width: 8),
-
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.55),
+                  color: Colors.white.withOpacity(0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-
               Expanded(
                 child: Slider(
                   value: speed,
@@ -1572,11 +1512,10 @@ int fibonacci(int n) {
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor: Colors.white.withValues(alpha: 0.08),
+                  inactiveColor: Colors.white.withOpacity(0.08),
                   onChanged: _setSpeed,
                 ),
               ),
-
               SizedBox(
                 width: 48,
                 child: Text(
@@ -1591,32 +1530,27 @@ int fibonacci(int n) {
               ),
             ],
           ),
-
           const SizedBox(height: 3),
-
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              backgroundColor: Colors.white.withOpacity(0.06),
               valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
-
           const SizedBox(height: 6),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.45),
+                  color: Colors.white.withOpacity(0.45),
                   fontSize: 10,
                 ),
               ),
-
               Text(
                 isCompleted
                     ? 'Execution Finished'
@@ -1630,7 +1564,7 @@ int fibonacci(int n) {
                       ? green
                       : isRunning
                       ? orange
-                      : Colors.white.withValues(alpha: 0.4),
+                      : Colors.white.withOpacity(0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1641,10 +1575,6 @@ int fibonacci(int n) {
       ),
     );
   }
-
-  // ==========================================================================
-  // CONTROL BUTTON
-  // ==========================================================================
 
   Widget _controlButton({
     required IconData icon,
@@ -1664,24 +1594,20 @@ int fibonacci(int n) {
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
-          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
+          disabledBackgroundColor: Colors.white.withOpacity(0.04),
+          disabledForegroundColor: Colors.white.withOpacity(0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
+              color: primary ? cyan : Colors.white.withOpacity(0.08),
             ),
           ),
         ),
       ),
     );
   }
-
-  // ==========================================================================
-  // SOURCE CODE
-  // ==========================================================================
 
   Widget _buildSourceCode() {
     final lines = sourceCode.trimRight().split('\n');
@@ -1693,9 +1619,7 @@ int fibonacci(int n) {
           Row(
             children: [
               _sectionTitle(Icons.code_rounded, 'Source Code', purple),
-
               const Spacer(),
-
               InkWell(
                 onTap: _copyCode,
                 borderRadius: BorderRadius.circular(8),
@@ -1705,17 +1629,15 @@ int fibonacci(int n) {
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withValues(alpha: 0.08),
+                    color: purple.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: purple.withValues(alpha: 0.20)),
+                    border: Border.all(color: purple.withOpacity(0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.copy_rounded, color: purple, size: 14),
-
                       SizedBox(width: 5),
-
                       Text(
                         'Copy',
                         style: TextStyle(
@@ -1730,9 +1652,7 @@ int fibonacci(int n) {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           Container(
             width: double.infinity,
             constraints: const BoxConstraints(minHeight: 280, maxHeight: 500),
@@ -1740,13 +1660,12 @@ int fibonacci(int n) {
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              border: Border.all(color: Colors.white.withOpacity(0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
                 children: List.generate(lines.length, (index) {
                   final lineNumber = index + 1;
-
                   final active = lineNumber == activeCodeLine;
 
                   return Container(
@@ -1755,9 +1674,7 @@ int fibonacci(int n) {
                       horizontal: 8,
                       vertical: 2,
                     ),
-                    color: active
-                        ? cyan.withValues(alpha: 0.09)
-                        : Colors.transparent,
+                    color: active ? cyan.withOpacity(0.09) : Colors.transparent,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1769,22 +1686,20 @@ int fibonacci(int n) {
                             style: TextStyle(
                               color: active
                                   ? cyan
-                                  : Colors.white.withValues(alpha: 0.20),
+                                  : Colors.white.withOpacity(0.20),
                               fontSize: 9,
                               fontFamily: 'monospace',
                             ),
                           ),
                         ),
-
                         const SizedBox(width: 10),
-
                         Expanded(
                           child: Text(
                             lines[index],
                             style: TextStyle(
                               color: active
                                   ? Colors.white
-                                  : Colors.white.withValues(alpha: 0.65),
+                                  : Colors.white.withOpacity(0.65),
                               fontSize: 10,
                               height: 1.45,
                               fontFamily: 'monospace',
@@ -1806,10 +1721,6 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // EXECUTION STEPS
-  // ==========================================================================
-
   Widget _buildExecutionSteps() {
     return _card(
       child: Column(
@@ -1818,15 +1729,13 @@ int fibonacci(int n) {
           Row(
             children: [
               _sectionTitle(Icons.history_rounded, 'Execution Steps', cyan),
-
               const Spacer(),
-
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withValues(alpha: 0.07),
+                  color: cyan.withOpacity(0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
+                  border: Border.all(color: cyan.withOpacity(0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -1839,9 +1748,7 @@ int fibonacci(int n) {
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           if (executionHistory.isEmpty)
             _emptyExecutionState()
           else
@@ -1851,9 +1758,7 @@ int fibonacci(int n) {
                 shrinkWrap: true,
                 itemCount: executionHistory.length,
                 itemBuilder: (context, index) {
-                  final event = executionHistory[index];
-
-                  return _executionStepItem(index, event);
+                  return _executionStepItem(index, executionHistory[index]);
                 },
               ),
             ),
@@ -1862,10 +1767,6 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // EMPTY
-  // ==========================================================================
-
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
@@ -1873,33 +1774,29 @@ int fibonacci(int n) {
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withValues(alpha: 0.20),
+            color: Colors.white.withOpacity(0.20),
             size: 32,
           ),
-
           const SizedBox(height: 10),
-
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.55),
+              color: Colors.white.withOpacity(0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
-
           const SizedBox(height: 5),
-
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.30),
+              color: Colors.white.withOpacity(0.30),
               fontSize: 10,
             ),
           ),
@@ -1908,20 +1805,16 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // EXECUTION ITEM
-  // ==========================================================================
-
-  Widget _executionStepItem(int index, FibonacciEvent event) {
+  Widget _executionStepItem(int index, LoopEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.045),
+        color: color.withOpacity(0.045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withValues(alpha: 0.14)),
+        border: Border.all(color: color.withOpacity(0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1930,14 +1823,12 @@ int fibonacci(int n) {
             width: 27,
             height: 27,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.10),
+              color: color.withOpacity(0.10),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(_eventIcon(event.type), color: color, size: 15),
           ),
-
           const SizedBox(width: 9),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1954,35 +1845,30 @@ int fibonacci(int n) {
                         ),
                       ),
                     ),
-
                     Text(
                       '#${index + 1}',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.22),
+                        color: Colors.white.withOpacity(0.22),
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   event.description,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.53),
+                    color: Colors.white.withOpacity(0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
                 ),
-
                 const SizedBox(height: 5),
-
                 Text(
                   event.operation,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.30),
+                    color: Colors.white.withOpacity(0.30),
                     fontSize: 8.5,
                     fontFamily: 'monospace',
                   ),
@@ -1995,10 +1881,6 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // CARD
-  // ==========================================================================
-
   Widget _card({required Widget child}) {
     return Container(
       width: double.infinity,
@@ -2006,10 +1888,10 @@ int fibonacci(int n) {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
+        border: Border.all(color: Colors.white.withOpacity(0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            color: Colors.black.withOpacity(0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -2019,10 +1901,6 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // SECTION TITLE
-  // ==========================================================================
-
   Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -2031,14 +1909,12 @@ int fibonacci(int n) {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.09),
+            color: color.withOpacity(0.09),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 17),
         ),
-
         const SizedBox(width: 9),
-
         Text(
           title,
           style: const TextStyle(
@@ -2051,17 +1927,13 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // INFO BOX
-  // ==========================================================================
-
   Widget _infoBox(String title, String value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.055),
+        color: color.withOpacity(0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withValues(alpha: 0.16)),
+        border: Border.all(color: color.withOpacity(0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2069,14 +1941,12 @@ int fibonacci(int n) {
           Text(
             title,
             style: TextStyle(
-              color: color.withValues(alpha: 0.8),
+              color: color.withOpacity(0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
           ),
-
           const SizedBox(height: 3),
-
           Text(
             value,
             style: const TextStyle(
@@ -2090,18 +1960,14 @@ int fibonacci(int n) {
     );
   }
 
-  // ==========================================================================
-  // MINI BADGE
-  // ==========================================================================
-
   Widget _miniBadge(String title, String value, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.07),
+          color: color.withOpacity(0.07),
           borderRadius: BorderRadius.circular(9),
-          border: Border.all(color: color.withValues(alpha: 0.18)),
+          border: Border.all(color: color.withOpacity(0.18)),
         ),
         child: Column(
           children: [
@@ -2114,9 +1980,7 @@ int fibonacci(int n) {
                 letterSpacing: 0.7,
               ),
             ),
-
             const SizedBox(height: 3),
-
             Text(
               value,
               overflow: TextOverflow.ellipsis,

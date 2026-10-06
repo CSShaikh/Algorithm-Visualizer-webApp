@@ -4,77 +4,46 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class MatrixMultiplicationAlgorithmScreen extends StatefulWidget {
-  const MatrixMultiplicationAlgorithmScreen({super.key});
+class FindMiddleElementScreen extends StatefulWidget {
+  const FindMiddleElementScreen({super.key});
 
   @override
-  State<MatrixMultiplicationAlgorithmScreen> createState() =>
-      _MatrixMultiplicationAlgorithmScreenState();
+  State<FindMiddleElementScreen> createState() =>
+      _FindingMiddleElementScreenState();
 }
 
-// ============================================================================
-// EVENT TYPES
-// ============================================================================
-
-enum MatrixMultiplicationEventType {
+enum MiddleEventType {
   initialize,
-  calculate,
-  multiply,
-  accumulate,
+  pointersSet,
+  moveSlow,
+  moveFast,
+  middleFound,
   complete,
 }
 
-// ============================================================================
-// EVENT MODEL
-// ============================================================================
-
-class MatrixMultiplicationEvent {
-  final MatrixMultiplicationEventType type;
-  final List<int> array;
-  final int index;
-  final int secondIndex;
-  final int firstValue;
-  final int secondValue;
-  final int sortedCount;
-  final int row;
-  final int column;
-  final List<List<int>> matrixA;
-  final List<List<int>> matrixB;
-  final List<List<int>> result;
+class MiddleEvent {
+  final MiddleEventType type;
+  final List<int> list;
+  final int slowIndex;
+  final int fastIndex;
+  final int middleIndex;
   final String title;
   final String description;
   final String operation;
 
-  const MatrixMultiplicationEvent({
+  const MiddleEvent({
     required this.type,
-    required this.array,
-    required this.index,
-    required this.secondIndex,
-    required this.firstValue,
-    required this.secondValue,
-    required this.sortedCount,
-    required this.row,
-    required this.column,
-    required this.matrixA,
-    required this.matrixB,
-    required this.result,
+    required this.list,
+    required this.slowIndex,
+    required this.fastIndex,
+    required this.middleIndex,
     required this.title,
     required this.description,
     required this.operation,
   });
 }
 
-// ============================================================================
-// STATE
-
-// ============================================================================
-
-class _MatrixMultiplicationAlgorithmScreenState
-    extends State<MatrixMultiplicationAlgorithmScreen> {
-  // ==========================================================================
-  // COLORS
-  // ==========================================================================
-
+class _FindingMiddleElementScreenState extends State<FindMiddleElementScreen> {
   static const Color background = Color(0xFF030712);
   static const Color background2 = Color(0xFF07101F);
   static const Color cardColor = Color(0xFF0B1428);
@@ -88,41 +57,15 @@ class _MatrixMultiplicationAlgorithmScreenState
   static const Color pink = Color(0xFFFF4081);
   static const Color red = Color(0xFFFF5252);
 
-  // ============================================================================
-  // DATA
-  // ============================================================================
+  List<int> linkedList = [10, 20, 30, 40, 50];
+  List<int> originalList = [10, 20, 30, 40, 50];
 
-  List<List<int>> matrixA = [
-    [1, 2],
-    [3, 4],
-  ];
-
-  List<List<int>> matrixB = [
-    [5, 6],
-    [7, 8],
-  ];
-
-  List<List<int>> resultMatrix = [
-    [0, 0],
-    [0, 0],
-  ];
-
-  List<List<int>> originalA = [
-    [1, 2],
-    [3, 4],
-  ];
-
-  List<List<int>> originalB = [
-    [5, 6],
-    [7, 8],
-  ];
-
-  final TextEditingController arrayController = TextEditingController(
-    text: '1, 2; 3, 4 | 5, 6; 7, 8',
+  final TextEditingController listController = TextEditingController(
+    text: '10, 20, 30, 40, 50',
   );
 
-  List<MatrixMultiplicationEvent> events = [];
-  List<MatrixMultiplicationEvent> executionHistory = [];
+  List<MiddleEvent> events = [];
+  List<MiddleEvent> executionHistory = [];
 
   int currentStep = 0;
   bool isRunning = false;
@@ -130,418 +73,229 @@ class _MatrixMultiplicationAlgorithmScreenState
   double speed = 1.0;
   Timer? timer;
 
-  int currentRow = -1;
-  int currentColumn = -1;
-  int activeCell = -1;
-  int sortedCount = 0;
-  Set<int> sortedIndexes = {};
+  int slowIndex = -1;
+  int fastIndex = -1;
+  int middleIndex = -1;
   int activeCodeLine = 0;
-  int matrixResultValue = 0;
+
   String executionMessage =
-      'Ready to start the Matrix Multiplication Algorithm.';
+      'Ready to find the middle element of the linked list.';
 
   final String sourceCode = '''
-List<List<int>> multiplyMatrices(
-  List<List<int>> a,
-  List<List<int>> b,
-) {
-  final result = List.generate(
-    a.length,
-    (_) => List.filled(b[0].length, 0),
-  );
+class Node {
+  int data;
+  Node? next;
 
-  for (int i = 0; i < a.length; i++) {
-    for (int j = 0; j < b[0].length; j++) {
-      for (int k = 0; k < b.length; k++) {
-        result[i][j] += a[i][k] * b[k][j];
-      }
-    }
+  Node(this.data);
+}
+
+Node? findMiddle(Node? head) {
+  Node? slow = head;
+  Node? fast = head;
+
+  while (fast != null && fast.next != null) {
+    slow = slow!.next;
+    fast = fast.next!.next;
   }
 
-  return result;
+  return slow;
 }
 ''';
 
   @override
   void initState() {
     super.initState();
+    originalList = [...linkedList];
     _generateEvents();
   }
 
   @override
   void dispose() {
     timer?.cancel();
-    arrayController.dispose();
+    listController.dispose();
     super.dispose();
   }
 
-  List<int> _flatten(List<List<int>> matrix) =>
-      matrix.expand((row) => row).toList();
-
-  List<List<int>> _copyMatrix(List<List<int>> matrix) =>
-      matrix.map((row) => [...row]).toList();
-
   void _generateEvents() {
-    final generated = <MatrixMultiplicationEvent>[];
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+    final working = [...linkedList];
+    final generated = <MiddleEvent>[];
+
+    if (working.isEmpty) {
+      events = generated;
+      return;
+    }
 
     generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.initialize,
-        array: _flatten(resultMatrix),
-        index: -1,
-        secondIndex: -1,
-        firstValue: 0,
-        secondValue: 0,
-        sortedCount: 0,
-        row: -1,
-        column: -1,
-        matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
-        result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Initialized',
+      MiddleEvent(
+        type: MiddleEventType.initialize,
+        list: [...working],
+        slowIndex: -1,
+        fastIndex: -1,
+        middleIndex: -1,
+        title: 'Linked List Initialized',
         description:
-            'Start with two 2 × 2 matrices and an empty result matrix.',
-        operation: 'C = A × B',
+            'The linked list is ready. We will use slow and fast pointers to find its middle element.',
+        operation: 'Start Finding Middle',
       ),
     );
 
-    int completedCells = 0;
-    for (int i = 0; i < 2; i++) {
-      for (int j = 0; j < 2; j++) {
-        int sum = 0;
-        for (int k = 0; k < 2; k++) {
-          final a = matrixA[i][k];
-          final b = matrixB[k][j];
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.calculate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Select Row × Column Elements',
-              description:
-                  'Take A[$i][$k] = $a and B[$k][$j] = $b for C[$i][$j].',
-              operation: 'A[$i][$k] × B[$k][$j]',
-            ),
-          );
+    int slow = 0;
+    int fast = 0;
 
-          final product = a * b;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.multiply,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Multiply Selected Elements',
-              description: '$a × $b = $product.',
-              operation: '$a × $b = $product',
-            ),
-          );
+    generated.add(
+      MiddleEvent(
+        type: MiddleEventType.pointersSet,
+        list: [...working],
+        slowIndex: slow,
+        fastIndex: fast,
+        middleIndex: -1,
+        title: 'Pointers Initialized',
+        description:
+            'Both slow and fast pointers start at the head of the linked list.',
+        operation: 'slow = head, fast = head',
+      ),
+    );
 
-          sum += product;
-          resultMatrix[i][j] = sum;
-          generated.add(
-            MatrixMultiplicationEvent(
-              type: MatrixMultiplicationEventType.accumulate,
-              array: _flatten(resultMatrix),
-              index: i * 2 + j,
-              secondIndex: k,
-              firstValue: a,
-              secondValue: b,
-              sortedCount: completedCells,
-              row: i,
-              column: j,
-              matrixA: _copyMatrix(matrixA),
-              matrixB: _copyMatrix(matrixB),
-              result: _copyMatrix(resultMatrix),
-              title: 'Accumulate Product',
-              description:
-                  'Add the product to C[$i][$j]. Current value = $sum.',
-              operation: 'C[$i][$j] = $sum',
-            ),
-          );
-        }
-        completedCells++;
+    while (fast >= 0 && fast < working.length && fast + 1 < working.length) {
+      slow++;
+
+      generated.add(
+        MiddleEvent(
+          type: MiddleEventType.moveSlow,
+          list: [...working],
+          slowIndex: slow,
+          fastIndex: fast,
+          middleIndex: -1,
+          title: 'Slow Pointer Moves',
+          description:
+              'Slow moves one node forward to index $slow (value ${working[slow]}).',
+          operation: 'slow = slow.next',
+        ),
+      );
+
+      fast += 2;
+
+      generated.add(
+        MiddleEvent(
+          type: MiddleEventType.moveFast,
+          list: [...working],
+          slowIndex: slow,
+          fastIndex: fast < working.length ? fast : -1,
+          middleIndex: -1,
+          title: 'Fast Pointer Moves',
+          description: fast < working.length
+              ? 'Fast moves two nodes forward to index $fast (value ${working[fast]}).'
+              : 'Fast moves two nodes and reaches the end of the linked list.',
+          operation: 'fast = fast.next.next',
+        ),
+      );
+    }
+
+    final foundMiddle = slow.clamp(0, working.length - 1);
+
+    generated.add(
+      MiddleEvent(
+        type: MiddleEventType.middleFound,
+        list: [...working],
+        slowIndex: foundMiddle,
+        fastIndex: -1,
+        middleIndex: foundMiddle,
+        title: 'Middle Element Found',
+        description:
+            'Fast has reached the end, so slow is pointing to the middle element ${working[foundMiddle]}.',
+        operation: 'return slow',
+      ),
+    );
+
+    generated.add(
+      MiddleEvent(
+        type: MiddleEventType.complete,
+        list: [...working],
+        slowIndex: foundMiddle,
+        fastIndex: -1,
+        middleIndex: foundMiddle,
+        title: 'Finding Middle Complete',
+        description:
+            'The middle element of the linked list has been found successfully.',
+        operation: 'Middle = ${working[foundMiddle]}',
+      ),
+    );
+
+    events = generated;
+  }
+
+  void _loadList() {
+    final text = listController.text.trim();
+
+    if (text.isEmpty) {
+      _showSnackBar('Please enter numbers.', red);
+      return;
+    }
+
+    final parts = text.split(RegExp(r'[\s,]+'));
+    final values = <int>[];
+
+    for (final part in parts) {
+      final value = int.tryParse(part);
+      if (value != null) {
+        values.add(value);
       }
     }
 
-    generated.add(
-      MatrixMultiplicationEvent(
-        type: MatrixMultiplicationEventType.complete,
-        array: _flatten(resultMatrix),
-        index: -1,
-        secondIndex: -1,
-        firstValue: 0,
-        secondValue: 0,
-        sortedCount: 4,
-        row: -1,
-        column: -1,
-        matrixA: _copyMatrix(matrixA),
-        matrixB: _copyMatrix(matrixB),
-        result: _copyMatrix(resultMatrix),
-        title: 'Matrix Multiplication Complete',
-        description:
-            'Every result cell has been calculated using row-by-column multiplication.',
-        operation: 'C = A × B',
-      ),
-    );
-    events = generated;
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
-  }
-
-  void _applyEvent(MatrixMultiplicationEvent event, {bool updateState = true}) {
-    matrixA = _copyMatrix(event.matrixA);
-    matrixB = _copyMatrix(event.matrixB);
-    resultMatrix = _copyMatrix(event.result);
-    currentRow = event.row;
-    currentColumn = event.column;
-    activeCell = event.index;
-    sortedCount = event.sortedCount;
-    executionMessage = '${event.title}: ${event.description}';
-    activeCodeLine = _codeLineForEvent(event.type);
-
-    if (event.type == MatrixMultiplicationEventType.multiply ||
-        event.type == MatrixMultiplicationEventType.accumulate) {
-      matrixResultValue = event.result[event.row][event.column];
+    if (values.isEmpty) {
+      _showSnackBar('No valid numbers found.', red);
+      return;
     }
-    if (event.type == MatrixMultiplicationEventType.accumulate &&
-        event.secondIndex == 1) {
-      sortedIndexes = {...sortedIndexes, event.index};
-    }
-    if (event.type == MatrixMultiplicationEventType.complete) {
-      sortedIndexes = {0, 1, 2, 3};
-      activeCell = -1;
-      currentRow = -1;
-      currentColumn = -1;
-      executionMessage = 'Matrix Multiplication Complete: C = A × B';
-    }
-    if (updateState) setState(() {});
-  }
 
-  void _rebuildVisualState() {
-    resultMatrix = List.generate(2, (_) => List.filled(2, 0));
-    currentRow = -1;
-    currentColumn = -1;
-    activeCell = -1;
-    sortedCount = 0;
-    sortedIndexes.clear();
-    activeCodeLine = 0;
-    matrixResultValue = 0;
-    executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
-    matrixA = _copyMatrix(originalA);
-    matrixB = _copyMatrix(originalB);
-    for (final event in executionHistory) {
-      _applyEvent(event, updateState: false);
-    }
-  }
-
-  void _reset() {
     timer?.cancel();
+
     setState(() {
-      matrixA = _copyMatrix(originalA);
-      matrixB = _copyMatrix(originalB);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      linkedList = [...values];
+      originalList = [...values];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
+      slowIndex = -1;
+      fastIndex = -1;
+      middleIndex = -1;
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'Ready to start the Matrix Multiplication Algorithm.';
+      executionMessage =
+          'Linked list loaded. Ready to find its middle element.';
     });
+
     _generateEvents();
-  }
-
-  void _setSpeed(double value) {
-    setState(() => speed = value);
-    if (isRunning) _play();
-  }
-
-  int _codeLineForEvent(MatrixMultiplicationEventType type) {
-    switch (type) {
-      case MatrixMultiplicationEventType.initialize:
-        return 1;
-      case MatrixMultiplicationEventType.calculate:
-        return 7;
-      case MatrixMultiplicationEventType.multiply:
-        return 9;
-      case MatrixMultiplicationEventType.accumulate:
-        return 10;
-      case MatrixMultiplicationEventType.complete:
-        return 15;
-    }
-  }
-
-  Color _eventColor(MatrixMultiplicationEventType type) {
-    switch (type) {
-      case MatrixMultiplicationEventType.initialize:
-        return blue;
-      case MatrixMultiplicationEventType.calculate:
-        return cyan;
-      case MatrixMultiplicationEventType.multiply:
-        return orange;
-      case MatrixMultiplicationEventType.accumulate:
-        return green;
-      case MatrixMultiplicationEventType.complete:
-        return green;
-    }
-  }
-
-  IconData _eventIcon(MatrixMultiplicationEventType type) {
-    switch (type) {
-      case MatrixMultiplicationEventType.initialize:
-        return Icons.play_arrow_rounded;
-      case MatrixMultiplicationEventType.calculate:
-        return Icons.grid_view_rounded;
-      case MatrixMultiplicationEventType.multiply:
-        return Icons.close_rounded;
-      case MatrixMultiplicationEventType.accumulate:
-        return Icons.add_circle_outline_rounded;
-      case MatrixMultiplicationEventType.complete:
-        return Icons.check_circle_rounded;
-    }
-  }
-
-  Future<void> _copyCode() async {
-    await Clipboard.setData(ClipboardData(text: sourceCode));
-    _showSnackBar('Source code copied.', cyan);
-  }
-
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: color.withValues(alpha: 0.85),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  List<List<int>>? _parseMatrix(String value) {
-    final rows = value
-        .split(';')
-        .map((row) => row.trim())
-        .where((row) => row.isNotEmpty)
-        .toList();
-    if (rows.length != 2) return null;
-    final matrix = <List<int>>[];
-    for (final row in rows) {
-      final values = row
-          .split(RegExp(r'[,\s]+'))
-          .where((v) => v.isNotEmpty)
-          .map(int.tryParse)
-          .toList();
-      if (values.length != 2 || values.any((v) => v == null)) return null;
-      matrix.add(values.cast<int>());
-    }
-    return matrix;
-  }
-
-  void _loadArray() {
-    final parts = arrayController.text.split('|');
-    if (parts.length != 2) {
-      _showSnackBar('Enter two 2 × 2 matrices separated by |.', red);
-      return;
-    }
-    final a = _parseMatrix(parts[0]);
-    final b = _parseMatrix(parts[1]);
-    if (a == null || b == null) {
-      _showSnackBar('Use format: 1,2;3,4 | 5,6;7,8', red);
-      return;
-    }
-    timer?.cancel();
-    setState(() {
-      matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
-      originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
-      executionHistory.clear();
-      currentStep = 0;
-      isRunning = false;
-      isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
-      activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'Matrices loaded. Ready to multiply them.';
-    });
-    _generateEvents();
-    _showSnackBar('Matrices loaded successfully.', green);
+    _showSnackBar('Linked list loaded successfully.', green);
   }
 
   void _generateNumbers() {
     final random = Random();
-    List<List<int>> randomMatrix() =>
-        List.generate(2, (_) => List.generate(2, (_) => random.nextInt(9) + 1));
-    final a = randomMatrix();
-    final b = randomMatrix();
-    arrayController.text =
-        '${a[0].join(',')};${a[1].join(',')} | ${b[0].join(',')};${b[1].join(',')}';
+    final generated = List.generate(7, (_) => random.nextInt(90) + 10);
+
+    listController.text = generated.join(', ');
+
     timer?.cancel();
+
     setState(() {
-      matrixA = _copyMatrix(a);
-      matrixB = _copyMatrix(b);
-      originalA = _copyMatrix(a);
-      originalB = _copyMatrix(b);
-      resultMatrix = List.generate(2, (_) => List.filled(2, 0));
+      linkedList = [...generated];
+      originalList = [...generated];
       executionHistory.clear();
       currentStep = 0;
       isRunning = false;
       isCompleted = false;
-      currentRow = -1;
-      currentColumn = -1;
-      activeCell = -1;
-      sortedCount = 0;
-      sortedIndexes.clear();
+      slowIndex = -1;
+      fastIndex = -1;
+      middleIndex = -1;
       activeCodeLine = 0;
-      matrixResultValue = 0;
-      executionMessage = 'New matrices generated. Ready to multiply them.';
+      executionMessage = 'New linked list generated. Ready to find the middle.';
     });
+
     _generateEvents();
-    _showSnackBar('New matrices generated.', purple);
+    _showSnackBar('New linked list generated.', purple);
   }
 
-  // ==========================================================================
-  // PLAY
-  // ==========================================================================
-
   void _play() {
-    if (events.isEmpty || isCompleted) {
-      return;
-    }
+    if (events.isEmpty || isCompleted) return;
 
     timer?.cancel();
 
@@ -572,10 +326,6 @@ List<List<int>> multiplyMatrices(
     });
   }
 
-  // ==========================================================================
-  // PAUSE
-  // ==========================================================================
-
   void _pause() {
     timer?.cancel();
 
@@ -586,10 +336,6 @@ List<List<int>> multiplyMatrices(
     });
   }
 
-  // ==========================================================================
-  // TOGGLE
-  // ==========================================================================
-
   void _togglePlayPause() {
     if (isRunning) {
       _pause();
@@ -598,29 +344,18 @@ List<List<int>> multiplyMatrices(
     }
   }
 
-  // ==========================================================================
-  // NEXT
-  // ==========================================================================
-
   void _nextStep() {
-    if (currentStep >= events.length) {
-      return;
-    }
-
+    if (currentStep >= events.length) return;
     _nextStepInternal();
   }
 
   void _nextStepInternal() {
-    if (currentStep >= events.length) {
-      return;
-    }
+    if (currentStep >= events.length) return;
 
     final event = events[currentStep];
 
     executionHistory.add(event);
-
     currentStep++;
-
     _applyEvent(event);
 
     if (currentStep >= events.length) {
@@ -633,19 +368,12 @@ List<List<int>> multiplyMatrices(
     }
   }
 
-  // ==========================================================================
-  // PREVIOUS
-  // ==========================================================================
-
   void _previousStep() {
-    if (executionHistory.isEmpty) {
-      return;
-    }
+    if (executionHistory.isEmpty) return;
 
     timer?.cancel();
 
     executionHistory.removeLast();
-
     currentStep = executionHistory.length;
 
     _rebuildVisualState();
@@ -656,9 +384,145 @@ List<List<int>> multiplyMatrices(
     });
   }
 
-  // ==========================================================================
-  // BUILD
-  // ==========================================================================
+  void _rebuildVisualState() {
+    linkedList = [...originalList];
+
+    slowIndex = -1;
+    fastIndex = -1;
+    middleIndex = -1;
+    activeCodeLine = 0;
+    executionMessage = 'Ready to find the middle element of the linked list.';
+
+    for (final event in executionHistory) {
+      _applyEvent(event, updateState: false);
+    }
+  }
+
+  void _applyEvent(MiddleEvent event, {bool updateState = true}) {
+    linkedList = [...event.list];
+    slowIndex = event.slowIndex;
+    fastIndex = event.fastIndex;
+    middleIndex = event.middleIndex;
+    executionMessage = '${event.title}: ${event.description}';
+    activeCodeLine = _codeLineForEvent(event.type);
+
+    if (event.type == MiddleEventType.complete) {
+      slowIndex = event.middleIndex;
+      fastIndex = -1;
+      middleIndex = event.middleIndex;
+
+      executionMessage =
+          'Finding Middle Complete: Middle element is ${event.list[event.middleIndex]}.';
+    }
+
+    if (updateState) {
+      setState(() {});
+    }
+  }
+
+  void _reset() {
+    timer?.cancel();
+
+    setState(() {
+      linkedList = [...originalList];
+      executionHistory.clear();
+      currentStep = 0;
+      isRunning = false;
+      isCompleted = false;
+      slowIndex = -1;
+      fastIndex = -1;
+      middleIndex = -1;
+      activeCodeLine = 0;
+      executionMessage = 'Ready to find the middle element of the linked list.';
+    });
+
+    _generateEvents();
+  }
+
+  void _setSpeed(double value) {
+    setState(() {
+      speed = value;
+    });
+
+    if (isRunning) {
+      _play();
+    }
+  }
+
+  int _codeLineForEvent(MiddleEventType type) {
+    switch (type) {
+      case MiddleEventType.initialize:
+        return 1;
+      case MiddleEventType.pointersSet:
+        return 7;
+      case MiddleEventType.moveSlow:
+        return 9;
+      case MiddleEventType.moveFast:
+        return 10;
+      case MiddleEventType.middleFound:
+        return 13;
+      case MiddleEventType.complete:
+        return 13;
+    }
+  }
+
+  Color _eventColor(MiddleEventType type) {
+    switch (type) {
+      case MiddleEventType.initialize:
+        return blue;
+      case MiddleEventType.pointersSet:
+        return purple;
+      case MiddleEventType.moveSlow:
+        return cyan;
+      case MiddleEventType.moveFast:
+        return orange;
+      case MiddleEventType.middleFound:
+        return green;
+      case MiddleEventType.complete:
+        return green;
+    }
+  }
+
+  IconData _eventIcon(MiddleEventType type) {
+    switch (type) {
+      case MiddleEventType.initialize:
+        return Icons.play_arrow_rounded;
+      case MiddleEventType.pointersSet:
+        return Icons.my_location_rounded;
+      case MiddleEventType.moveSlow:
+        return Icons.arrow_forward_rounded;
+      case MiddleEventType.moveFast:
+        return Icons.double_arrow_rounded;
+      case MiddleEventType.middleFound:
+        return Icons.center_focus_strong_rounded;
+      case MiddleEventType.complete:
+        return Icons.flag_rounded;
+    }
+  }
+
+  Future<void> _copyCode() async {
+    await Clipboard.setData(ClipboardData(text: sourceCode));
+
+    _showSnackBar('Source code copied.', cyan);
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: color.withOpacity(0.85),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -673,17 +537,11 @@ List<List<int>> multiplyMatrices(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildHeader(),
-
                   const SizedBox(height: 16),
-
                   _buildAlgorithmInfo(),
-
                   const SizedBox(height: 16),
-
                   _buildInputSection(),
-
                   const SizedBox(height: 16),
-
                   _buildMainWorkspace(constraints.maxWidth),
                 ],
               ),
@@ -694,24 +552,18 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // HEADER
-  // ==========================================================================
-
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: background2,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cyan.withValues(alpha: 0.16)),
+        border: Border.all(color: orange.withOpacity(0.16)),
       ),
       child: Row(
         children: [
           InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.pop(context),
             borderRadius: BorderRadius.circular(10),
             child: Container(
               width: 40,
@@ -719,7 +571,7 @@ List<List<int>> multiplyMatrices(
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                border: Border.all(color: Colors.white.withOpacity(0.08)),
               ),
               child: const Icon(
                 Icons.arrow_back_rounded,
@@ -728,9 +580,7 @@ List<List<int>> multiplyMatrices(
               ),
             ),
           ),
-
           const SizedBox(width: 12),
-
           Container(
             width: 42,
             height: 42,
@@ -739,53 +589,43 @@ List<List<int>> multiplyMatrices(
               borderRadius: BorderRadius.circular(11),
             ),
             child: const Icon(
-              Icons.calculate_rounded,
+              Icons.account_tree_rounded,
               color: Colors.white,
               size: 23,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Matrix Multiplication Algorithm',
+                  'Finding Middle Element',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
-                  'Add row and column elements of two matrices step by step',
+                  'Find the middle node using slow and fast pointers',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: Colors.white.withOpacity(0.55),
                     fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-
           _statusBadge(),
         ],
       ),
     );
   }
 
-  // ==========================================================================
-  // STATUS
-  // ==========================================================================
-
   Widget _statusBadge() {
     Color color = cyan;
-
     String text = 'READY';
 
     if (isRunning) {
@@ -793,15 +633,15 @@ List<List<int>> multiplyMatrices(
       text = 'RUNNING';
     } else if (isCompleted) {
       color = green;
-      text = 'Matrix Multiplication READY';
+      text = 'FOUND';
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: color.withOpacity(0.10),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        border: Border.all(color: color.withOpacity(0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -811,9 +651,7 @@ List<List<int>> multiplyMatrices(
             height: 7,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
-
           const SizedBox(width: 7),
-
           Text(
             text,
             style: TextStyle(
@@ -828,10 +666,6 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // ALGORITHM INFO
-  // ==========================================================================
-
   Widget _buildAlgorithmInfo() {
     return _card(
       child: Column(
@@ -842,30 +676,29 @@ List<List<int>> multiplyMatrices(
             'Algorithm Information',
             cyan,
           ),
-
           const SizedBox(height: 14),
-
           Text(
-            'The Matrix Multiplication Algorithm multiplies rows of Matrix A by columns of Matrix B to produce a result matrix.',
+            'The middle element is found using two pointers. '
+            'The slow pointer moves one node at a time while the '
+            'fast pointer moves two nodes at a time. When fast '
+            'reaches the end, slow is at the middle.',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.64),
+              color: Colors.white.withOpacity(0.64),
               height: 1.5,
               fontSize: 12.5,
             ),
           ),
-
           const SizedBox(height: 14),
-
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _infoBox('Time', 'O(n × m)', orange),
-              _infoBox('Space', 'O(n × m)', blue),
-              _infoBox('Type', 'Mathematical', purple),
-              _infoBox('Method', 'Element-wise Addition', green),
-              _infoBox('Matrices', '2 × 2', red),
-              _infoBox('Result', 'C = A × B', cyan),
+              _infoBox('Time', 'O(n)', orange),
+              _infoBox('Space', 'O(1)', blue),
+              _infoBox('Type', 'Linked List', purple),
+              _infoBox('Method', 'Two Pointers', green),
+              _infoBox('Slow', '1 step', cyan),
+              _infoBox('Fast', '2 steps', red),
             ],
           ),
         ],
@@ -873,34 +706,24 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // INPUT
-  // ==========================================================================
-
   Widget _buildInputSection() {
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle(Icons.input_rounded, 'Input', cyan),
-
           const SizedBox(height: 12),
-
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 700) {
                 return Column(
                   children: [
                     _inputField(),
-
                     const SizedBox(height: 10),
-
                     Row(
                       children: [
                         Expanded(child: _generateButton()),
-
                         const SizedBox(width: 10),
-
                         Expanded(child: _loadButton()),
                       ],
                     ),
@@ -912,36 +735,28 @@ List<List<int>> multiplyMatrices(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(child: _inputField()),
-
                   const SizedBox(width: 10),
-
                   SizedBox(height: 46, child: _generateButton()),
-
                   const SizedBox(width: 10),
-
                   SizedBox(height: 46, child: _loadButton()),
                 ],
               );
             },
           ),
-
           const SizedBox(height: 10),
-
           Row(
             children: [
               Icon(
                 Icons.lightbulb_outline_rounded,
-                color: orange.withValues(alpha: 0.85),
+                color: orange.withOpacity(0.85),
                 size: 15,
               ),
-
               const SizedBox(width: 7),
-
               Expanded(
                 child: Text(
-                  'Enter two 2 × 2 matrices: A | B, using ; between rows.',
+                  'Try an odd or even number of nodes to see how the slow and fast pointers move.',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.45),
+                    color: Colors.white.withOpacity(0.45),
                     fontSize: 11,
                   ),
                 ),
@@ -953,29 +768,25 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // INPUT FIELD
-  // ==========================================================================
-
   Widget _inputField() {
     return TextField(
-      controller: arrayController,
+      controller: listController,
       style: const TextStyle(color: Colors.white, fontSize: 13),
       cursorColor: cyan,
       decoration: InputDecoration(
-        labelText: 'Enter Matrices',
-        hintText: '1,2;3,4 | 5,6;7,8',
+        labelText: 'Enter Linked List Values',
+        hintText: '10, 20, 30, 40, 50...',
         labelStyle: TextStyle(
-          color: Colors.white.withValues(alpha: 0.58),
+          color: Colors.white.withOpacity(0.58),
           fontSize: 12,
         ),
         hintStyle: TextStyle(
-          color: Colors.white.withValues(alpha: 0.25),
+          color: Colors.white.withOpacity(0.25),
           fontSize: 12,
         ),
         prefixIcon: Icon(
-          Icons.grid_view_rounded,
-          color: cyan.withValues(alpha: 0.8),
+          Icons.link_rounded,
+          color: cyan.withOpacity(0.8),
           size: 19,
         ),
         filled: true,
@@ -986,26 +797,22 @@ List<List<int>> multiplyMatrices(
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: cyan.withValues(alpha: 0.55)),
+          borderSide: BorderSide(color: cyan.withOpacity(0.55)),
         ),
       ),
     );
   }
-
-  // ==========================================================================
-  // GENERATE
-  // ==========================================================================
 
   Widget _generateButton() {
     return ElevatedButton.icon(
       onPressed: _generateNumbers,
       icon: const Icon(Icons.auto_awesome_rounded, size: 17),
       label: const Text(
-        'Generate Matrices',
+        'Generate List',
         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1018,16 +825,12 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // LOAD
-  // ==========================================================================
-
   Widget _loadButton() {
     return ElevatedButton.icon(
-      onPressed: _loadArray,
+      onPressed: _loadList,
       icon: const Icon(Icons.download_rounded, size: 17),
       label: const Text(
-        'LOAD ARRAY',
+        'LOAD LIST',
         style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
       ),
       style: ElevatedButton.styleFrom(
@@ -1040,26 +843,16 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // WORKSPACE
-  // ==========================================================================
-
   Widget _buildMainWorkspace(double width) {
     if (width < 900) {
       return Column(
         children: [
           _buildVisualization(),
-
           const SizedBox(height: 14),
-
           _buildControls(),
-
           const SizedBox(height: 14),
-
           _buildSourceCode(),
-
           const SizedBox(height: 14),
-
           _buildExecutionSteps(),
         ],
       );
@@ -1073,24 +866,18 @@ List<List<int>> multiplyMatrices(
           child: Column(
             children: [
               _buildVisualization(),
-
               const SizedBox(height: 14),
-
               _buildControls(),
             ],
           ),
         ),
-
         const SizedBox(width: 14),
-
         Expanded(
           flex: 2,
           child: Column(
             children: [
               _buildSourceCode(),
-
               const SizedBox(height: 14),
-
               _buildExecutionSteps(),
             ],
           ),
@@ -1099,31 +886,53 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // VISUALIZATION
-  // ==========================================================================
-
   Widget _buildVisualization() {
     return _card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionTitle(Icons.grid_view_rounded, 'Matrix Visualization', cyan),
-          const SizedBox(height: 14),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _matrixPanel('Matrix A', matrixA, blue),
-                _operator('×', orange),
-                _matrixPanel('Matrix B', matrixB, purple),
-                _operator('=', green),
-                _matrixPanel('Result C', resultMatrix, green, result: true),
-              ],
-            ),
+          _sectionTitle(Icons.account_tree_rounded, 'Visualization', cyan),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _miniBadge('SLOW', slowIndex >= 0 ? '$slowIndex' : '-', cyan),
+              const SizedBox(width: 8),
+              _miniBadge(
+                'FAST',
+                fastIndex >= 0 ? '$fastIndex' : 'NULL',
+                orange,
+              ),
+              const SizedBox(width: 8),
+              _miniBadge(
+                'MIDDLE',
+                middleIndex >= 0 ? '$middleIndex' : '-',
+                green,
+              ),
+              const SizedBox(width: 8),
+              _miniBadge('STEPS', executionHistory.length.toString(), purple),
+            ],
           ),
           const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 10),
+            decoration: BoxDecoration(
+              color: visualizationColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.06)),
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: List.generate(
+                  linkedList.length,
+                  (index) => _buildListNode(index),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           _buildLegend(),
           const SizedBox(height: 12),
           _buildCurrentInfo(),
@@ -1134,137 +943,273 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  Widget _operator(String text, Color color) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 12),
-    child: Text(
-      text,
-      style: TextStyle(color: color, fontSize: 28, fontWeight: FontWeight.w800),
-    ),
-  );
+  Widget _buildListNode(int index) {
+    final value = linkedList[index];
+    final bool isSlow = index == slowIndex;
+    final bool isFast = index == fastIndex;
+    final bool isMiddle = index == middleIndex;
 
-  Widget _matrixPanel(
-    String title,
-    List<List<int>> matrix,
-    Color color, {
-    bool result = false,
-  }) {
-    return Column(
+    Color itemColor = Colors.white.withOpacity(0.08);
+    Color borderColor = Colors.white.withOpacity(0.08);
+    Color textColor = Colors.white;
+    String label = '';
+
+    if (isMiddle) {
+      itemColor = green.withOpacity(0.18);
+      borderColor = green;
+      textColor = green;
+      label = 'MIDDLE';
+    }
+
+    if (isSlow) {
+      itemColor = cyan.withOpacity(0.18);
+      borderColor = cyan;
+      textColor = cyan;
+      label = isFast ? 'SLOW + FAST' : 'SLOW';
+    }
+
+    if (isFast) {
+      itemColor = orange.withOpacity(0.18);
+      borderColor = orange;
+      textColor = orange;
+      label = isSlow ? 'SLOW + FAST' : 'FAST';
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: color,
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
+        SizedBox(
+          width: 88,
+          child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+                child: Center(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isMiddle
+                          ? green
+                          : isFast
+                          ? orange
+                          : isSlow
+                          ? cyan
+                          : Colors.white.withOpacity(0.25),
+                      fontSize: 7.2,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                height: 58,
+                width: 64,
+                decoration: BoxDecoration(
+                  color: itemColor,
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: borderColor,
+                    width: isSlow || isFast || isMiddle ? 1.7 : 1,
+                  ),
+                  boxShadow: isSlow || isFast || isMiddle
+                      ? [
+                          BoxShadow(
+                            color: borderColor.withOpacity(0.18),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    value.toString(),
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                '[$index]',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.4),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: visualizationColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withValues(alpha: .25)),
-          ),
-          child: Column(
-            children: List.generate(
-              2,
-              (r) => Row(
-                children: List.generate(2, (c) {
-                  final idx = r * 2 + c;
-                  final active = result && idx == activeCell;
-                  final done = result && sortedIndexes.contains(idx);
-                  final sourceActive =
-                      !result &&
-                      ((title == 'Matrix A' && r == currentRow) ||
-                          (title == 'Matrix B' && c == currentColumn));
-                  return Container(
-                    width: 64,
-                    height: 64,
-                    margin: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: active
-                          ? cyan.withValues(alpha: .18)
-                          : done
-                          ? green.withValues(alpha: .10)
-                          : sourceActive
-                          ? orange.withValues(alpha: .12)
-                          : cardColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: active
-                            ? cyan
-                            : done
-                            ? green.withValues(alpha: .45)
-                            : sourceActive
-                            ? orange
-                            : Colors.white.withValues(alpha: .08),
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${matrix[r][c]}',
-                        style: TextStyle(
-                          color: active
-                              ? cyan
-                              : sourceActive
-                              ? orange
-                              : Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
+        if (index < linkedList.length - 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 16, left: 1, right: 1),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white.withOpacity(0.35),
+                  size: 19,
+                ),
+                Text(
+                  'next',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.22),
+                    fontSize: 7,
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.only(top: 16, left: 3),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white.withOpacity(0.20),
+                  size: 19,
+                ),
+                Text(
+                  'null',
+                  style: TextStyle(
+                    color: red.withOpacity(0.55),
+                    fontSize: 7,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
       ],
     );
   }
 
   Widget _buildLegend() {
     return Wrap(
-      spacing: 12,
+      spacing: 14,
       runSpacing: 8,
       children: [
-        _legendItem('Current Cell', cyan),
-        _legendItem('Completed Cell', green),
-        _legendItem('Current Row / Column', orange),
-        _legendItem('Matrix A', blue),
-        _legendItem('Matrix B', purple),
+        _legendItem('Ready', Colors.white),
+        _legendItem('Slow Pointer', cyan),
+        _legendItem('Fast Pointer', orange),
+        _legendItem('Middle', green),
+      ],
+    );
+  }
+
+  Widget _legendItem(String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 9,
+          height: 9,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.58),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildCurrentInfo() {
-    final message = currentRow >= 0 && currentColumn >= 0
-        ? 'C[$currentRow][$currentColumn] = row $currentRow of A × column $currentColumn of B'
-        : isCompleted
-        ? 'All result cells have been calculated.'
-        : 'Select a matrix cell to begin.';
+    String message = 'Waiting for execution';
+
+    if (slowIndex >= 0 &&
+        slowIndex < linkedList.length &&
+        fastIndex >= 0 &&
+        fastIndex < linkedList.length) {
+      message =
+          'Slow → ${linkedList[slowIndex]}    •    Fast → ${linkedList[fastIndex]}';
+    } else if (slowIndex >= 0 &&
+        slowIndex < linkedList.length &&
+        fastIndex == -1) {
+      message = 'Slow → ${linkedList[slowIndex]}    •    Fast → NULL';
+    }
+
+    if (middleIndex >= 0 && middleIndex < linkedList.length) {
+      message = 'Middle element → ${linkedList[middleIndex]}';
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: visualizationColor,
+        color: background2,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: cyan.withValues(alpha: .12)),
+        border: Border.all(color: cyan.withOpacity(0.14)),
       ),
       child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: cyan, size: 17),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: .72),
-                fontSize: 12,
-              ),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: cyan.withOpacity(0.09),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.compare_arrows_rounded,
+              color: cyan,
+              size: 18,
             ),
           ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Current Operation',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.42),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (middleIndex >= 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+              decoration: BoxDecoration(
+                color: green.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: const Text(
+                'Found',
+                style: TextStyle(
+                  color: green,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -1272,7 +1217,6 @@ List<List<int>> multiplyMatrices(
 
   Widget _buildStatusCard() {
     Color color = cyan;
-
     IconData icon = Icons.info_outline_rounded;
 
     if (isRunning) {
@@ -1287,22 +1231,20 @@ List<List<int>> multiplyMatrices(
       width: double.infinity,
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
+        color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.18)),
+        border: Border.all(color: color.withOpacity(0.18)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 18),
-
           const SizedBox(width: 9),
-
           Expanded(
             child: Text(
               executionMessage,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.72),
+                color: Colors.white.withOpacity(0.72),
                 fontSize: 11,
                 height: 1.45,
               ),
@@ -1312,10 +1254,6 @@ List<List<int>> multiplyMatrices(
       ),
     );
   }
-
-  // ==========================================================================
-  // CONTROLS
-  // ==========================================================================
 
   Widget _buildControls() {
     return _card(
@@ -1328,9 +1266,7 @@ List<List<int>> multiplyMatrices(
                 label: 'Previous',
                 onPressed: executionHistory.isEmpty ? null : _previousStep,
               ),
-
               const SizedBox(width: 8),
-
               Expanded(
                 child: _controlButton(
                   icon: isRunning
@@ -1341,17 +1277,13 @@ List<List<int>> multiplyMatrices(
                   primary: true,
                 ),
               ),
-
               const SizedBox(width: 8),
-
               _controlButton(
                 icon: Icons.skip_next_rounded,
                 label: 'Next Step',
                 onPressed: currentStep >= events.length ? null : _nextStep,
               ),
-
               const SizedBox(width: 8),
-
               _controlButton(
                 icon: Icons.restart_alt_rounded,
                 label: 'Reset',
@@ -1359,24 +1291,19 @@ List<List<int>> multiplyMatrices(
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           Row(
             children: [
               const Icon(Icons.speed_rounded, color: cyan, size: 17),
-
               const SizedBox(width: 8),
-
               Text(
                 'Speed',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.55),
+                  color: Colors.white.withOpacity(0.55),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-
               Expanded(
                 child: Slider(
                   value: speed,
@@ -1384,11 +1311,10 @@ List<List<int>> multiplyMatrices(
                   max: 3.0,
                   divisions: 5,
                   activeColor: cyan,
-                  inactiveColor: Colors.white.withValues(alpha: 0.08),
+                  inactiveColor: Colors.white.withOpacity(0.08),
                   onChanged: _setSpeed,
                 ),
               ),
-
               SizedBox(
                 width: 48,
                 child: Text(
@@ -1403,32 +1329,27 @@ List<List<int>> multiplyMatrices(
               ),
             ],
           ),
-
           const SizedBox(height: 3),
-
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: events.isEmpty ? 0 : currentStep / events.length,
               minHeight: 4,
-              backgroundColor: Colors.white.withValues(alpha: 0.06),
+              backgroundColor: Colors.white.withOpacity(0.06),
               valueColor: const AlwaysStoppedAnimation<Color>(cyan),
             ),
           ),
-
           const SizedBox(height: 6),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Step $currentStep / ${events.length}',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.45),
+                  color: Colors.white.withOpacity(0.45),
                   fontSize: 10,
                 ),
               ),
-
               Text(
                 isCompleted
                     ? 'Execution Finished'
@@ -1442,7 +1363,7 @@ List<List<int>> multiplyMatrices(
                       ? green
                       : isRunning
                       ? orange
-                      : Colors.white.withValues(alpha: 0.4),
+                      : Colors.white.withOpacity(0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1453,10 +1374,6 @@ List<List<int>> multiplyMatrices(
       ),
     );
   }
-
-  // ==========================================================================
-  // CONTROL BUTTON
-  // ==========================================================================
 
   Widget _controlButton({
     required IconData icon,
@@ -1476,24 +1393,20 @@ List<List<int>> multiplyMatrices(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary ? cyan : cardColor,
           foregroundColor: primary ? background : Colors.white,
-          disabledBackgroundColor: Colors.white.withValues(alpha: 0.04),
-          disabledForegroundColor: Colors.white.withValues(alpha: 0.20),
+          disabledBackgroundColor: Colors.white.withOpacity(0.04),
+          disabledForegroundColor: Colors.white.withOpacity(0.20),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
             side: BorderSide(
-              color: primary ? cyan : Colors.white.withValues(alpha: 0.08),
+              color: primary ? cyan : Colors.white.withOpacity(0.08),
             ),
           ),
         ),
       ),
     );
   }
-
-  // ==========================================================================
-  // SOURCE CODE
-  // ==========================================================================
 
   Widget _buildSourceCode() {
     final lines = sourceCode.trimRight().split('\n');
@@ -1505,9 +1418,7 @@ List<List<int>> multiplyMatrices(
           Row(
             children: [
               _sectionTitle(Icons.code_rounded, 'Source Code', purple),
-
               const Spacer(),
-
               InkWell(
                 onTap: _copyCode,
                 borderRadius: BorderRadius.circular(8),
@@ -1517,17 +1428,15 @@ List<List<int>> multiplyMatrices(
                     vertical: 7,
                   ),
                   decoration: BoxDecoration(
-                    color: purple.withValues(alpha: 0.08),
+                    color: purple.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: purple.withValues(alpha: 0.20)),
+                    border: Border.all(color: purple.withOpacity(0.20)),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.copy_rounded, color: purple, size: 14),
-
                       SizedBox(width: 5),
-
                       Text(
                         'Copy',
                         style: TextStyle(
@@ -1542,9 +1451,7 @@ List<List<int>> multiplyMatrices(
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           Container(
             width: double.infinity,
             constraints: const BoxConstraints(minHeight: 280, maxHeight: 500),
@@ -1552,13 +1459,12 @@ List<List<int>> multiplyMatrices(
             decoration: BoxDecoration(
               color: const Color(0xFF050A14),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              border: Border.all(color: Colors.white.withOpacity(0.06)),
             ),
             child: SingleChildScrollView(
               child: Column(
                 children: List.generate(lines.length, (index) {
                   final lineNumber = index + 1;
-
                   final active = lineNumber == activeCodeLine;
 
                   return Container(
@@ -1567,9 +1473,7 @@ List<List<int>> multiplyMatrices(
                       horizontal: 8,
                       vertical: 2,
                     ),
-                    color: active
-                        ? cyan.withValues(alpha: 0.09)
-                        : Colors.transparent,
+                    color: active ? cyan.withOpacity(0.09) : Colors.transparent,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1587,9 +1491,7 @@ List<List<int>> multiplyMatrices(
                             ),
                           ),
                         ),
-
                         const SizedBox(width: 10),
-
                         Expanded(
                           child: Text(
                             lines[index],
@@ -1618,10 +1520,6 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // EXECUTION STEPS
-  // ==========================================================================
-
   Widget _buildExecutionSteps() {
     return _card(
       child: Column(
@@ -1630,15 +1528,13 @@ List<List<int>> multiplyMatrices(
           Row(
             children: [
               _sectionTitle(Icons.history_rounded, 'Execution Steps', cyan),
-
               const Spacer(),
-
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: cyan.withValues(alpha: 0.07),
+                  color: cyan.withOpacity(0.07),
                   borderRadius: BorderRadius.circular(7),
-                  border: Border.all(color: cyan.withValues(alpha: 0.14)),
+                  border: Border.all(color: cyan.withOpacity(0.14)),
                 ),
                 child: Text(
                   '${executionHistory.length}',
@@ -1651,9 +1547,7 @@ List<List<int>> multiplyMatrices(
               ),
             ],
           ),
-
           const SizedBox(height: 12),
-
           if (executionHistory.isEmpty)
             _emptyExecutionState()
           else
@@ -1663,9 +1557,7 @@ List<List<int>> multiplyMatrices(
                 shrinkWrap: true,
                 itemCount: executionHistory.length,
                 itemBuilder: (context, index) {
-                  final event = executionHistory[index];
-
-                  return _executionStepItem(index, event);
+                  return _executionStepItem(index, executionHistory[index]);
                 },
               ),
             ),
@@ -1674,10 +1566,6 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // EMPTY
-  // ==========================================================================
-
   Widget _emptyExecutionState() {
     return Container(
       width: double.infinity,
@@ -1685,33 +1573,29 @@ List<List<int>> multiplyMatrices(
       decoration: BoxDecoration(
         color: visualizationColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
       ),
       child: Column(
         children: [
           Icon(
             Icons.timeline_rounded,
-            color: Colors.white.withValues(alpha: 0.20),
+            color: Colors.white.withOpacity(0.20),
             size: 32,
           ),
-
           const SizedBox(height: 10),
-
           Text(
             'No steps executed yet',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.55),
+              color: Colors.white.withOpacity(0.55),
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
           ),
-
           const SizedBox(height: 5),
-
           Text(
             'Press Next Step or Play to start',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.30),
+              color: Colors.white.withOpacity(0.30),
               fontSize: 10,
             ),
           ),
@@ -1720,20 +1604,16 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // EXECUTION ITEM
-  // ==========================================================================
-
-  Widget _executionStepItem(int index, MatrixMultiplicationEvent event) {
+  Widget _executionStepItem(int index, MiddleEvent event) {
     final color = _eventColor(event.type);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 7),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.045),
+        color: color.withOpacity(0.045),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withValues(alpha: 0.14)),
+        border: Border.all(color: color.withOpacity(0.14)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1742,14 +1622,12 @@ List<List<int>> multiplyMatrices(
             width: 27,
             height: 27,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.10),
+              color: color.withOpacity(0.10),
               borderRadius: BorderRadius.circular(7),
             ),
             child: Icon(_eventIcon(event.type), color: color, size: 15),
           ),
-
           const SizedBox(width: 9),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1766,35 +1644,30 @@ List<List<int>> multiplyMatrices(
                         ),
                       ),
                     ),
-
                     Text(
                       '#${index + 1}',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.22),
+                        color: Colors.white.withOpacity(0.22),
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   event.description,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.53),
+                    color: Colors.white.withOpacity(0.53),
                     fontSize: 9.5,
                     height: 1.35,
                   ),
                 ),
-
                 const SizedBox(height: 5),
-
                 Text(
                   event.operation,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.30),
+                    color: Colors.white.withOpacity(0.30),
                     fontSize: 8.5,
                     fontFamily: 'monospace',
                   ),
@@ -1807,10 +1680,6 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // CARD
-  // ==========================================================================
-
   Widget _card({required Widget child}) {
     return Container(
       width: double.infinity,
@@ -1818,10 +1687,10 @@ List<List<int>> multiplyMatrices(
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.065)),
+        border: Border.all(color: Colors.white.withOpacity(0.065)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            color: Colors.black.withOpacity(0.18),
             blurRadius: 16,
             offset: const Offset(0, 7),
           ),
@@ -1831,10 +1700,6 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // SECTION TITLE
-  // ==========================================================================
-
   Widget _sectionTitle(IconData icon, String title, Color color) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -1843,14 +1708,12 @@ List<List<int>> multiplyMatrices(
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.09),
+            color: color.withOpacity(0.09),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 17),
         ),
-
         const SizedBox(width: 9),
-
         Text(
           title,
           style: const TextStyle(
@@ -1863,17 +1726,13 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // INFO BOX
-  // ==========================================================================
-
   Widget _infoBox(String title, String value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.055),
+        color: color.withOpacity(0.055),
         borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: color.withValues(alpha: 0.16)),
+        border: Border.all(color: color.withOpacity(0.16)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1881,14 +1740,12 @@ List<List<int>> multiplyMatrices(
           Text(
             title,
             style: TextStyle(
-              color: color.withValues(alpha: 0.8),
+              color: color.withOpacity(0.8),
               fontSize: 9,
               fontWeight: FontWeight.w700,
             ),
           ),
-
           const SizedBox(height: 3),
-
           Text(
             value,
             style: const TextStyle(
@@ -1902,32 +1759,39 @@ List<List<int>> multiplyMatrices(
     );
   }
 
-  // ==========================================================================
-  // MINI BADGE
-  // ==========================================================================
-
-  Widget _legendItem(String title, Color color) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 9,
-          height: 9,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
-          ),
+  Widget _miniBadge(String title, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(9),
+          border: Border.all(color: color.withOpacity(0.18)),
         ),
-        const SizedBox(width: 6),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.58),
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-          ),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 8,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.7,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
